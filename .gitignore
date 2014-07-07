@@ -1,0 +1,3 @@
+*.pyc
+log/*.log
+monitoring_app/static/files/*.root

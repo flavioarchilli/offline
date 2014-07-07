@@ -1,0 +1,23 @@
+{#
+  Define a layout extending the two column one provided by webmonitor.
+  We include our app-specific CSS and JS here, and add some navigation.
+#}
+{% extends "two_column_sidebar.html" %}
+{% block stylesheets %}
+  {{ stylesheet_tag('example', blueprint='example') }}
+{% endblock %}
+{% block navtopbar %}
+    {{ list_link_tag('home', 'Home') }}
+    {{ list_link_tag('examples', 'Examples') }}
+{% endblock %}
+{% block navsidebar %}
+  {{ list_link_tag('examples/table', 'Table') }}
+  {{ list_link_tag('examples/single_layout', 'Single layout') }}
+  {{ list_link_tag('examples/grid_layout', 'Grid layout') }}
+  {{ list_link_tag('examples/tabs', 'Tabs') }}
+{% endblock %}
+{% block body %}
+{% endblock %}
+{% block javascripts %}
+  {{ javascript_tag('example', blueprint='example') }}
+{% endblock %}
