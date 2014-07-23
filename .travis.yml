@@ -13,11 +13,9 @@ before_install:
   - sudo apt-get -y install gcc-4.8 g++-4.8
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-# Install ROOT using pre-built tarballs
-# https://github.com/alexpearce/travis-ci-root-builds
-before_install:
 install:
-  # Install ROOT
+  # Install ROOT using pre-built tarballs
+  # https://github.com/alexpearce/travis-ci-root-builds
   - wget --no-check-certificate https://dl.dropboxusercontent.com/u/37461/travis-ci-root-builds/ROOT-${ROOT_VERSION}_Python-${TRAVIS_PYTHON_VERSION}.tar.gz
   - tar xzf ROOT-${ROOT_VERSION}_Python-${TRAVIS_PYTHON_VERSION}.tar.gz
   - mv ROOT-${ROOT_VERSION}_Python-${TRAVIS_PYTHON_VERSION}/root root
