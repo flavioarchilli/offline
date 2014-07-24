@@ -1,6 +1,9 @@
 language: python
 python:
-  - "2.6"
+  # Disable 2.6 as `unit2 discover` doesn't work with another Python package
+  # installed from source with an identically named test directory
+  # http://parenchym.com/pymblog/python-unittest-discover-quirks.html
+  # - "2.6"
   - "2.7"
 # ROOT versions to test
 env:
@@ -23,5 +26,5 @@ install:
   # Install production and test dependencies, then create some dummy data
   - pip install -r requirements.txt
   - pip install unittest2
-  - cd monitoring_app/static/files && python generate_histograms.py
+  - cd monitoring_app/static/files && python generate_histograms.py && cd ../../..
 script: python -m unittest2 discover
