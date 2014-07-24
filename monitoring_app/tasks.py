@@ -1,6 +1,7 @@
 import os
 import ROOT
 
+
 def add_file_extension(filename):
     """Add `.root` extension to `filename`, if it's not already present."""
     return (filename + '.root') if filename[-5:] != '.root' else filename
@@ -18,9 +19,9 @@ def data_for_object(obj):
     d = {}
     if obj_class[0:3] == 'TH1':
         # For histograms, we provide
-        #   binning: Array of 2-tuples defining the (low, high) binning edges,
-        #   values: Array of bin contents, ith entry falling in the ith bin
-        #   uncertainties: Array of 2-tuples of (low, high) errors on the contents
+        #   binning: List of 2-tuples defining the (low, high) binning edges,
+        #   values: List of bin contents, ith entry falling in the ith bin
+        #   uncertainties: List of 2-tuples of (low, high) errors on the values
         #   axis_titles: 2-tuple of (x, y) axis titles
         xaxis = obj.GetXaxis()
         yaxis = obj.GetYaxis()
@@ -36,6 +37,7 @@ def data_for_object(obj):
         ]
         d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
     return d
+
 
 def list_file(filename):
     """Return a list of keys, as strings, in `filename`.

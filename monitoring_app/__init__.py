@@ -1,8 +1,10 @@
 from flask import Blueprint
 import webmonitor
 
+
 # Only export externally useful methods
 __all__ = ['create_app', 'wsgi']
+
 
 def create_app():
     """Create a Flask application deriving from webmonitor."""
@@ -13,11 +15,13 @@ def create_app():
         add_logging(app)
 
     example = Blueprint('example', __name__,
-        template_folder='templates',
-        static_folder='static', static_url_path='/{0}'.format(__name__))
+                        template_folder='templates',
+                        static_folder='static',
+                        static_url_path='/{0}'.format(__name__))
     app.register_blueprint(example)
 
     return app
+
 
 def wsgi(*args, **kwargs):
     """Create an app and pass it arguments from a WSGI server, like gunicorn.
@@ -26,6 +30,7 @@ def wsgi(*args, **kwargs):
     """
     return create_app()(*args, **kwargs)
 
+
 def add_logging(app):
     """Add log-to-file and log-to-mail to a Flask app."""
     import logging
@@ -33,7 +38,8 @@ def add_logging(app):
     file_handler = logging.FileHandler('log/monitoring_app.log')
     file_handler.setLevel(logging.WARNING)
     # Send an email to the admins on ERROR
-    mail_handler = logging.handlers.SMTPHandler('127.0.0.1',
+    mail_handler = logging.handlers.SMTPHandler(
+        '127.0.0.1',
         'server-error@example.com', app.config.get('ADMINS'),
         'Monitoring app failed')
     mail_handler.setLevel(logging.ERROR)
