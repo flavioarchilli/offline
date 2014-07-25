@@ -1,6 +1,7 @@
 from flask import Blueprint
 import webmonitor
 
+from monitoring_app import job_resolvers
 
 # Only export externally useful methods
 __all__ = ['create_app', 'wsgi']
@@ -19,6 +20,8 @@ def create_app():
                         static_folder='static',
                         static_url_path='/{0}'.format(__name__))
     app.register_blueprint(example)
+
+    app.add_job_resolver(job_resolvers.tasks_resolver)
 
     return app
 
