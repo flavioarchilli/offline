@@ -10,11 +10,13 @@
     {{ list_link_tag('home', 'Home') }}
     {{ list_link_tag('examples', 'Examples') }}
 {% endblock %}
-{% block navsidebar %}
-  {{ list_link_tag('examples/table', 'Table') }}
-  {{ list_link_tag('examples/single_layout', 'Single layout') }}
-  {{ list_link_tag('examples/grid_layout', 'Grid layout') }}
-  {{ list_link_tag('examples/tabs', 'Tabs') }}
+{% block sidebar %}
+  <ul class="nav nav-sidebar">
+    {{ list_link_tag('examples/table', 'Table') }}
+    {{ list_link_tag('examples/single_layout', 'Single layout') }}
+    {{ list_link_tag('examples/grid_layout', 'Grid layout') }}
+    {{ list_link_tag('examples/tabs', 'Tabs') }}
+  </ul>
 {% endblock %}
 {% block body %}
 {% endblock %}
