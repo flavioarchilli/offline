@@ -1,5 +1,5 @@
 from flask import Blueprint
-import webmonitor
+import jobmonitor
 
 from monitoring_app import job_resolvers
 
@@ -8,8 +8,8 @@ __all__ = ['create_app', 'wsgi']
 
 
 def create_app():
-    """Create a Flask application deriving from webmonitor."""
-    app = webmonitor.create_app()
+    """Create a Flask application deriving from jobmonitor."""
+    app = jobmonitor.create_app()
     app.config.from_object('monitoring_app.config')
 
     if not app.debug:

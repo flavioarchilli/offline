@@ -1,6 +1,6 @@
 # Monitoring app [![Build status](https://travis-ci.org/alexpearce/example-monitoring-app.svg)](http://travis-ci.org/alexpearce/example-monitoring-app)
 
-An example monitoring application deriving from the [WebMonitor](https://github.com/alexpearce/root-web-monitoring).
+An example monitoring application deriving from the [`jobmonitor`](https://github.com/alexpearce/jobmonitor).
 
 Setup
 -----

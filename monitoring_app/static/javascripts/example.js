@@ -1,5 +1,5 @@
-// This structure is similar to that used by WebMonitor.js.
-// You have access to both the WebMonitor object and activePage (if the page
+// This structure is similar to that used by JobMonitor.js.
+// You have access to both the JobMonitor object and activePage (if the page
 // is being served by the catchall.serve_page route), which you can use to
 // determine what page you're own, and hence what things need doing.
 var ExampleApp = (function(window, undefined) {
@@ -19,11 +19,11 @@ var ExampleApp = (function(window, undefined) {
   //     If the jQuery object references multiple DOM nodes, the first is used
   //   data: An array of data points formatted for d3.chart.histogram
   //   options: Object of options passed to the plotting library
-  //     Any present options override those in WebMonitor.settings.histogramDefaults
+  //     Any present options override those in JobMonitor.settings.histogramDefaults
   // Returns:
   //   undefined
   var drawHistogram = function(container, data, options) {
-    var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
+    var opt = $.extend(true, {}, JobMonitor.settings.histogramDefaults, options);
     var chart = d3.select(container.get()[0]).append('svg')
       .attr('width', container.width())
       .attr('height', container.height())
@@ -80,7 +80,7 @@ var ExampleApp = (function(window, undefined) {
   //   file: String of the file name
   //   container: jQuery element the histogram should be drawn in to. Any existing content will be replaced.
   var loadHistogramFromFileIntoContainer = function(histogram, file, container) {
-      var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
+      var task = JobMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
       task.done(function(job) {
           displayHistogram(job['result']['data']['key_data'], container);
       });
@@ -99,27 +99,27 @@ var ExampleApp = (function(window, undefined) {
   var pages = {
     home: {
       init: function() {
-        WebMonitor.log('home.init');
+        JobMonitor.log('home.init');
         // Or use pages.home.util
         this.util('Hello, World!');
       },
       // You don't have to put everything inside an `init`
       util: function(text) {
-        WebMonitor.log('Utility function printing: ' + text);
+        JobMonitor.log('Utility function printing: ' + text);
       }
     },
     examples: {
       init: function() {
-        WebMonitor.log('examples.init');
+        JobMonitor.log('examples.init');
       },
       table: {
         init: function() {
-          WebMonitor.log('examples.table.init');
+          JobMonitor.log('examples.table.init');
         }
       },
       singleLayout: {
         init: function() {
-          WebMonitor.log('examples.singleLayout.init');
+          JobMonitor.log('examples.singleLayout.init');
         }
       }
     }
@@ -127,7 +127,7 @@ var ExampleApp = (function(window, undefined) {
 
   // Initialise the monitoring app
   var init = function(pageModule) {
-    WebMonitor.init(pageModule, pages);
+    JobMonitor.init(pageModule, pages);
 
     var $main = $('#main');
 
@@ -137,13 +137,13 @@ var ExampleApp = (function(window, undefined) {
           file = $el.data('file'),
           histogram = $el.data('histogram');
       if (file && histogram) {
-        WebMonitor.appendSpinner(el);
+        JobMonitor.appendSpinner(el);
         loadHistogramFromFileIntoContainer(histogram, file, $el);
       }
     });
 
     // Add datepicker to appropriate fields
-    $main.find('.input-daterange').datepicker(WebMonitor.settings.datepickerDefaults);
+    $main.find('.input-daterange').datepicker(JobMonitor.settings.datepickerDefaults);
   };
 
   return {
@@ -152,7 +152,7 @@ var ExampleApp = (function(window, undefined) {
 })(window);
 
 $(function() {
-  // Adjust some WebMonitor settings before initialisation
-  WebMonitor.settings.debug = true;
+  // Adjust some JobMonitor settings before initialisation
+  JobMonitor.settings.debug = true;
   ExampleApp.init(activePage);
 });

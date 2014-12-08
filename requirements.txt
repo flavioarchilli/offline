@@ -5,7 +5,7 @@ Werkzeug==0.9.6
 gunicorn==19.0.0
 honcho==0.5.0
 itsdangerous==0.24
+jobmonitor==0.0.1
 redis==2.10.1
 rq==0.4.6
--e git+https://github.com/alexpearce/root-web-monitoring.git#egg=webmonitor
 wsgiref==0.1.2

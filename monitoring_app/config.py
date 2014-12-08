@@ -2,7 +2,7 @@
 APP_NAME = 'Example app'
 
 # Description, shown in the <meta> tag
-APP_DESCRIPTION = 'An example app based on the WebMonitor.'
+APP_DESCRIPTION = 'An example app based on the JobMonitor.'
 
 # List of emails to send ERROR messages to
 ADMINS = ['admin@example.com']
