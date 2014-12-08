@@ -64,3 +64,5 @@ $ honcho start -c worker=4
 ```
 
 You can the [view the example application](http://localhost:5000/) on the host.
+
+![Two histograms being shown on the grid layout page in the example application.](https://dl.dropboxusercontent.com/u/37461/example-monitoring-app.png)
