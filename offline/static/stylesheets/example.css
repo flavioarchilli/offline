@@ -1,0 +1,17 @@
+/* We'll demonstrate that we are actually overriding the jobmonitor styling
+ * by changing the navigation bar colours.
+ * This isn't a nice way to override Bootstrap stylings (use your own classes
+ * instead), nor does it look particularly pretty, but it serves the point.
+ */
+.navbar {
+  background-color: #2c3e50 !important;
+  border-bottom: 1px solid #34495e !important;
+}
+
+.navbar a {
+  color: #ecf0f1 !important;
+}
+
+.navbar .active a {
+  background-color: #34495e !important;
+}
