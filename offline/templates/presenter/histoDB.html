@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
+{% extends "presenter.html" %}
 
-{% block htmlHeader %}
+{% block htmlhead %}
 	<script>
 	    	var runNmbr = {{ RUN_NMBR }};
 		var recoVersionFullPath = "{{ VERSION_FULL }}";
@@ -11,9 +11,9 @@
 	
 	<script src="/static/javascripts/histoDB.js"></script> 
 {% endblock %}
-{% block toolbar %}
+{% block navtopbar %}
     <div class="container-fluid">
-    	<p class="navbar-text">Webmon.:</p>
+    	<p class="navbar-text">OFFLINE:</p>
 
       	<span class="navbar-right">
 	      <p class="navbar-text">RunNmbr:</p>
@@ -105,4 +105,7 @@
     {{ list_link_tag('/', 'Offline') }} 
 {% endblock %}
 {% block body %}
+{% endblock %}
+{% block javascripts %}
+	{{ javascript_tag('offline', blueprint='offline') }}
 {% endblock %}

@@ -13,6 +13,14 @@ var OfflineApp = (function(window, undefined) {
     container.html('<div class="alert alert-danger">' + msg + '</div>');
   };
 
+  var constants = {
+    s_Area: "AREA",
+    s_Entries: "ENTR",
+    s_NoReference: "NOREF",
+    s_NoNormalization: "NONE"
+  };
+
+
   // Draw a histogram in the `container` using `options`.
   // Accepts:
   //   container: A jQuery object in which to draw the histogram
