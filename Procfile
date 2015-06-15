@@ -1,3 +1,3 @@
-web: gunicorn monitoring_app:wsgi
-worker: python -m jobmonitor.start_worker
-redis: redis-server /usr/local/etc/redis.conf
+web: uwsgi -s 127.0.0.1:8000 -w lbdqmweb:wsgi --buffer-size=32000
+worker: python -m webmonitor.start_worker
+redis: redis-server ${VIRTUAL_ENV}/etc/redis.conf

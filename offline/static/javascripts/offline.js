@@ -20,6 +20,7 @@ var OfflineApp = (function(window, undefined) {
     s_NoNormalization: "NONE"
   };
 
+  listOfHistogram: []
 
   // Draw a histogram in the `container` using `options`.
   // Accepts:
