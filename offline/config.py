@@ -32,5 +32,4 @@ s_NoReference = "NOREF";
 s_NoNormalization = "NONE";
 
 #contains the path to the histoDB, used in DBdeclaration.py
-HISTODB_PATH = os.environ["HISTODB"]
-
+HISTODB_PATH = os.environ["HISTODB_PATH"]
