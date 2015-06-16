@@ -1,6 +1,6 @@
-{% extends "presenter.html" %}
+{% extends "layout.html" %}
 
-{% block htmlhead %}
+{% block htmlHeader %}
 	<script>
 	    	var runNmbr = {{ RUN_NMBR }};
 		var recoVersionFullPath = "{{ VERSION_FULL }}";
@@ -11,9 +11,9 @@
 	
 	<script src="/static/javascripts/histoDB.js"></script> 
 {% endblock %}
-{% block navtopbar %}
+{% block toolbar %}
     <div class="container-fluid">
-    	<p class="navbar-text">OFFLINE:</p>
+    	<p class="navbar-text">Offline Web Monitor</p>
 
       	<span class="navbar-right">
 	      <p class="navbar-text">RunNmbr:</p>
@@ -102,10 +102,7 @@
 	</div>	
 {% endblock %}
 {% block navtopbar %}
-    {{ list_link_tag('/', 'Offline') }} 
+    {{ list_link_tag('HistoDB', 'histoDB') }}
 {% endblock %}
 {% block body %}
-{% endblock %}
-{% block javascripts %}
-	{{ javascript_tag('offline', blueprint='offline') }}
 {% endblock %}
