@@ -36,6 +36,7 @@ def data_for_object(obj):
             for i in range(nbins)
         ]
         d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
+        d['type'] = obj_class[2:]
     return d
 
 

@@ -1,3 +1,4 @@
+
 // This structure is similar to that used by WebMonitor.js.
 // You have access to both the WebMonitor object and activePage (if the page
 // is being served by the catchall.serve_page route), which you can use to
@@ -20,7 +21,10 @@ var OfflineApp = (function(window, undefined) {
     s_NoNormalization: "NONE"
   };
 
-  listOfHistogram: []
+
+  var localChache = {
+      listOfHistogram: []
+  };
 
   // Draw a histogram in the `container` using `options`.
   // Accepts:
@@ -31,16 +35,60 @@ var OfflineApp = (function(window, undefined) {
   //     Any present options override those in WebMonitor.settings.histogramDefaults
   // Returns:
   //   undefined
-  var drawHistogram = function(container, data, options) {
+  var drawHistogram = function(container, data, referenceData, options, refOptions) {
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
+
+    var histoOptions = $(document.getElementById("OPTIONS_FOR_"+opt.key_name));
+
+    var xLabel = histoOptions.data("label-x")
+    var yLabel = histoOptions.data("label-y")
+	
+    var histoTitle = document.getElementById("LABEL_FOR_"+opt.key_name);
+    $(histoTitle).text(opt.title.text);
+
     var chart = d3.select(container.get()[0]).append('svg')
       .attr('width', container.width())
       .attr('height', container.height())
       .chart('AxesChart')
       .xAxisLabel(opt.xAxis.title.text)
       .yAxisLabel(opt.yAxis.title.text);
+    
+    var info = [
+      ['Entries', opt.numberEntries],
+      ['Mean', opt.mean],
+      ['RMS', opt.RMS],
+    ];
+	
+
+    chart.addOrnament(d3.plotable.TextBox('info', info));
     chart.addPlotable(d3.plotable.Histogram('histogram', data));
+	
+    var button = $("#changeReferenceMode");
+    if(button.data("state") == "activated")
+      {
+        chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
+      }
   };
+
+
+
+  // Redraw histograms in the list
+  var redrawHistograms = function(referenceState)
+  {
+    for(var i = 0; i < OfflineApp.localChache.listOfHistogramData.length; i++) {
+      var histoContent = OfflineApp.localChache.listOfHistogramData[i] ;
+  		
+      histoContent.container.empty();
+  		
+      drawHistogram(histoContent.container,
+        histoContent.formattedData,
+        histoContent.formattedRefData,
+	histoContent.options,
+	histoContent.refoptions
+      );		
+    }
+  };
+
 
   // Display a histogram, described by `data`, in `container`.
   // Accepts:
@@ -48,26 +96,98 @@ var OfflineApp = (function(window, undefined) {
   //   container: A jQuery object in which to draw the histogram
   // Returns:
   //   undefined
-  var displayHistogram = function(data, container) {
+  var displayHistogram = function(data, referenceData, refNormalisation, container) {
+
     var name = data['name'],
-        title = data['title'],
-        binning = data['binning'],
-        values = data['values'],
-        uncertainties = data['uncertainties'],
-        axisTitles = data['axis_titles'];
+      type = data['type'],
+      title = data['title'],
+      binning = data['binning'],
+      values = data['values'],
+      uncertainties = data['uncertainties'],
+      axisTitles = data['axis_titles'],      
+      numberEntries = data['numberEntries'],
+      integral = data['integral'],
+      mean = data['mean'],
+      RMS = data['RMS'],
+      key_name = data['key_name'],
+      skewness = data['skewness'];
+      
+    var xbinning, 
+      ybinning;
+
+    if (type == "1D"){
+      xbinning = data['binning'];
+	    
+    }else if (type == "2D"){
+      xbinning = data['xbinning'];
+      ybinning = data['ybinning'];
+    }
+	
+    // Binning of the reference histogram (Only 1D histograms have references)	
+    var refbinning = referenceData['binning'],
+      refvalues = referenceData['values'],
+      refuncertainties = referenceData['uncertainties'],
+      refnumberEntries = referenceData['numberEntries'],
+      refintegral = referenceData['integral'];
+		  	  
+
     var v, binCenter, uLow, uHigh;
     // We need to manipulate the values slightly for d3.chart.histogram
     // See the d3.chart.histogram documentation for the specifics
     var formattedData = [];
+
+
     for (var i = 0; i < values.length; i++) {
-      var bins = binning[i];
-      formattedData.push({
-        xlow: bins[0],
-        xhigh: bins[1],
-        y: data['values'][i],
-        yerr: uncertainties[i]
-      });
+      if (type == "1D"){		    
+        var bins = xbinning[i];
+	formattedData.push({
+	  xlow: bins[0],
+	  xhigh: bins[1],
+	  y: data['values'][i],
+	  yerr: uncertainties[i],
+	});
+      }
+      else if (type == "2D"){
+        var xbins = xbinning[i];
+          ybins = ybinning[i];
+	  
+	formattedData.push({
+	  xlow: xbins[0],
+	  xhigh: xbins[1],
+	  ylow: ybins[0],
+	  yhigh: ybins[1],				
+	  z: data['values'][i],
+	  elow: uncertainties[i],
+	  eup: uncertainties[i],
+        });		    
+      }		
     }
+    var formattedRefData = [];
+    //check if data-reference != ""
+    if (null != refvalues) {
+      var factor = 1;
+      //check normalisation mode, if not specified normalise anyway (to be corrected)
+      if(constants.s_Entries == refNormalisation) {
+        factor = numberEntries/refnumberEntries;
+      } else if(constants.s_Area == refNormalisation) {
+	factor = integral/refintegral;
+      } else if(constants.s_NoNormalization != refNormalisation) {
+	factor = integral/refintegral;
+      }
+      
+      for (var i = 0; i < refvalues.length; i++) {
+	var bins = refbinning[i];
+	  
+	formattedRefData.push({
+	  xlow: bins[0],
+	  xhigh: bins[1],
+	  y: factor*refvalues[i],
+	  yerr: [factor*refuncertainties[i][0], factor*refuncertainties[i][1]],
+	});
+      }	
+    }
+
+
     var options = {
       title: title,
       xAxis: {
@@ -75,10 +195,33 @@ var OfflineApp = (function(window, undefined) {
       },
       yAxis: {
         title: axisTitles[1]
-      }
+      },
+      showUncertainties: true,
+      color: "black",
+      numberEntries: numberEntries,
+      mean: mean,
+      RMS: RMS,
+      key_name: key_name
     };
+
+    
+    var refoptions =  $.extend(true,{},options);		
+    refoptions.color = "red"; // This will be dinamically set using the HistogramDB database
+
     // Remove the spinner
     container.find('.spinner').remove();
+
+    // Save histogram content for redrawing!
+    var histoContent =
+    {
+      container: container,
+      formattedData: formattedData,
+      formattedRefData: formattedRefData,
+      options: options,
+      refoptions: refoptions
+    };    		
+    OfflineApp.localChache.listOfHistogramData[OfflineApp.localChache.listOfHistogramData.length] = histoContent;
+
     // Draw the histogram in the container
     drawHistogram(container, formattedData, options);
   };
@@ -90,21 +233,41 @@ var OfflineApp = (function(window, undefined) {
   //   container: jQuery element the histogram should be drawn in to. Any existing content will be replaced.
   var loadHistogramFromFileIntoContainer = function(histogram, file, hid, reference, referenceFile, refNormalisation, container) {
 
-      var referenceData = "";
 
-      var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
-      task.done(function(job) {
-          displayHistogram(job['result']['data']['key_data'], container);
+    // Load reference data if reference data is defined
+    var referenceData = "";
+
+    if (reference != "") {
+      var referenceTask = WebMonitor.createTask('get_key_from_file', {filename: referenceFile, key_name: reference});
+      referenceTask.done(function(job) {
+        referenceData = job['result']['data']['key_data'];
       });
-      task.fail(function(message) {
-        var failMsg = '<p>There was a problem retrieving histogram '
-          + '<code>' + histogram + '</code>'
+      referenceTask.fail(function(message) {
+        var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
+          + '<code>' + reference + '</code>'
           + ' from file '
           + '<code>' + file + '</code>'
           + '. Please contact the administrator.</p>'
           + message;
         displayFailure(container, failMsg);
       });
+    }
+
+
+    // Request histogram from server
+    var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
+    task.done(function(job) {
+      displayHistogram(job['result']['data']['key_data'], referenceData, refNormalisation, container);
+    });
+    task.fail(function(message) {
+      var failMsg = '<p>There was a problem retrieving histogram '
+      + '<code>' + histogram + '</code>'
+      + ' from file '
+      + '<code>' + file + '</code>'
+      + '. Please contact the administrator.</p>'
+      + message;
+      displayFailure(container, failMsg);
+    });
   };
 
   // Page-specific modules
@@ -137,7 +300,7 @@ var OfflineApp = (function(window, undefined) {
 	  referenceFile = $el.data('reference-file'),//reference file
 	  reference = $el.data('reference'),//reference name in reference file
 	  refNormalisation = $el.data('refnormalisation');
-
+	  
       if (file && histogram) {
         WebMonitor.appendSpinner(el);
         loadHistogramFromFileIntoContainer(histogram, file, hid, reference, referenceFile, refNormalisation, $el);
