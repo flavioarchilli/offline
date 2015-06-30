@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block maincontainer %}
+<!-- Left navigation bar -->
+   {% block %}
+
+   {% endblock %}
+
+<!-- Main Container -->
+   {% block %}
+
+   {% endblock %}
+
+{% endblock %}
