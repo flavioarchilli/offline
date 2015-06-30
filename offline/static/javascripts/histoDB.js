@@ -1,109 +1,104 @@
-////////////////////////////////////////////
-//Histogram part
-////////////////////////////////////////////
-function saveAllHistograms()
-{
-	var elm = $('#histoContainer').find("svg").each( function() 
-	{
-		var name = $(this).parent().parent().find(".histoTitle").text() + ".png";
-		saveSvgAsPng($(this)[0], name);
-	}
-	);
-	
+
+// Histogram part
+
+// Save recursively all the histograms
+function saveAllHistograms() {
+  var elm = $('#histoContainer').find("svg").each( 
+    function() {
+      var name = $(this).parent().parent().find(".histoTitle").text() + ".png";
+      saveSvgAsPng($(this)[0], name);
+    });
 }
 
-////////////////////////////////////////////
+
 //Toolbar part
-////////////////////////////////////////////
 
-//reads out global variables set by python program and sets toolbar icons accordingly
-function initStatusIndicator()
-{
-	if(runNmbr == 0 || runNmbr == "")
-	{
-		setStatusField("No runNmbr provided!", "warning");
-	} else if(recoVersionFullPath == "")
-	{
-		setStatusField("No recoVersion provided!", "warning");
-	}
+
+// Reads out global variables set by python program and sets toolbar icons accordingly
+function initStatusIndicator() {
+
+  if(runNmbr == 0 || runNmbr == "") {
+    setStatusField("No runNmbr provided!", "warning");
+  } else if(recoVersionFullPath == "") {
+    setStatusField("No recoVersion provided!", "warning");
+  }
+
 }
 
-function setRunNumbrVisualFeedback(StatusCode, data)
-{
-	if (StatusCode == "NO_RECOS_FOUND_FOR_RUN_NMBR")
-	{
-		setStatusField("No RecoVersions found for this runNmbr!", "danger");
-		$("#recoVersionDropdownButtonText").text("???");
-	}
-	else if (StatusCode == "RUN_NMBR_OK")
-	{
-		$("#recoVersionDropdownMenu").empty();
-	
-		for(var i = 0; i < data.listOfRecos.length; i++)
-		{
-			var fullPath = data.listOfRecos[i][0];
-			var visibleName = data.listOfRecos[i][1];
-			var html = '<li role="presentation"><a role="menuitem" data-fullpath="' + fullPath + '" tabindex="-1" href="#" id="' + visibleName + '">' + visibleName + '</a></li>';
-			$("#recoVersionDropdownMenu").append(html);
-		
-			$("#"+visibleName).on( "click", 
-				{
-					"fullpath": fullPath,
-					"visibleName": visibleName
-				}, 
-				function( event ) {
-					setRecoVersion(event);
-				}
-			);
-		}
-	
-		//this means, that the previous recoVersion is not available for the current runNmbr
-		if(data.selectedRecoVersion == null || data.selectedRecoVersion == "")
-		{
-			setStatusField("Please choose recoVersion.", "warning");
-			$("#recoVersionDropdownButtonText").text("Please select.");
-		}
-		//activate previous recoVersion.
-		//baco
-		else{
-		    var event = {data: {fullpath: recoVersionFullPath, visibleName: recoVersionVisiblePart} };
-		    setRecoVersion(event);
 
-		}		
-	
-	}
+// Set the Run Number and show if it is available 
+
+function setRunNumbrVisualFeedback(StatusCode, data) {
+  if (StatusCode == "NO_RECOS_FOUND_FOR_RUN_NMBR") {
+    setStatusField("No RecoVersions found for this runNmbr!", "danger");
+    $("#recoVersionDropdownButtonText").text("???");
+  } else if (StatusCode == "RUN_NMBR_OK") {
+    $("#recoVersionDropdownMenu").empty();
+    
+    for(var i = 0; i < data.listOfRecos.length; i++) {
+      var fullPath = data.listOfRecos[i][0];
+      var visibleName = data.listOfRecos[i][1];
+      var html = '<li role="presentation"><a role="menuitem" data-fullpath="' + 
+                 fullPath + 
+	         '" tabindex="-1" href="#" id="' + 
+                 visibleName + 
+                 '">' + 
+                 visibleName + 
+                 '</a></li>';
+      $("#recoVersionDropdownMenu").append(html);
+      
+      $("#"+visibleName).on("click", {
+	      "fullpath": fullPath,
+	      "visibleName": visibleName }, 
+	  function( event ) {
+	      setRecoVersion(event);
+	  }
+	  );
+    }
+    
+    //this means, that the previous recoVersion is not available for the current runNmbr
+    if(data.selectedRecoVersion == null || data.selectedRecoVersion == "") {
+      setStatusField("Please choose recoVersion.", "warning");
+      $("#recoVersionDropdownButtonText").text("Please select.");
+    } else {
+      //activate previous recoVersion.
+      //baco
+     
+      var event = {data: {fullpath: recoVersionFullPath, visibleName: recoVersionVisiblePart} };
+      setRecoVersion(event);
+      
+    }         
+  }
 }
-
 
 //just does the ajax call
-function setRunNmbr()
-{
-	$("#runNmbrTextfieldIndicatorContainer").addClass("hidden");
-	var nmbr = $("#runNmbrTextfield").val();
-	disableNavBar(true);
-	
-	if(nmbr != "0")
+function setRunNmbr() {
+  $("#runNmbrTextfieldIndicatorContainer").addClass("hidden");
+  var nmbr = $("#runNmbrTextfield").val();
+  disableNavBar(true);
+  
+  if(nmbr != "0")
 	{
-		setStatusField("Please wait...", "info");
-		$.ajax({
-			async : true,
+	  setStatusField("Please wait...", "info");
+	  $.ajax({
+		  async : true,
 			type : "GET",
-			url : "setRunNmbr.json?runNmbr="+nmbr,
+			url : "setRunNumber?runNmbr="+nmbr,
 		
 			success : function(json) {
-				setRunNumbrVisualFeedback(json.StatusCode, json.data)
-			},    
+			setRunNumbrVisualFeedback(json.StatusCode, json.data)
+			  },  
 
 			error : function(xhr, ajaxOptions, thrownError) {
-			    alert("<runnumber> JSON Error:" + thrownError);
-			    setStatusField("JSON Error:" + thrownError, "danger");
-			    $("#recoVersionDropdownButtonText").text("???");
-			},
+			alert("<runnumber> JSON Error:" + thrownError);
+			setStatusField("JSON Error:" + thrownError, "danger");
+			$("#recoVersionDropdownButtonText").text("???");
+		  },
 
 			complete : function(){disableNavBar(false);}
-		    });
-	    
-	    }
+		});
+	  
+	}
 	
 
 }
@@ -186,19 +181,19 @@ function setRecoVersion(event)
 	$.ajax({
 		async : true,
 		type : "GET",
-		url : "setRecoVersion.json?recoVersion="+encodeURIComponent(fullPath),
+		url : "setRecoVersion?recoVersion="+encodeURIComponent(fullPath),
 
 		success : function(json) {
 			setRecoVersionVisualFeedback(json.StatusCode, fullPath, visibleName);
-		},    
+		},  
 
 		error : function(xhr, ajaxOptions, thrownError) {
-		    alert("<reconumber> JSON Error:" + thrownError);
-		    setStatusField("JSON Error:" + thrownError, "danger");
-		    $("#recoVersionDropdownButtonText").text("???");
+		  alert("<reconumber> JSON Error:" + thrownError);
+		  setStatusField("JSON Error:" + thrownError, "danger");
+		  $("#recoVersionDropdownButtonText").text("???");
 		},
 		complete : function(){disableNavBar(false);}
-	    });
+	  });
 	
 
 }
@@ -277,7 +272,7 @@ function changeReferenceMode()
 	
 	state = button.data("state");
 	
-	var url = "changeReferenceState.json?state="+state
+	var url = "changeReferenceState?state="+state
 	
 	//current state deactivated -> change it
 	if(state == "deactivated")
@@ -329,27 +324,27 @@ function changeReferenceMode()
 			{
 		
 			}
-		},    
+		},  
 
 		error : function(xhr, ajaxOptions, thrownError) {
-		    alert("<2> JSON Error:" + thrownError);
+		  alert("<2> JSON Error:" + thrownError);
 		},
-		    complete: function(){disableNavBar(false);}
-    	});
-	    
+		  complete: function(){disableNavBar(false);}
+  	});
+	  
 }
 
 // Disable buttons while loading
 function disableNavBar(isDisabled){
-    var buttons = $('.btn-default').each(function(){
-	    if (isDisabled){
+  var buttons = $('.btn-default').each(function(){
+	  if (isDisabled){
 		$(this).addClass('disabled');
-	    }		
-	    else{
+	  }		
+	  else{
 		$(this).removeClass('disabled');
-	    }
+	  }
 	});
-    
+  
 }
 
 
@@ -363,14 +358,14 @@ function checkDBConnection()
 	$.ajax({
 		async : true,
 		type : "GET",
-		url : "checkDBConnection.json",
-		dataType : "json",    
+		url : "checkDBConnection",
+		dataType : "json",  
 
 		success : function( data, textStatus, jqXHR ) {
 			$("#connectionStatus").css("display", "block");
 			if (data.message == 'Could not connect to DB.')
 			{
-			    	$("#connectionStatusIcon").removeClass("glyphicon-ok");
+			  	$("#connectionStatusIcon").removeClass("glyphicon-ok");
 				$("#connectionStatusIcon").addClass("glyphicon-warning-sign");
 				$("#connectionStatus").removeClass("alert alert-success");
 				$("#connectionStatus").addClass("alert alert-danger");
@@ -386,19 +381,19 @@ function checkDBConnection()
 				
 				$("#connectionStatusText").text("DB Connection established.");
 			}
-		},    
+		},  
 
 		error : function( jqXHR, textStatus, errorThrown ) {
 			$("#connectionStatus").css("display", "block");
 			$("#connectionStatus").removeClass("alert alert-success");
 			$("#connectionStatus").addClass("alert alert-danger");
 			
-		    	$("#connectionStatusIcon").removeClass("glyphicon-ok");
+		  	$("#connectionStatusIcon").removeClass("glyphicon-ok");
 			$("#connectionStatusIcon").addClass("glyphicon-warning-sign");
 			
 			$("#connectionStatusText").text("Can't reach Server.");
 		}
-	    })
+	  })
 }
 
 
@@ -418,28 +413,28 @@ function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, 
 	$.ajax({
 		async : true,
 		type : "GET",
-		url : "tree.json",
+		url : "menutree",
 		dataType : "json",   
 		data: { loadFromDBFlag: readFromDB, allNodesStandardState: allNodesStandardState, filterFlag: filterFlag, filter: filter}, 
 
 		success : function(json) {
-		    createJSTrees(json);
-		    $("#loading").css("display", "none");
-		},    
+		  createJSTrees(json);
+		  $("#loading").css("display", "none");
+		},  
 
 		error : function(xhr, ajaxOptions, thrownError) {
-		    alert("JSON Error:" + thrownError);
+		  alert("JSON Error:" + thrownError);
 		}
-	    });
+	  });
 }
 
 
 function createJSTrees(jsonData) {
-    	$("#menuTree").jstree(
+  	$("#menuTree").jstree(
 	{ 
 		'core' : 
 		{
-		    'data' : jsonData
+		  'data' : jsonData
 		}
 	}
 
@@ -448,28 +443,28 @@ function createJSTrees(jsonData) {
 	function selectNode(e, data)
 	{
 		if (data.node.id.indexOf("//F//") != 0)
-      		{
-      			$("#connectionStatus").css("display", "none");
-      			window.location = "Histo?path="+encodeURIComponent(data.node.id);
-      		}
+    		{
+    			$("#connectionStatus").css("display", "none");
+    			window.location = "Histo?path="+encodeURIComponent(data.node.id);
+    		}
 	}
 	
 	function openNode(e, data)
 	{
 		
 		//Folder Id start not with //F//, so we have a folder
-      		if (data.node.id.indexOf("//F//") == 0)
-      		{
-      			var d = document.getElementById(data.node.id);
-      			
-      			var object = $(d).children("a").children("i");
+    		if (data.node.id.indexOf("//F//") == 0)
+    		{
+    			var d = document.getElementById(data.node.id);
+    			
+    			var object = $(d).children("a").children("i");
 
-      			object.addClass("glyphicon");
-      			if(object.hasClass("glyphicon-folder-close"))
-      			{
-      				object.removeClass("glyphicon-folder-close");
-      			}
-      			object.addClass("glyphicon-folder-open");
+    			object.addClass("glyphicon");
+    			if(object.hasClass("glyphicon-folder-close"))
+    			{
+    				object.removeClass("glyphicon-folder-close");
+    			}
+    			object.addClass("glyphicon-folder-open");
       			
       			//Create ajax call to save tree state
       			$.ajax({
@@ -586,10 +581,8 @@ $(function() {
 	$("#decreaseRunNmbrButton").click( function() { decreaseRunNmbr(); } ); 
 	$("#increaseRunNmbrButton").click( function() { increaseRunNmbr(); } ); 
 	
-	
-
-	treeAjaxCall(false, "closed", false, "");
-	
+       
+	treeAjaxCall(false, "closed", false, "");	
 	checkDBConnection();
 	//check DB Connection every minute
 	window.setInterval(checkDBConnection, 1000*60*1);

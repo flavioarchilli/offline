@@ -5,11 +5,10 @@
 	    	var runNmbr = {{ RUN_NMBR }};
 		var recoVersionFullPath = "{{ VERSION_FULL }}";
 		var recoVersionVisiblePart = "{{ VERSION_VISIBLE }}";
-		//if data should be read from db, can also be controlled by the python script
 		var pageNormallyReadFromDBFlag = {{ LOAD_FROM_DB_FLAG }}
 	</script>
+	{{ javascript_tag('histoDB', blueprint='offline') }}
 	
-	<script src="/static/javascripts/histoDB.js"></script> 
 {% endblock %}
 {% block toolbar %}
     <div class="container-fluid">
@@ -102,7 +101,9 @@
 	</div>	
 {% endblock %}
 {% block navtopbar %}
-    {{ list_link_tag('HistoDB', 'histoDB') }}
+  <li class="{{ 'active' if active_page_or_ancestor(page) else '' }}">
+    <a href="{{ url_for('catchall.serve_page', path=page) }}">{{ title }}</a>
+  </li>
 {% endblock %}
 {% block body %}
 {% endblock %}
