@@ -7,10 +7,12 @@ from flask import (
     url_for,
     render_template,
     abort,
+    jsonify,
     g
 )
 
 import pickle
+import os
 
 offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp')
@@ -19,7 +21,6 @@ offline_bp = Blueprint('offline_bp', __name__,
 @offline_bp.route('/')
 @offline_bp.route('Overview')
 def Overview():
-    print "sono qui"
     g.active_page = "menu"
     page = render_template("offline_bp/Overview.html",
                            LOAD_FROM_DB_FLAG = "false",
@@ -38,7 +39,6 @@ def checkDBConnection():
     
     Returns a JSON string, indicating if we could connect successfully.
     """
-    print "sono dentro checkDB"
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
     if status == True:
@@ -193,13 +193,14 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     WARNING: to be reviewed 
     """
     connection = current_app.config["HISTODB"]
+    
     # loadFromDBFlag == "false" and not False because it is sent by json by javascript!
     # if we are reading it from the file and this file also exists
     if loadFromDBFlag == "false" and filterFlag == "false" and os.path.exists("treeCache.pcl") and os.path.isfile("treeCache.pcl"):
         treeCache = open("treeCache.pcl", "r")
         
         menuAsComplexObject = pickle.load(treeCache)
-        menuAsJSONString = json.dumps(menuAsComplexObject)
+        menuAsJSONString = jsonify(menuAsComplexObject)
     	
         treeCache.close()
     	
@@ -207,7 +208,9 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     # Get it freshly from the database
     else:
         menuAsComplexObject = generateMenuRecursion(connection.generateMenuList(filterText), "", allNodesStandardState)
-        menuAsJSONString = json.dumps(menuAsComplexObject)
+        print connection.generateMenuList()
+        print menuAsComplexObject
+        menuAsJSONString = jsonify(menuAsComplexObject)
         
         # Save database content for further uses in cache
         treeCache = open("treeCache.pcl", "w")
