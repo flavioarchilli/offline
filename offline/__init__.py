@@ -9,6 +9,10 @@ __all__ = ['create_app', 'wsgi']
 
 
 def create_app():
+
+    from offline.offline_blueprint import offline_bp
+    from offline.job_resolvers import tasks_resolver
+
     app = webmonitor.create_app()
     app.config.from_object('offline.config')
     
@@ -23,10 +27,9 @@ def create_app():
 
     app.register_blueprint(presenter)
 
-    from .offline_blueprint import offline_bp
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
 
-    app.add_job_resolver(job_resolvers.tasks_resolver)
+    app.add_job_resolver(tasks_resolver)
 
     return app
 

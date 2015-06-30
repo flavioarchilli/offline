@@ -17,9 +17,10 @@ ADMINS = ['flavio.archilli@cern.ch','denis.derkach@cern.ch']
 # For the dict below, a visited path of `examples` will show the
 # `examples/table` page, as an example
 DEFAULT_CHILDREN = {
-    '': 'presenter/Overview'
+    '': 'Main',
 #    "histoDB" : "histoDB/histoDB"
 #    "histoDB" : "histoDB/Overview"
+    'offline_bp' : 'offline_bp/Overview'
 }
 
 # Format string to generate LFN used in bookkeeping
