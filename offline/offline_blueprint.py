@@ -69,7 +69,6 @@ def generateMenuTreeJSON():
     "expand all" and "collapse all" button.
 	
     """
-
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
     filterFlag = request.args.get('filterFlag')
@@ -208,15 +207,12 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     # Get it freshly from the database
     else:
         menuAsComplexObject = generateMenuRecursion(connection.generateMenuList(filterText), "", allNodesStandardState)
-        print connection.generateMenuList()
-        print menuAsComplexObject
         menuAsJSONString = jsonify(menuAsComplexObject)
         
         # Save database content for further uses in cache
         treeCache = open("treeCache.pcl", "w")
         pickle.dump(menuAsComplexObject, treeCache)
         treeCache.close()
-    	
         return menuAsJSONString
 
 
@@ -241,6 +237,7 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
     """
     try:
         output = list()
+	print " in generateMenuRecursion output =  ", output
         #Standard behavior, as normally tree is presented with all folders closed.
         stdIcon = "glyphicon glyphicon-folder-close"
         stdStateOpenend = False
@@ -284,7 +281,7 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
                     #we save our generated output
                     output.append(entry)	
                 #END: else
-            return output
+        return output
     except Exception as inst:
         err.rethrowException(inst)
         return None
