@@ -14,6 +14,15 @@ from flask import (
 import pickle
 import os
 
+from userSettings import *
+#store user Settings
+settings = userSettings()
+settings.readInHistoRootFileIfPossible()
+settings.readInReferenceRootFileIfPossible()
+
+
+
+
 offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp',
                      static_folder='static')
@@ -299,7 +308,7 @@ def Histo(path=""):
     rows = ""
     columns = ""
     i = 0
-    
+    print("here") 
     while i < len(histosContained):
         histo = histosContained[i]
         
