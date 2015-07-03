@@ -7,7 +7,6 @@ from offline import job_resolvers
 # Only export externally useful methods
 __all__ = ['create_app', 'wsgi']
 
-
 def create_app():
 
     from offline.offline_blueprint import offline_bp

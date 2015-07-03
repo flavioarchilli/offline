@@ -15,7 +15,8 @@ import pickle
 import os
 
 offline_bp = Blueprint('offline_bp', __name__,
-                     template_folder='templates/offline_bp')
+                     template_folder='templates/offline_bp',
+                     static_folder='static')
 
 
 @offline_bp.route('/')
@@ -192,7 +193,7 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     WARNING: to be reviewed 
     """
     connection = current_app.config["HISTODB"]
-    
+
     # loadFromDBFlag == "false" and not False because it is sent by json by javascript!
     # if we are reading it from the file and this file also exists
     if loadFromDBFlag == "false" and filterFlag == "false" and os.path.exists("treeCache.pcl") and os.path.isfile("treeCache.pcl"):
@@ -303,7 +304,7 @@ def Histo(path=""):
         histo = histosContained[i]
         
         if i != 0 and (i % 2) == 0:
-            rows += render_template("offline_bp/histoRow.html", COLUMNS = columns)
+            rows += render_template("histoRow.html", COLUMNS = columns)
             columns = ""
         #end if	
     	
@@ -328,7 +329,7 @@ def Histo(path=""):
                 ref = histo.OPT.REF
     		
         #save into template
-        columns += render_template("offline_bp/histoCell.html", 
+        columns += render_template("histoCell.html", 
                                    DATA_FILE = settings.getHistoROOTFileName(), 
                                    HISTOGRAM_NAME = histogramName, 
                                    REFERENCE_NAME = histogramName,
@@ -344,16 +345,16 @@ def Histo(path=""):
     		
         i += 1
     if columns != "":
-        rows += render_template("offline_bp/histoRow.html", COLUMNS = columns)
+        rows += render_template("histoRow.html", COLUMNS = columns)
         columns = ""
     		
-        recoVersionParts = settings.getVersion().split("/")
-        visiblePart = ""
-        if len(recoVersionParts) > 2:
-            visiblePart = recoVersionParts[2]
+    recoVersionParts = settings.getVersion().split("/")
+    visiblePart = ""
+    if len(recoVersionParts) > 2:
+        visiblePart = recoVersionParts[2]
     		
     	
-        page = render_template("offline_bp/Histo.html", PATH = path, 
+    page = render_template("Histo.html", PATH = path, 
                                HISTOS_CONTAINED = str(histosContained), 
                                HISTO_PLOTS = rows,  
                                LOAD_FROM_DB_FLAG = "false",
@@ -361,7 +362,8 @@ def Histo(path=""):
                                VERSION_FULL = settings.getVersion(),
                                VERSION_VISIBLE = visiblePart,
                                REFERENCE_STATE = settings.getReferenceState())
-    	
+    print page
+
     return page
 
 @offline_bp.route('/setReferenceState')	
@@ -370,7 +372,6 @@ def changeReferenceState():
      state = request.args.get('state')
      
      settings.setReferenceState(state)
-
 
      d = dict(
          success = True,

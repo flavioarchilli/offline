@@ -1,13 +1,19 @@
 {% extends "layout.html" %}
 
 {% block htmlHeader %}
+{#	{{ stylesheet_tag('lib/jsTree/themes/default/style', blueprint='offline_bp') }} #}
+{#	{{ javascript_tag('lib/jsTree/jstree', blueprint='offline_bp') }} #}
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.0.9/themes/default/style.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.0.9/jstree.min.js"></script>
+	{{ javascript_tag('histoDB', blueprint='offline_bp') }}
+
 	<script>
 	    	var runNmbr = {{ RUN_NMBR }};
 		var recoVersionFullPath = "{{ VERSION_FULL }}";
 		var recoVersionVisiblePart = "{{ VERSION_VISIBLE }}";
 		var pageNormallyReadFromDBFlag = {{ LOAD_FROM_DB_FLAG }}
 	</script>
-	{{ javascript_tag('histoDB', blueprint='offline') }}
 	
 {% endblock %}
 {% block toolbar %}

@@ -204,6 +204,7 @@ def histogramDB_declaration():
                 
             except Exception as inst:
 #                self.err.rethrowException(inst)
+                print inst
                 return False
                 
         def checkDBConnection(self):
@@ -217,6 +218,7 @@ def histogramDB_declaration():
                 return True
             except Exception as inst:
 #                self.err.rethrowException(inst)
+                print inst
                 return False
             
         def generateMenuList(self, filterText=None):
@@ -237,10 +239,12 @@ def histogramDB_declaration():
                 menu = list()
                 if filterText != None:
                     menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).filter(SHOWHISTO.PAGE.ilike("%"+filterText+"%")).order_by(SHOWHISTO.PAGE).all()
+                    print menu
                 #else:
                 #       menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).order_by(SHOWHISTO.PAGE).all()
                 else:
                     menu = self.session.query(SHOWHISTO, HISTOGRAM).join(HISTOGRAM).limit(10).all()
+                    print menu
                 treeList = []
                 i = 0
                 while i < len(menu):
@@ -248,6 +252,7 @@ def histogramDB_declaration():
                     i += 1
                     
                 return self.makeMenuList(treeList)
+
             except Exception as inst:
 #                self.err.rethrowException(inst)
                 return None
