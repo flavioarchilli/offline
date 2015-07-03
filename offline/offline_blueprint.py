@@ -13,14 +13,13 @@ from flask import (
 
 import pickle
 import os
+import json
 
 from userSettings import *
 #store user Settings
 settings = userSettings()
 settings.readInHistoRootFileIfPossible()
 settings.readInReferenceRootFileIfPossible()
-
-
 
 
 offline_bp = Blueprint('offline_bp', __name__,
@@ -49,6 +48,7 @@ def checkDBConnection():
     
     Returns a JSON string, indicating if we could connect successfully.
     """
+
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
     if status == True:
@@ -66,7 +66,7 @@ def checkDBConnection():
             )
         return jsonify(d)
 
-@offline_bp.route('/menutree')		
+@offline_bp.route('/menutree', methods=['GET'])		
 def generateMenuTreeJSON():
     """
     Called by javascript via ajax call. Returns menu tree in json format.
@@ -84,10 +84,12 @@ def generateMenuTreeJSON():
     filterFlag = request.args.get('filterFlag')
     filterText = request.args.get('filter')
 		
+
     menutree = generateMenu(loadFromDBFlag, allNodesStandardState, filterFlag, filterText)
+
     return menutree
     
-@offline_bp.route('/menuTreeOpenOrCloseFolder')
+@offline_bp.route('/menuTreeOpenOrCloseFolder', methods=['GET'])
 def menuTreeOpenOrCloseFolder():
     """
     This method is called via ajax by javascript whenever a folder is opened or closed. The idea is to save this in the cache, so that
@@ -111,80 +113,80 @@ def menuTreeOpenOrCloseFolder():
         else:
             pathParts = folderName.split("/")
     	
-            # Fetch structure from file
-            treeCache = open("treeCache.pcl", "r")
-            menuAsComplexObject = pickle.load(treeCache)
-            treeCache.close()
+        # Fetch structure from file
+        treeCache = open("treeCache.pcl", "r")
+        menuAsComplexObject = pickle.load(treeCache)
+        treeCache.close()
 
-            # Containes the root folder
-            # we are moving outgoing from root folder to the folder, 
-            # which shall have opened -> True
-            currentFolder = menuAsComplexObject
+        # Containes the root folder
+        # we are moving outgoing from root folder to the folder, 
+        # which shall have opened -> True
+        currentFolder = menuAsComplexObject
     
-    	    #this loop iterates over the folders contained in the via AJAX Get given id attribute, e.g.
+    	#this loop iterates over the folders contained in the via AJAX Get given id attribute, e.g.
+    	#/a/b/c
+    	#over a then b then c
+        i = 0
+
+
+    	#in: pathParts, currentFolder
+    	#out lookingAtPath, loo
+        while i < len(pathParts):
+            #just shortcut for pathParts[i]
+            lookingAtPath = pathParts[i]
+    	
+    	    #this loop iterates over all all folders contained in the current root object, i.e.
     	    #/a/b/c
-    	    #over a then b then c
-            i = 0
-
-
-    	    #in: pathParts, currentFolder
-    	    #out lookingAtPath, loo
-            while i < len(pathParts):
-                #just shortcut for pathParts[i]
-                lookingAtPath = pathParts[i]
-    	
-    	        #this loop iterates over all all folders contained in the current root object, i.e.
-    	        #/a/b/c
-    	        #/a/u/v
-    	        #/a/u/w
-    	        #and looking for /a/u/v
-    	        #iterate over "/" finding a, iterate over a finding u, then interate over u finding v
-                j = 0
-                while j < len(currentFolder):
-    		    #just shortcut for currentFolder[j]
-                    lookingAtFolder = currentFolder[j]
-    		
-    		    #if name of the folder matches the name of the via GET given path
-                    if lookingAtFolder["text"] == pathParts[i]:
-    		        #something went wrong, reached leaf also expecting folder
-                        if not "children" in lookingAtFolder:
-                            raise Exception("Reached lead unexpectedly")
-                        
-    		        #next step would not be the last step, therefore make a further step down the folder hirachy
-                        if not i+1 == len(pathParts):
-                            currentFolder = lookingAtFolder["children"] 
+    	    #/a/u/v
+    	    #/a/u/w
+    	    #and looking for /a/u/v
+    	    #iterate over "/" finding a, iterate over a finding u, then interate over u finding v
+            j = 0
+            while j < len(currentFolder):
+    	        #just shortcut for currentFolder[j]
+                lookingAtFolder = currentFolder[j]
+    	    
+    	        #if name of the folder matches the name of the via GET given path
+                if lookingAtFolder["text"] == pathParts[i]:
+    	            #something went wrong, reached leaf also expecting folder
+                    if not "children" in lookingAtFolder:
+                        raise Exception("Reached lead unexpectedly")
+                    
+    	            #next step would not be the last step, therefore make a further step down the folder hirachy
+                    if not i+1 == len(pathParts):
+                        currentFolder = lookingAtFolder["children"] 
+                    #change state
+    	            #close only last folder
+                    else:
                         #change state
-    		        #close only last folder
-                        else:
-                            #change state
-                            #close only last folder
-                            if action == "close":
-                                lookingAtFolder["state"]["opened"] = False
-                                lookingAtFolder["icon"] = "glyphicon glyphicon-folder-close"
-    				
-                        #change state
-                        #open all folders
-                        if action == "open":
-                            lookingAtFolder["state"]["opened"] = True
-                            lookingAtFolder["icon"] = "glyphicon glyphicon-folder-open"
-    				
-                        break
-                    j+=1
-                #END: while j < len(keysa)    
-                i += 1
-            #END while i < len(pathParts):
+                        #close only last folder
+                        if action == "close":
+                            lookingAtFolder["state"]["opened"] = False
+                            lookingAtFolder["icon"] = "glyphicon glyphicon-folder-close"
+    	    		
+                    #change state
+                    #open all folders
+                    if action == "open":
+                        lookingAtFolder["state"]["opened"] = True
+                        lookingAtFolder["icon"] = "glyphicon glyphicon-folder-open"
+    	    		
+                    break
+                j+=1
+            #END: while j < len(keysa)    
+            i += 1
+        #END while i < len(pathParts):
 
-            #save changes
-            treeCache = open("treeCache.pcl", "w")
-            pickle.dump(menuAsComplexObject, treeCache)
-            treeCache.close()
+        #save changes
+        treeCache = open("treeCache.pcl", "w")
+        pickle.dump(menuAsComplexObject, treeCache)
+        treeCache.close()
     	
-            d = dict(
-                success=True,
-                data=folderName
-                )
+        d = dict(
+            success=True,
+            data=folderName
+            )
 
-            return jsonify(d)
+        return jsonify(d)
 	
 def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filterFlag = "false", filterText = None):
     """
@@ -206,23 +208,26 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     # loadFromDBFlag == "false" and not False because it is sent by json by javascript!
     # if we are reading it from the file and this file also exists
     if loadFromDBFlag == "false" and filterFlag == "false" and os.path.exists("treeCache.pcl") and os.path.isfile("treeCache.pcl"):
+
         treeCache = open("treeCache.pcl", "r")
         
         menuAsComplexObject = pickle.load(treeCache)
-        menuAsJSONString = jsonify(menuAsComplexObject)
+        menuAsJSONString = json.dumps(menuAsComplexObject)
     	
         treeCache.close()
     	
         return menuAsJSONString
     # Get it freshly from the database
     else:
+
         menuAsComplexObject = generateMenuRecursion(connection.generateMenuList(filterText), "", allNodesStandardState)
-        menuAsJSONString = jsonify(menuAsComplexObject)
-        
+        menuAsJSONString = json.dumps(menuAsComplexObject)
+
         # Save database content for further uses in cache
         treeCache = open("treeCache.pcl", "w")
         pickle.dump(menuAsComplexObject, treeCache)
         treeCache.close()
+        
         return menuAsJSONString
 
 
@@ -245,9 +250,9 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
     allNodesStandardState: When rereading from the database, this string determines if all nodes shall be opened or closed. Used by the
     "expand all" and "collapse all" button.
     """
+
     try:
         output = list()
-	print " in generateMenuRecursion output =  ", output
         #Standard behavior, as normally tree is presented with all folders closed.
         stdIcon = "glyphicon glyphicon-folder-close"
         stdStateOpenend = False
@@ -256,44 +261,45 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
             stdIcon = "glyphicon glyphicon-folder-open"
             stdStateOpenend = True	
 	
-            #now go through every item in the preprocessed input list
-            for item in processedInputList:
-                #this string denotes that the root element is a leaf, i.e. we doesn't have any children
-		#note returning NONE
-                if item == "end":
-                    return None
-			
-                #if our item is not a string, we assume it is a dictionary
-                else:
-                    #and iterate over keys and corresponding values
-                    for key, value in item.iteritems():
-                        #and look into the children of each key
-                        children = generateMenuRecursion(value, priorPath + key + "/", allNodesStandardState)
-				
-                        entry = dict()
+        #now go through every item in the preprocessed input list
+        for item in processedInputList:
+            #this string denotes that the root element is a leaf, i.e. we doesn't have any children
+	    #note returning NONE
+            if item == "end":
+                return None
+	    	
+            #if our item is not a string, we assume it is a dictionary
+            else:
+                #and iterate over keys and corresponding values
+                for key, value in item.iteritems():
+                    #and look into the children of each key
+                    children = generateMenuRecursion(value, priorPath + key + "/", allNodesStandardState)
+	    		
+                    entry = dict()
+                    
+                    #when returning NONE: this key has no children, i.e. is a leaf
+                    if children == None:
+                        entry["text"] = key
+                        entry["id"] = priorPath + key
+                        entry["icon"] = "glyphicon glyphicon-file"
+                    #otherwise it is a folder
+                    else:
+                        entry["text"] = key
+                        entry["id"] = "//F//"+priorPath + key
+                        entry["icon"] = stdIcon
+	    	    #and we save the cildren
+                        entry["children"] = children
+	    	    #and consider if all nodes shall be opened or closed
+                        entry["state"] = {"opened" : stdStateOpenend, "selected": False}
+                #END: for key, value in item.iteritems():
                         
-                        #when returning NONE: this key has no children, i.e. is a leaf
-                        if children == None:
-                            entry["text"] = key
-                            entry["id"] = priorPath + key
-                            entry["icon"] = "glyphicon glyphicon-file"
-                        #otherwise it is a folder
-                        else:
-                            entry["text"] = key
-                            entry["id"] = "//F//"+priorPath + key
-                            entry["icon"] = stdIcon
-			    #and we save the cildren
-                            entry["children"] = children
-			    #and consider if all nodes shall be opened or closed
-                            entry["state"] = {"opened" : stdStateOpenend, "selected": False}
-                    #END: for key, value in item.iteritems():
-                            
-                    #we save our generated output
-                    output.append(entry)	
-                #END: else
+                #we save our generated output
+                output.append(entry)	
+            #END: else
         return output
     except Exception as inst:
-        err.rethrowException(inst)
+        print inst
+#       err.rethrowException(inst)
         return None
 	
 @offline_bp.route('/Histo<path>')
@@ -308,7 +314,7 @@ def Histo(path=""):
     rows = ""
     columns = ""
     i = 0
-    print("here") 
+
     while i < len(histosContained):
         histo = histosContained[i]
         
@@ -371,7 +377,7 @@ def Histo(path=""):
                                VERSION_FULL = settings.getVersion(),
                                VERSION_VISIBLE = visiblePart,
                                REFERENCE_STATE = settings.getReferenceState())
-    print page
+
 
     return page
 

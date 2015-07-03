@@ -14,9 +14,12 @@ import pprint
 
 #from errorhandler import *
 
-Base = declarative_base()
+
 
 def histogramDB_declaration():
+
+
+    Base = declarative_base()
     
     class SHOWHISTO(Base):
         __tablename__ = "SHOWHISTO"
@@ -47,15 +50,11 @@ def histogramDB_declaration():
         
         #Unique histogram identifier given by
         #Taskname/Algorithmname/HistogramName
-        NAME = Column(String(130), primary_key = True)
-        
+        NAME = Column(String(130), primary_key = True)    
         #string of max length 12: HSID/IHS
-        HID = Column(String(12), unique=True)
-        
-        Subname = Column(String(50))
-        
+        HID = Column(String(12), unique=True)    
+        Subname = Column(String(50))    
         DISPLAY = Column(Integer, ForeignKey('DISPLAYOPTIONS.DOID'))
-        
         showhistos = relationship("SHOWHISTO")
     
     
@@ -174,45 +173,31 @@ def histogramDB_declaration():
         OPT = Column(DISPOPT)
         
         histogramms = relationship("HISTOGRAM")
-        
-        
+    
+
+
+  
     class HistoDBconnection:
         
-#        def __init__(self, errorhandler):
-#            self.err = errorhandler
-
         def __init__(self):
+            """
+            Sets up the connection to the database and initialises a connection check.
+            """
+
+            print "Histo DB connection initialised"
             configure_mappers()
             engine = create_engine(os.environ["HISTODB_PATH"])
             Base.metadata.bind = engine
             DBSession = sessionmaker(bind=engine)                
             self.session = DBSession()
 
-        def connectToDB(self):
-#
-            """
-            Sets up the connection to the database and initialises a connection check.
-            """
-            try:
-#                configure_mappers()
-#                engine = create_engine(HISTODB_PATH)
-#                Base.metadata.bind = engine
-#                DBSession = sessionmaker(bind=engine)
-#                
-#                self.session = DBSession()
-                return self.checkDBConnection()
-                
-            except Exception as inst:
-#                self.err.rethrowException(inst)
-                print inst
-                return False
                 
         def checkDBConnection(self):
             """
             Checks DB connectivity.
             """
             try:
-                #this checks DB Connection
+                # This checks DB Connection
                 self.session.connection()
                 
                 return True
@@ -235,27 +220,25 @@ def histogramDB_declaration():
             a tree like python structure.
             try:
             """
-            try:
-                menu = list()
-                if filterText != None:
-                    menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).filter(SHOWHISTO.PAGE.ilike("%"+filterText+"%")).order_by(SHOWHISTO.PAGE).all()
-                    print menu
-                #else:
-                #       menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).order_by(SHOWHISTO.PAGE).all()
-                else:
-                    menu = self.session.query(SHOWHISTO, HISTOGRAM).join(HISTOGRAM).limit(10).all()
-                    print menu
-                treeList = []
-                i = 0
-                while i < len(menu):
-                    treeList.append(menu[i].PAGE.rstrip('\n').rstrip('\r').split('/'))
-                    i += 1
-                    
-                return self.makeMenuList(treeList)
+#            try:
+            menu = list()
+            if filterText != None:
+                menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).filter(SHOWHISTO.PAGE.ilike("%"+filterText+"%")).order_by(SHOWHISTO.PAGE).all()
+            #else:
+            #       menu = self.session.query(distinct(SHOWHISTO.PAGE).label("PAGE")).order_by(SHOWHISTO.PAGE).all()
+            else:
+                menu = self.session.query(SHOWHISTO, HISTOGRAM).join(HISTOGRAM).limit(10).all()
+            treeList = []
+            i = 0
+            while i < len(menu):
+                treeList.append(menu[i].PAGE.rstrip('\n').rstrip('\r').split('/'))
+                i += 1
+                
+            return self.makeMenuList(treeList)
 
-            except Exception as inst:
-#                self.err.rethrowException(inst)
-                return None
+#         except Exception as inst:
+#             self.err.rethrowException(inst)
+#             return None
             
         def makeMenuList(self,menu):
             """
@@ -421,11 +404,4 @@ def histogramDB_declaration():
                 return None
 
     return HistoDBconnection();
-
             
-#if __name__ == '__main__':
-#    #Setup Error handling and logging
-#    err = errorhandler(None)
-#    connection = HistoDBconnection(err)
-#    dbStatus = connection.connectToDB()
-#    print dbStatus

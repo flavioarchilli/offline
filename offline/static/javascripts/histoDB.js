@@ -409,20 +409,25 @@ function checkDBConnection()
 function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, filter)
 {
 	//if both or any of the both flags is true => read from db
+        console.log("I'm here in treeAjaxCall")
 	readFromDB = enforceReadFromDBFlag || pageNormallyReadFromDBFlag
 	$.ajax({
 		async : true,
 		type : "GET",
 		url : "menutree",
 		dataType : "json",   
-		data: { loadFromDBFlag: readFromDB, allNodesStandardState: allNodesStandardState, filterFlag: filterFlag, filter: filter}, 
-
+		data: { 
+		    loadFromDBFlag: readFromDB, 
+		    allNodesStandardState: allNodesStandardState, 
+		    filterFlag: filterFlag, 
+		    filter: filter}, 
 		success : function(json) {
+		  console.log("I'll create a JStree");
 		  createJSTrees(json);
 		  $("#loading").css("display", "none");
 		},  
-
 		error : function(xhr, ajaxOptions, thrownError) {
+		  console.log("Error on menutree");
 		  alert("JSON Error:" + thrownError);
 		}
 	  });
@@ -430,139 +435,139 @@ function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, 
 
 
 function createJSTrees(jsonData) {
-  	$("#menuTree").jstree(
-	{ 
-		'core' : 
-		{
-		  'data' : jsonData
-		}
-	}
-
-	);
+    console.log("I'm inside createJSTrees");
+    
+    console.log(jsonData);
+    $("#menuTree").jstree({
+	    "core" : {
+		"animation" : 1,
+		"data" : jsonData
+	    }
+     });
 	
-	function selectNode(e, data)
-	{
-		if (data.node.id.indexOf("//F//") != 0)
-    		{
-    			$("#connectionStatus").css("display", "none");
-    			window.location = "Histo?path="+encodeURIComponent(data.node.id);
-    		}
-	}
+    function selectNode(e, data)
+    {
+	if (data.node.id.indexOf("//F//") != 0)
+	    {
+		$("#connectionStatus").css("display", "none");
+		window.location = "Histo?path="+encodeURIComponent(data.node.id);
+	    }
+    }
 	
-	function openNode(e, data)
-	{
+    function openNode(e, data)
+    {
 		
-		//Folder Id start not with //F//, so we have a folder
-    		if (data.node.id.indexOf("//F//") == 0)
-    		{
-    			var d = document.getElementById(data.node.id);
-    			
-    			var object = $(d).children("a").children("i");
-
-    			object.addClass("glyphicon");
-    			if(object.hasClass("glyphicon-folder-close"))
-    			{
-    				object.removeClass("glyphicon-folder-close");
-    			}
-    			object.addClass("glyphicon-folder-open");
-      			
-      			//Create ajax call to save tree state
-      			$.ajax({
-				url: 'menuTreeOpenOrCloseFolder',
-				type: 'GET',
-				data: { id: data.node.id, action: "open"} ,
-				contentType: 'application/json; charset=utf-8',
-				success : function(json) {
-				},    
-
-				error : function(xhr, ajaxOptions, thrownError) {
-				    alert("JSON Error:" + thrownError);
-				}
+	//Folder Id start not with //F//, so we have a folder
+	if (data.node.id.indexOf("//F//") == 0)
+	    {
+		var d = document.getElementById(data.node.id);
+    		
+		var object = $(d).children("a").children("i");
 		
-			}); 
-      		}
-	}
-	
-	function closeNode(e, data)
-	{
-		//Folder Id start not with //F//, so we have a folder
-      		if (data.node.id.indexOf("//F//") == 0)
-      		{
-      			var d = document.getElementById(data.node.id);
+		object.addClass("glyphicon");
+		if(object.hasClass("glyphicon-folder-close"))
+		    {
+			object.removeClass("glyphicon-folder-close");
+		    }
+		object.addClass("glyphicon-folder-open");
+      		
+		//Create ajax call to save tree state
+		$.ajax({
+			url: 'menuTreeOpenOrCloseFolder',
+			    type: 'GET',
+			    data: { id: data.node.id, action: "open"} ,
+			    contentType: 'application/json; charset=utf-8',
+			    success : function(json) {
+			},    
+			    
+			    error : function(xhr, ajaxOptions, thrownError) {
+			    alert("JSON Error:" + thrownError);
+			}
+			
+		    }); 
+	    }
+    }
+    
+    function closeNode(e, data)
+    {
+	//Folder Id start not with //F//, so we have a folder
+	if (data.node.id.indexOf("//F//") == 0)
+	    {
+		var d = document.getElementById(data.node.id);
       			
-      			var object = $(d).children("a").children("i");
+		var object = $(d).children("a").children("i");
 
-      			object.addClass("glyphicon");
-      			if(object.hasClass("glyphicon-folder-open"))
-      			{
-      				object.removeClass("glyphicon-folder-open");
-      			}
-      			object.addClass("glyphicon-folder-close");
+		object.addClass("glyphicon");
+		if(object.hasClass("glyphicon-folder-open"))
+		    {
+			object.removeClass("glyphicon-folder-open");
+		    }
+		object.addClass("glyphicon-folder-close");
       			
-      			//Create ajax call to save tree state
-      			$.ajax({
-				url: 'menuTreeOpenOrCloseFolder',
-				type: 'GET',
-				data: { id: data.node.id, action: "close"} ,
-				contentType: 'application/json; charset=utf-8',
-				success : function(json) {
-				},    
+		//Create ajax call to save tree state
+		$.ajax({
+			url: 'menuTreeOpenOrCloseFolder',
+			    type: 'GET',
+			    data: { id: data.node.id, action: "close"} ,
+			    contentType: 'application/json; charset=utf-8',
+			    success : function(json) {
+			},    
 
-				error : function(xhr, ajaxOptions, thrownError) {
-				    alert("JSON Error:" + thrownError);
-				}
+			    error : function(xhr, ajaxOptions, thrownError) {
+			    alert("JSON Error:" + thrownError);
+			}
 		
-			});
-      		}
-	}
+		    });
+	    }
+    }
 	
-	function reloadTree(event, data)
-	{
-		$("#menuTree").jstree("destroy");
-		$("#loading").css("display", "block");
-		treeAjaxCall(true, "closed", false, "");
-	}
+    function reloadTree(event, data)
+    {
+	$("#menuTree").jstree("destroy");
+	$("#loading").css("display", "block");
+	treeAjaxCall(true, "closed", false, "");
+    }
 	
-	function openAllTree()
-	{
-		$("#menuTree").jstree("destroy");
-		$("#loading").css("display", "block");
-		treeAjaxCall(true, "opened", false, "");
-	}
+    function openAllTree()
+    {
+	$("#menuTree").jstree("destroy");
+	$("#loading").css("display", "block");
+	treeAjaxCall(true, "opened", false, "");
+    }
 	
-	function closeAllTree()
-	{
-		$("#menuTree").jstree("destroy");
-		$("#loading").css("display", "block");
-		treeAjaxCall(true, "closed", false, "");
-	}
+    function closeAllTree()
+    {
+	$("#menuTree").jstree("destroy");
+	$("#loading").css("display", "block");
+	treeAjaxCall(true, "closed", false, "");
+    }
 	
-	function addFilter()
-	{
-		var filter = $("#filterTextfield").val();
-		$("#menuTree").jstree("destroy");
-		$("#loading").css("display", "block");
-		treeAjaxCall(true, "opened", true, filter);
-	}
+    function addFilter()
+    {
+	var filter = $("#filterTextfield").val();
+	$("#menuTree").jstree("destroy");
+	$("#loading").css("display", "block");
+	treeAjaxCall(true, "opened", true, filter);
+    }
 	
-	function removeFilter()
-	{
-		$("#filterTextfield").val("");
-		$("#menuTree").jstree("destroy");
-		$("#loading").css("display", "block");
-		treeAjaxCall(true, "closed", false, "");
-	}
+    function removeFilter()
+    {
+	$("#filterTextfield").val("");
+	$("#menuTree").jstree("destroy");
+	$("#loading").css("display", "block");
+	treeAjaxCall(true, "closed", false, "");
+    }
 	
-	$("#menuTree").bind("open_node.jstree",function(event,data){openNode(event, data)});
-	$("#menuTree").bind("close_node.jstree",function(event,data){closeNode(event, data)});
-	$("#menuTree").bind("select_node.jstree",function(event,data){selectNode(event, data)});
+    $("#menuTree").bind("open_node.jstree",function(event,data){openNode(event, data)});
+    $("#menuTree").bind("close_node.jstree",function(event,data){closeNode(event, data)});
+    $("#menuTree").bind("select_node.jstree",function(event,data){selectNode(event, data)});
 	
-	$("#menuTree").bind("loaded.jstree", function (event, data) {
-		$("#reloadTreeButton").click( function() { reloadTree() } );
-		$("#openAllTreeButton").click( function() { openAllTree() } );
-		$("#closeAllTreeButton").click( function() { closeAllTree() } );
-		$("#addFilterButton").click( function() { addFilter() } );
-		$("#removeFilterButton").click( function() { removeFilter() } );
+    $("#menuTree").bind("loaded.jstree", function (event, data) {
+	    $("#reloadTreeButton").click( function() { reloadTree() } );
+	    $("#openAllTreeButton").click( function() { openAllTree() } );
+	    $("#closeAllTreeButton").click( function() { closeAllTree() } );
+	    $("#addFilterButton").click( function() { addFilter() } );
+	    $("#removeFilterButton").click( function() { removeFilter() } );
 	})
 } 
 
