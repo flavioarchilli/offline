@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "auth.html" %}
 
 {% block htmlHeader %}
 {#      {{ stylesheet_tag('lib/jsTree/themes/default/style', blueprint='offline_bp') }} #}
@@ -17,12 +17,3 @@
 </div>
 {% endblock %}
 
-{% block pageheader %}Please Login{% endblock %}
-{% block body %}
-  Welcome to the Webmonitoring pages! You need to be logged in to view the histograms!
-
-                <form action="/login" method="get">
-                <input type="submit" value="Log in">
-                </form>
- 
-{% endblock %}

@@ -51,9 +51,13 @@ def loginner():
                            VERSION = settings.getVersion(),
                            REFERENCE_STATE = settings.getReferenceState()) 
     else:
-         page = render_template("home.html")
+         page = render_template("WelcomePage.html")
     return page
 
+@offline_bp.route('/ConfirmQuit')
+def exiter():
+     page = render_template("ConfirmQuit.html")
+     return page
 
 
 @offline_bp.route('/checkDBConnection')
