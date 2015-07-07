@@ -9,11 +9,17 @@ from config import *
 import ROOT
 #import pprint
 
+
 class userSettings:
-	def __init__(self, userid = "1" ):
+	def __init__(self, err):
 		self.actualROOTFile = None
 		self.actualROOTReferenceFile = None
-                self.OptionsFileName = "sessions/" + userid + "options.tcl" 
+                self.OptionsFileName = "sessions/default.tcl"
+
+
+        def setOptionsFile(self, uid):
+                self.OptionsFileName = "sessions/" + uid + "options.tcl" 
+
 	
 	def initFile(self):
 		try:

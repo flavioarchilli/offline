@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint,redirect
 import webmonitor
 import pprint
 
@@ -23,7 +23,9 @@ def create_app():
                         template_folder='templates',
                         static_folder='static',
                         static_url_path='/{0}'.format(__name__))
-
+    @presenter.route('/')
+    def strange_fun():
+       return redirect('/offline_bp') 
     app.register_blueprint(presenter)
 
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')

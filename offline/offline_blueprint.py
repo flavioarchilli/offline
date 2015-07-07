@@ -16,28 +16,44 @@ import os
 import json
 
 from userSettings import *
-#store user Settings
-settings = userSettings()
+from errorhandler import *
+
+err = errorhandler()
+settings = userSettings(err)
 settings.readInHistoRootFileIfPossible()
 settings.readInReferenceRootFileIfPossible()
 
+
+
+import webmonitor 
 
 offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp',
                      static_folder='static')
 
+def check_auth(): 
+    return webmonitor.auth.check_user_account()
+            
+
+
+
 
 @offline_bp.route('/')
-@offline_bp.route('Overview')
-def Overview():
-    g.active_page = "menu"
-    page = render_template("offline_bp/Overview.html",
+@offline_bp.route('/Overview')
+def loginner():
+    if webmonitor.auth.check_user_account() != "false":
+         g.active_page = "menu"
+         settings.setOptionsFile(webmonitor.auth.get_user_id())
+         err.setlogger(current_app.logger)
+         page = render_template("Overview.html",
                            LOAD_FROM_DB_FLAG = "false",
-                           RUN_NMBR = "0",
-                           VERSION = "0",
-                           REFERENCE_STATE = "deactivated")
-		
+                           RUN_NMBR =  settings.getRunNmbr(),
+                           VERSION = settings.getVersion(),
+                           REFERENCE_STATE = settings.getReferenceState()) 
+    else:
+         page = render_template("home.html")
     return page
+
 
 
 @offline_bp.route('/checkDBConnection')
@@ -48,6 +64,10 @@ def checkDBConnection():
     
     Returns a JSON string, indicating if we could connect successfully.
     """
+
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
 
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
@@ -79,6 +99,10 @@ def generateMenuTreeJSON():
     "expand all" and "collapse all" button.
 	
     """
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
+
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
     filterFlag = request.args.get('filterFlag')
@@ -97,6 +121,11 @@ def menuTreeOpenOrCloseFolder():
     id: The id of the node opened. This has to start with //F//, which denotes folders. After //F// the path follows, i.e. //FF///a/b/c
     action: Whether a node was closed or opened
     """
+
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
+
     id = request.args.get('id')
     action = request.args.get('action')
     
@@ -203,6 +232,11 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
 
     WARNING: to be reviewed 
     """
+
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
+
     connection = current_app.config["HISTODB"]
 
     # loadFromDBFlag == "false" and not False because it is sent by json by javascript!
@@ -305,6 +339,9 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
 @offline_bp.route('/Histo<path>')
 @offline_bp.route('/Histo')
 def Histo(path=""):
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
     connection = current_app.config["HISTODB"]
     g.active_page = "Histo"
     if path == "":
@@ -383,6 +420,9 @@ def Histo(path=""):
 
 @offline_bp.route('/setReferenceState')	
 def changeReferenceState():
+     if check_auth() == "false":
+        page = render_template("home.html")
+        return page
  
      state = request.args.get('state')
      
@@ -404,6 +444,9 @@ def storeVersion():
     reference file and saves it.
     
     """
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
     bkClient = current_app.config["BKKDB"]
     #save recoVersion
     #here called full path, because it is like /Real Data/Reco14 und not just Reco13
@@ -463,6 +506,9 @@ def storeRunNmbr():
     Called by javascript via ajax call to set the run number.
     
     """
+    if check_auth() == "false":
+        page = render_template("home.html")
+        return page
     bkClient = current_app.config["BKKDB"]
     #retrieve the run number as GET argument
     runNmbr = int(request.args.get('runNmbr'))
