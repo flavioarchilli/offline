@@ -43,20 +43,23 @@ def check_auth():
 def loginner():
     if webmonitor.auth.check_user_account() != "false":
          g.active_page = "menu"
-         settings.setOptionsFile(webmonitor.auth.get_user_id())
+         settings.setOptionsFile(webmonitor.auth.get_info("uid"))
          err.setlogger(current_app.logger)
          page = render_template("Overview.html",
                            LOAD_FROM_DB_FLAG = "false",
                            RUN_NMBR =  settings.getRunNmbr(),
                            VERSION = settings.getVersion(),
-                           REFERENCE_STATE = settings.getReferenceState()) 
+                           REFERENCE_STATE = settings.getReferenceState(),
+                           USERNAME = webmonitor.auth.get_info("username")) 
     else:
          page = render_template("WelcomePage.html")
     return page
 
 @offline_bp.route('/ConfirmQuit')
 def exiter():
-     page = render_template("ConfirmQuit.html")
+     page = render_template("ConfirmQuit.html",
+                           USERNAME = webmonitor.auth.get_info("username"),
+                           PROJECTNAME = 'DQM')
      return page
 
 
@@ -70,7 +73,7 @@ def checkDBConnection():
     """
 
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
 
     connection = current_app.config["HISTODB"]
@@ -104,7 +107,7 @@ def generateMenuTreeJSON():
 	
     """
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
 
     loadFromDBFlag = request.args.get('loadFromDBFlag')
@@ -127,7 +130,7 @@ def menuTreeOpenOrCloseFolder():
     """
 
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
 
     id = request.args.get('id')
@@ -238,7 +241,7 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     """
 
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
 
     connection = current_app.config["HISTODB"]
@@ -344,7 +347,7 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
 @offline_bp.route('/Histo')
 def Histo(path=""):
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
     connection = current_app.config["HISTODB"]
     g.active_page = "Histo"
@@ -417,7 +420,8 @@ def Histo(path=""):
                                RUN_NMBR = settings.getRunNmbr(),
                                VERSION_FULL = settings.getVersion(),
                                VERSION_VISIBLE = visiblePart,
-                               REFERENCE_STATE = settings.getReferenceState())
+                               REFERENCE_STATE = settings.getReferenceState(),
+                               USERNAME = webmonitor.auth.get_info("username"))
 
 
     return page
@@ -425,7 +429,7 @@ def Histo(path=""):
 @offline_bp.route('/setReferenceState')	
 def changeReferenceState():
      if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
  
      state = request.args.get('state')
@@ -449,7 +453,7 @@ def storeVersion():
     
     """
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
     bkClient = current_app.config["BKKDB"]
     #save recoVersion
@@ -511,7 +515,7 @@ def storeRunNmbr():
     
     """
     if check_auth() == "false":
-        page = render_template("home.html")
+        page = render_template("WelcomePage.html")
         return page
     bkClient = current_app.config["BKKDB"]
     #retrieve the run number as GET argument
