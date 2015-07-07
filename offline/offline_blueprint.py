@@ -17,7 +17,7 @@ import json
 
 from userSettings import *
 from errorhandler import *
-
+ 
 err = errorhandler()
 settings = userSettings(err)
 settings.readInHistoRootFileIfPossible()
