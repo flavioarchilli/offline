@@ -31,8 +31,6 @@ offline_bp = Blueprint('offline_bp', __name__,
                      static_folder='static')
 
 def check_auth():
-    if webmonitor.auth.get_info("username") == "" : 
-         return "false"
     return webmonitor.auth.check_user_account()
             
 
@@ -69,7 +67,8 @@ def hlt2():
          err.setlogger(current_app.logger)
          page = render_template("hlt2.html",
                            LOAD_FROM_DB_FLAG = "false",
-                           REFERENCE_STATE = settings.getReferenceState()) 
+                           REFERENCE_STATE = settings.getReferenceState(),
+                           USERNAME = webmonitor.auth.get_info("username")) 
     else:
          page = render_template("WelcomePage.html")
     return page
