@@ -30,7 +30,7 @@ offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp',
                      static_folder='static')
 
-def check_auth(): 
+def check_auth():
     return webmonitor.auth.check_user_account()
             
 
@@ -63,13 +63,14 @@ def exiter():
 def hlt2():
     if webmonitor.auth.check_user_account() != "false":
          g.active_page = "menu"
-         settings.setOptionsFile(webmonitor.auth.get_user_id())
+         settings.setOptionsFile(webmonitor.auth.get_info("uid"))
          err.setlogger(current_app.logger)
          page = render_template("hlt2.html",
                            LOAD_FROM_DB_FLAG = "false",
-                           REFERENCE_STATE = settings.getReferenceState()) 
+                           REFERENCE_STATE = settings.getReferenceState(),
+                           USERNAME = webmonitor.auth.get_info("username")) 
     else:
-         page = render_template("home.html")
+         page = render_template("WelcomePage.html")
     return page
 
 @offline_bp.route('/get_hlt2_filename')
