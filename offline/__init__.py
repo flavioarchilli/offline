@@ -26,6 +26,11 @@ def create_app():
     @presenter.route('/')
     def strange_fun():
        return redirect('/offline_bp') 
+
+    @presenter.route('/ConfirmQuit')
+    def logout_fun():
+       return redirect('/offline_bp/ConfirmQuit')
+
     app.register_blueprint(presenter)
 
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
