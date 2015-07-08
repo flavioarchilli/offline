@@ -58,7 +58,7 @@ def exiter():
                            PROJECTNAME = 'DQM')
      return page
 
-
+# New Monitoring
 @offline_bp.route('/hlt2')
 def hlt2():
     if webmonitor.auth.check_user_account() != "false":
