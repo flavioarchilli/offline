@@ -571,6 +571,31 @@ function createJSTrees(jsonData) {
 	})
 } 
 
+
+////////////////////////////////////////////
+// HLT2 file selector
+////////////////////////////////////////////
+function init_selector_for_hlt2(el){
+  $(el).select2({
+    placeholder: "Choose a filename",
+    minimumInputLength: 2,
+    ajax: {
+      url: "/get_hlt2_filename",
+      dataType: 'json',
+      quietMillis: 100,
+      results: function (data) {
+        return {
+          results: data.histo_name,
+	  fullpath: data.item_path
+        };
+      } },
+
+    dropdownCssClass: "bigdrop",
+    escapeMarkup: function (m) {
+        return m;}
+  });
+
+}
 ////////////////////////////////////////////
 //jQuery part
 ////////////////////////////////////////////
@@ -590,5 +615,10 @@ $(function() {
 	treeAjaxCall(false, "closed", false, "");	
 	checkDBConnection();
 	//check DB Connection every minute
-	window.setInterval(checkDBConnection, 1000*60*1);
+	window.setInterval(checkDBConnection, 1000*60*1);	
+
+
+	//to be loaded in a different js file
+	init_selector_for_hlt2($("#filename_hlt2"));
+	init_selector_for_hlt2($("#reference_filename_hlt2"));
 });

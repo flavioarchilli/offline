@@ -14,6 +14,9 @@ from flask import (
 import pickle
 import os
 import json
+from glob import glob
+import webmonitor 
+
 
 from userSettings import *
 from errorhandler import *
@@ -23,10 +26,6 @@ settings = userSettings(err)
 settings.readInHistoRootFileIfPossible()
 settings.readInReferenceRootFileIfPossible()
 
-
-
-import webmonitor 
-
 offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp',
                      static_folder='static')
@@ -34,9 +33,6 @@ offline_bp = Blueprint('offline_bp', __name__,
 def check_auth(): 
     return webmonitor.auth.check_user_account()
             
-
-
-
 
 @offline_bp.route('/')
 @offline_bp.route('/Overview')
@@ -54,6 +50,38 @@ def loginner():
          page = render_template("home.html")
     return page
 
+
+
+@offline_bp.route('/hlt2')
+def hlt2():
+    if webmonitor.auth.check_user_account() != "false":
+         g.active_page = "menu"
+         settings.setOptionsFile(webmonitor.auth.get_user_id())
+         err.setlogger(current_app.logger)
+         page = render_template("hlt2.html",
+                           LOAD_FROM_DB_FLAG = "false",
+                           REFERENCE_STATE = settings.getReferenceState()) 
+    else:
+         page = render_template("home.html")
+    return page
+
+@offline_bp.route('/get_hlt2_filename')
+def get_hlt2_filename():
+
+    mypath = "/hist/Savesets/2015/DQ/DataQuality/"
+    results = [y for x in os.walk(mypath) for y in glob(os.path.join(x[0], '*-EOR.root'))] 
+    filenames = []
+    for j in results:
+        filenames.append(os.path.basename(j))
+    d = dict(
+        status_code = "OK",
+        success = True,
+        data = dict(
+            root_filename = filenames,
+            full_path = results
+            )
+        )
+    return jsonify(d)
 
 
 @offline_bp.route('/checkDBConnection')
