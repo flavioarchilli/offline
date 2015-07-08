@@ -3,7 +3,7 @@ function checkDBConnection()
 	$.ajax({
 		async : true,
 		type : "GET",
-		url : "checkDBConnection",
+		url : "/histogramDB_tree_menu/checkDBConnection",
 		dataType : "json",  
 
 		success : function( data, textStatus, jqXHR ) {
@@ -56,7 +56,7 @@ function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, 
 	$.ajax({
 		async : true,
 		type : "GET",
-		url : "menutree",
+		url : "/histogramDB_tree_menu/menutree",
 		dataType : "json",   
 		data: { 
 		    loadFromDBFlag: readFromDB, 
@@ -115,7 +115,7 @@ function createJSTrees(jsonData) {
       		
 		//Create ajax call to save tree state
 		$.ajax({
-			url: 'menuTreeOpenOrCloseFolder',
+			url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
 			    type: 'GET',
 			    data: { id: data.node.id, action: "open"} ,
 			    contentType: 'application/json; charset=utf-8',
@@ -148,7 +148,7 @@ function createJSTrees(jsonData) {
       			
 		//Create ajax call to save tree state
 		$.ajax({
-			url: 'menuTreeOpenOrCloseFolder',
+			url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
 			    type: 'GET',
 			    data: { id: data.node.id, action: "close"} ,
 			    contentType: 'application/json; charset=utf-8',

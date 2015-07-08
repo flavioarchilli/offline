@@ -10,6 +10,7 @@ __all__ = ['create_app', 'wsgi']
 def create_app():
 
     from offline.offline_blueprint import offline_bp
+    from offline.histogramDB_tree_menu import histogramDB_tree_menu
     from offline.job_resolvers import tasks_resolver
 
     app = webmonitor.create_app()
@@ -32,8 +33,9 @@ def create_app():
        return redirect('/offline_bp/ConfirmQuit')
 
     app.register_blueprint(presenter)
-
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
+
+    app.register_blueprint(histogramDB_tree_menu, url_prefix='/histogramDB_tree_menu')
 
     app.add_job_resolver(tasks_resolver)
 
