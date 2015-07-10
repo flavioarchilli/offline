@@ -41,7 +41,7 @@ def checkDBConnection():
     Returns a JSON string, indicating if we could connect successfully.
     """
 
-    if check_auth() == "false":
+    if not check_auth():
         page = render_template("WelcomePage.html")
         return page
 
@@ -75,7 +75,7 @@ def generateMenuTreeJSON():
     "expand all" and "collapse all" button.
 	
     """
-    if check_auth() == "false":
+    if not check_auth():
         page = render_template("WelcomePage.html")
         return page
 
@@ -98,7 +98,7 @@ def menuTreeOpenOrCloseFolder():
     action: Whether a node was closed or opened
     """
 
-    if check_auth() == "false":
+    if not check_auth():
         page = render_template("WelcomePage.html")
         return page
 
@@ -209,7 +209,7 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     WARNING: to be reviewed 
     """
 
-    if check_auth() == "false":
+    if not check_auth():
         page = render_template("WelcomePage.html")
         return page
 
@@ -315,7 +315,7 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
 @histogramDB_tree_menu.route('/Histo<path>')
 @histogramDB_tree_menu.route('/Histo')
 def Histo(path=""):
-    if check_auth() == "false":
+    if not check_auth():
         page = render_template("WelcomePage.html")
         return page
     connection = current_app.config["HISTODB"]
