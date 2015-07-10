@@ -251,4 +251,4 @@ class userSettings:
 			return options["runNmbr"]
 		except Exception as inst:
 			self.err.rethrowException(inst)
-			return None
+			return 0

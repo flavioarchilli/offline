@@ -214,7 +214,7 @@ def storeRunNmbr():
     	#if our previous recoVersion is the one we are looking at
     	if recoVersionFullpath == reco:
     	    #save this information
-                selectedRecoVersion = reco
+            selectedRecoVersion = reco
     		
         #previous Reco Version is not allowed for this runNmbr, throw away rootFiles
         if selectedRecoVersion == "":

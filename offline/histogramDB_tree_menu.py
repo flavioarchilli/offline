@@ -381,17 +381,17 @@ def Histo(path=""):
     visiblePart = ""
     if len(recoVersionParts) > 2:
         visiblePart = recoVersionParts[2]
-    		
-    	
+
+
     page = render_template("Histo.html", PATH = path, 
-                               HISTOS_CONTAINED = str(histosContained), 
-                               HISTO_PLOTS = rows,  
-                               LOAD_FROM_DB_FLAG = "false",
-                               RUN_NMBR = settings.getRunNmbr(),
-                               VERSION_FULL = settings.getVersion(),
-                               VERSION_VISIBLE = visiblePart,
-                               REFERENCE_STATE = settings.getReferenceState(),
-                               USERNAME = webmonitor.auth.get_info("username"))
+                           HISTOS_CONTAINED = str(histosContained), 
+                           HISTO_PLOTS = rows,  
+                           LOAD_FROM_DB_FLAG = "false",                           
+                           RUN_NMBR = settings.getRunNmbr(),
+                           VERSION_FULL = settings.getVersion(),
+                           VERSION_VISIBLE = visiblePart,
+                           REFERENCE_STATE = settings.getReferenceState(),
+                           USERNAME = webmonitor.auth.get_info("username"))
 
 
     return page

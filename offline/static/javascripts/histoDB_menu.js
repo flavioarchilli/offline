@@ -50,29 +50,29 @@ function checkDBConnection()
 // allNodesStandardState == "closed" all nodes are closed
 function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, filter)
 {
-	//if both or any of the both flags is true => read from db
-        console.log("I'm here in treeAjaxCall")
-	readFromDB = enforceReadFromDBFlag || pageNormallyReadFromDBFlag
-	$.ajax({
-		async : true,
+    //if both or any of the both flags is true => read from db
+    console.log("I'm here in treeAjaxCall");
+    readFromDB = enforceReadFromDBFlag || pageNormallyReadFromDBFlag;
+    $.ajax({
+	    async : true,
 		type : "GET",
 		url : "/histogramDB_tree_menu/menutree",
 		dataType : "json",   
 		data: { 
-		    loadFromDBFlag: readFromDB, 
+		loadFromDBFlag: readFromDB, 
 		    allNodesStandardState: allNodesStandardState, 
 		    filterFlag: filterFlag, 
 		    filter: filter}, 
 		success : function(json) {
-		  console.log("I'll create a JStree");
-		  createJSTrees(json);
-		  $("#loading").css("display", "none");
-		},  
+		console.log("I'll create a JStree");
+		createJSTrees(json);
+		$("#loading").css("display", "none");
+	    },  
 		error : function(xhr, ajaxOptions, thrownError) {
-		  console.log("Error on menutree");
-		  alert("JSON Error:" + thrownError);
-		}
-	  });
+		console.log("Error on menutree");
+		alert("JSON Error:" + thrownError);
+	    }
+	});
 }
 
 
@@ -92,7 +92,7 @@ function createJSTrees(jsonData) {
 	if (data.node.id.indexOf("//F//") != 0)
 	    {
 		$("#connectionStatus").css("display", "none");
-		window.location = "Histo?path="+encodeURIComponent(data.node.id);
+		window.location = "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id);
 	    }
     }
 	
