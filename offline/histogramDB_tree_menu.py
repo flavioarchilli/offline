@@ -14,7 +14,6 @@ from flask import (
 import pickle
 import os
 import json
-import webmonitor 
 
 
 from userSettings import *
@@ -29,7 +28,7 @@ histogramDB_tree_menu = Blueprint('histogramDB_tree_menu', __name__,
                      static_folder='static')
 
 def check_auth():
-    return webmonitor.auth.check_user_account()
+    return current_app.auth
             
 
 
@@ -391,7 +390,7 @@ def Histo(path=""):
                            VERSION_FULL = settings.getVersion(),
                            VERSION_VISIBLE = visiblePart,
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = webmonitor.auth.get_info("username"))
+                           USERNAME = current_app.username)
 
 
     return page

@@ -15,7 +15,6 @@ import pickle
 import os
 import json
 from glob import glob
-import webmonitor 
 
 
 from userSettings import *
@@ -31,22 +30,22 @@ offline_bp = Blueprint('offline_bp', __name__,
                      static_folder='static')
 
 def check_auth():
-    return webmonitor.auth.check_user_account()
+    return current_app.auth
             
 
 @offline_bp.route('/')
 @offline_bp.route('/Overview')
 def loginner():
-    if webmonitor.auth.check_user_account() != "false":
+    if current_app.auth:
          g.active_page = "menu"
-         settings.setOptionsFile(webmonitor.auth.get_info("uid"))
+         settings.setOptionsFile(current_app.uid)
          err.setlogger(current_app.logger)
          page = render_template("Overview.html",
                            LOAD_FROM_DB_FLAG = "false",
                            RUN_NMBR =  settings.getRunNmbr(),
                            VERSION = settings.getVersion(),
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = webmonitor.auth.get_info("username")) 
+                           USERNAME = current_app.username) 
     else:
          page = render_template("WelcomePage.html")
     return page
@@ -54,21 +53,21 @@ def loginner():
 @offline_bp.route('/ConfirmQuit')
 def exiter():
      page = render_template("ConfirmQuit.html",
-                           USERNAME = webmonitor.auth.get_info("username"),
+                           USERNAME = current_app.username,
                            PROJECTNAME = 'DQM')
      return page
 
 # New Monitoring
 @offline_bp.route('/hlt2')
 def hlt2():
-    if webmonitor.auth.check_user_account() != "false":
+    if current_app.auth:
          g.active_page = "menu"
-         settings.setOptionsFile(webmonitor.auth.get_info("uid"))
+         settings.setOptionsFile(current_app.uid)
          err.setlogger(current_app.logger)
          page = render_template("hlt2.html",
                            LOAD_FROM_DB_FLAG = "false",
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = webmonitor.auth.get_info("username")) 
+                           USERNAME = current_app.username) 
     else:
          page = render_template("WelcomePage.html")
     return page
