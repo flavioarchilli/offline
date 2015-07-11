@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block htmlHeader %}
+
+<style>
+.dropdown-menu {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+</style>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.0.9/themes/default/style.min.css" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.0.9/jstree.min.js"></script>
+
+        {{ javascript_tag('histogram_tools', blueprint='offline') }}
+        {{ javascript_tag('histoDB_menu', blueprint='offline') }}
+        {{ javascript_tag('online_dq_topbar', blueprint='offline') }}
+
+	<script>
+	  var filename = "";
+	  var reference_filename = "";
+	  var pageNormallyReadFromDBFlag = {{ LOAD_FROM_DB_FLAG }};
+	</script>
+
+	{% endblock %}
+	{% block toolbar %}
+	<div class="container-fluid">
+    	  <p class="navbar-text">Online DQ Monitor:</p>
+
+      	  <span class="navbar-right">
+	    <p class="navbar-text">File:</p>
+	    <form class="navbar-form navbar-left" role="search">
+	      <span class="dropdown">
+		<button class="btn btn-default dropdown-toggle" type="button" id="filename_online_dq_DropdownButton" data-toggle="dropdown">
+		  <span id="filename_online_dq_Text">Please select</span>
+		  <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="filename_online_dq_Button" id="filename_online_dq_DropdownMenu">
+		</ul>
+	      </span>
+	    </form>
+
+	    <p class="navbar-text">Reference File:</p>
+	    <form class="navbar-form navbar-left" role="search">
+	      <span class="dropdown">
+		<button class="btn btn-default dropdown-toggle" type="button" id="reference_filename_online_dq_DropdownButton" data-toggle="dropdown">
+		  <span id="reference_filename_online_dq_Text">Please select</span>
+		  <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="reference_filename_online_dq_DropdownButton" id="reference_filename_online_dq_DropdownMenu">
+		</ul>
+	      </span>
+	    </form>
+
+	    <form class="navbar-form navbar-left">
+	      <button id="statusIndicatorContainer" class="btn" type="button">
+		<span class="glyphicon" id="statusIndicatorIcon"></span> 
+		<span id="statusIndicatorText"></span>
+	      </button>
+	    </form>
+	    
+
+	    <p class="navbar-text">Reference:</p>
+	    <form class="navbar-form navbar-left" role="search">
+		<div class="input-group">
+		  <button id="changeReferenceMode" class="btn " type="button" data-state="{{ REFERENCE_STATE }}">
+		    <span class="glyphicon" id="changeReferenceModeIcon"></span> 
+		    <span id="changeReferenceModeText"> </span>
+		  </button>
+		</div>
+	      </form>
+	</span>
+</div>
+{% endblock %}
+
+{% block navsidebar %}
+	<span id="connectionStatus" class="alert alert-success" style="display: none; height=15px;">
+		<span class="glyphicon glyphicon-ok" id="connectionStatusIcon"></span> 
+		<span id="connectionStatusText"> Connection</span>
+	</span>
+	
+	<div style="height: 4px;">  &nbsp;
+	</div>
+	
+	<div class="btn-group btn-group-justified">
+		<div class="btn-group">
+			<button type="button" id="reloadTreeButton" class="btn btn-default btn-xs">Reload</button>
+		 </div>
+		<div class="btn-group">
+			<button type="button" id="openAllTreeButton" class="btn btn-default btn-xs">Open all</button>
+		 </div>
+		<div class="btn-group">
+			<button type="button" id="closeAllTreeButton" class="btn btn-default btn-xs">Close all</button>
+		 </div>
+	</div>
+	
+	<div style="height: 4px;">  &nbsp;
+	</div>
+	
+	<div class="input-group">
+		<input type="text" id="filterTextfield"  class="form-control">
+		<span class="input-group-btn">
+			<button id="addFilterButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+			<button id="removeFilterButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+		</span>
+	</div>
+	<div class="menuContainer">
+		<div id="loading">Loading menu</div>
+		<div id="menuTree" ></div>
+	</div>	
+{% endblock %}
+{% block navtopbar %}
+    {{ list_link_tag('/', 'Offline') }} 
+{% endblock %}
+{% block body %}
+{% endblock %}
