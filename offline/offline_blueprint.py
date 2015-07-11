@@ -14,7 +14,6 @@ from flask import (
 import pickle
 import os
 import json
-from glob import glob
 
 
 from userSettings import *
@@ -36,8 +35,9 @@ def check_auth():
 @offline_bp.route('/')
 @offline_bp.route('/Overview')
 def loginner():
+
     if current_app.auth:
-         g.active_page = "menu"
+         g.active_page = "offline_bp"
          settings.setOptionsFile(current_app.uid)
          err.setlogger(current_app.logger)
          page = render_template("Overview.html",
@@ -57,38 +57,6 @@ def exiter():
                            PROJECTNAME = 'DQM')
      return page
 
-# New Monitoring
-@offline_bp.route('/hlt2')
-def hlt2():
-    if current_app.auth:
-         g.active_page = "menu"
-         settings.setOptionsFile(current_app.uid)
-         err.setlogger(current_app.logger)
-         page = render_template("hlt2.html",
-                           LOAD_FROM_DB_FLAG = "false",
-                           REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = current_app.username) 
-    else:
-         page = render_template("WelcomePage.html")
-    return page
-
-@offline_bp.route('/get_hlt2_filename')
-def get_hlt2_filename():
-
-    mypath = "/hist/Savesets/2015/DQ/DataQuality/"
-    results = [y for x in os.walk(mypath) for y in glob(os.path.join(x[0], '*-EOR.root'))] 
-    filenames = []
-    for j in results:
-        filenames.append(os.path.basename(j))
-    d = dict(
-        status_code = "OK",
-        success = True,
-        data = dict(
-            root_filename = filenames,
-            full_path = results
-            )
-        )
-    return jsonify(d)
 
 @offline_bp.route('/setReferenceState')	
 def changeReferenceState():

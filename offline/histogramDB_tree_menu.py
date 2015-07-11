@@ -319,9 +319,9 @@ def Histo(path=""):
         page = render_template("WelcomePage.html")
         return page
     connection = current_app.config["HISTODB"]
-    g.active_page = "Histo"
-    if path == "":
-        path = request.args.get('path')
+#    g.active_page = "Histo"
+#    if path == "":
+    path = request.args.get('path')
     
     histosContained = connection.getHistosInPath(path)
     rows = ""

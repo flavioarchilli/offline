@@ -18,7 +18,6 @@ import pprint
 
 def histogramDB_declaration():
 
-
     Base = declarative_base()
     
     class SHOWHISTO(Base):
