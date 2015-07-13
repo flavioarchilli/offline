@@ -1,0 +1,14 @@
+
+<h1 class="page-header">
+Details of {{ PATH }}
+<button type="button" class="btn btn-default btn-group-xs" 
+  	onclick="saveAllHistograms();">
+  <span class="glyphicon glyphicon-floppy-save"></span> Save all
+</button>
+</h1>
+
+
+<div id="histoContainer">
+	{{ HISTO_PLOTS|safe }}  
+</div>
+  

@@ -1,0 +1,19 @@
+{% extends "offline_bp/histoDB.html" %} 
+
+{% block pageheader %}
+	Details of {{ PATH }}
+	<button type="button" class="btn btn-default btn-group-xs" 
+  		onclick="saveAllHistograms();">
+  		<span class="glyphicon glyphicon-floppy-save"></span> Save all
+  	</button>
+{% endblock %}
+{% block body %}
+<!-- Contained histos:
+ {{ HISTOS_CONTAINED }}-->
+
+
+<div id="histoContainer">
+	{{ HISTO_PLOTS|safe }}  
+</div>
+  
+{% endblock %}
