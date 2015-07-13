@@ -72,14 +72,14 @@ function setRunNmbr() {
 			url : "setRunNumber?runNmbr="+nmbr,
 		
 			success : function(json) {
-			setRunNumbrVisualFeedback(json.StatusCode, json.data)
-			  },  
+			    setRunNumbrVisualFeedback(json.StatusCode, json.data)
+			},  
 
 			error : function(xhr, ajaxOptions, thrownError) {
-			alert("<runnumber> JSON Error:" + thrownError);
-			setStatusField("JSON Error:" + thrownError, "danger");
-			$("#recoVersionDropdownButtonText").text("???");
-		  },
+			    alert("<runnumber> JSON Error:" + thrownError);
+			    setStatusField("JSON Error:" + thrownError, "danger");
+			    $("#recoVersionDropdownButtonText").text("???");
+		        },
 
 			complete : function(){disableNavBar(false);}
 		});

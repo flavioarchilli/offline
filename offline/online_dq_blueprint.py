@@ -70,6 +70,9 @@ def set_online_dq_filename():
         return page
 
     filename = request.args.get('filename')
+    print filename
+
+    status_filename = False;
 
     if (os.path.isfile(filename)):
         status_filename = settings.setHistoROOTFileName(filename)        
@@ -102,6 +105,7 @@ def set_online_dq_reference_filename():
 
     filename = request.args.get('filename')
 
+    status_filename = False;
     if (os.path.isfile(filename)):
         status_filename = settings.setReferenceROOTFileName(filename)        
     

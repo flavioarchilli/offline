@@ -75,7 +75,7 @@ class userSettings:
 				optionsFile = open(self.OptionsFileName, "r")
 				options = pickle.load(optionsFile)
 				optionsFile.close()
-	
+                                print "inside set root file",rootFile
 				options["histoRootFile"] = rootFile
 	
 				optionsFile = open(self.OptionsFileName, "w")
@@ -95,7 +95,7 @@ class userSettings:
 	def readInHistoRootFileIfPossible(self):
 		try:
 			rootFile = self.getHistoROOTFileName()
-			
+			print "inside readInHisto", rootFile
 			if rootFile != None and rootFile != "":
 				#open ROOT file
 				
@@ -117,11 +117,12 @@ class userSettings:
 	def getHistoROOTFileName(self):
 		try:
 			self.initFile()
-	
+
+                        print "OptionsFN = ",self.OptionsFileName
 			optionsFile = open(self.OptionsFileName, "r")
 			options = pickle.load(optionsFile)
 			optionsFile.close()
-	
+                        print ">>> Inside getHisto ",options["histoRootFile"]
 			return options["histoRootFile"]
 		except Exception as inst:
 			self.err.rethrowException(inst)

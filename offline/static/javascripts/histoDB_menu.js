@@ -87,47 +87,61 @@ function createJSTrees(jsonData) {
 	    }
      });
 	
-    function selectNode(e, data)
-    {
-	if (data.node.id.indexOf("//F//") != 0)
-	    {
-		$("#connectionStatus").css("display", "none");
-		window.location = "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id);
-	    }
+    function selectNode(e, data){
+	if (data.node.id.indexOf("//F//") != 0){
+	    $("#connectionStatus").css("display", "none");
+	    
+	    //		window.location = "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id);
+	    $.ajax({
+		    async : true,
+		    type : "GET",
+		    url : "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id),
+
+		    success : function(json){
+			console.log(json.html);
+			$("#main").empty();
+			$("#main").append(json.html);
+			
+		    },
+
+		    error : function(xhr, ajaxOptions, thrownError) {
+			alert("JSON Error:" + thrownError);
+		    },
+
+		});
+
+	}
     }
 	
-    function openNode(e, data)
-    {
+    function openNode(e, data){
 		
 	//Folder Id start not with //F//, so we have a folder
-	if (data.node.id.indexOf("//F//") == 0)
-	    {
-		var d = document.getElementById(data.node.id);
-    		
-		var object = $(d).children("a").children("i");
+	if (data.node.id.indexOf("//F//") == 0){
+	    var d = document.getElementById(data.node.id);
+	    
+	    var object = $(d).children("a").children("i");
 		
-		object.addClass("glyphicon");
-		if(object.hasClass("glyphicon-folder-close"))
-		    {
-			object.removeClass("glyphicon-folder-close");
-		    }
-		object.addClass("glyphicon-folder-open");
+	    object.addClass("glyphicon");
+	    if(object.hasClass("glyphicon-folder-close")){
+		object.removeClass("glyphicon-folder-close");
+	    }
+	    object.addClass("glyphicon-folder-open");
       		
 		//Create ajax call to save tree state
-		$.ajax({
-			url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
-			    type: 'GET',
-			    data: { id: data.node.id, action: "open"} ,
-			    contentType: 'application/json; charset=utf-8',
-			    success : function(json) {
-			},    
+	    $.ajax({
+		    url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
+			type: 'GET',
+			data: { id: data.node.id, action: "open"} ,
+			contentType: 'application/json; charset=utf-8',
+			success : function(json) {
+		    },    
 			    
-			    error : function(xhr, ajaxOptions, thrownError) {
-			    alert("JSON Error:" + thrownError);
-			}
+			error : function(xhr, ajaxOptions, thrownError) {
+			alert("JSON Error:" + thrownError);
+		    }
 			
-		    }); 
-	    }
+		}); 
+	}
     }
     
     function closeNode(e, data)

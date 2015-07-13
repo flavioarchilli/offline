@@ -25,7 +25,8 @@ settings.readInHistoRootFileIfPossible()
 settings.readInReferenceRootFileIfPossible()
 
 histogramDB_tree_menu = Blueprint('histogramDB_tree_menu', __name__,
-                     static_folder='static')
+                                  template_folder='templates/histogramDB_tree_menu',
+                                  static_folder='static')
 
 def check_auth():
     return current_app.auth
@@ -357,6 +358,10 @@ def Histo(path=""):
                 ref = histo.OPT.REF
     		
         #save into template
+
+
+        print "FILENAME = ",settings.getHistoROOTFileName()
+
         columns += render_template("histoCell.html", 
                                    DATA_FILE = settings.getHistoROOTFileName(), 
                                    HISTOGRAM_NAME = histogramName, 
@@ -392,5 +397,9 @@ def Histo(path=""):
                            REFERENCE_STATE = settings.getReferenceState(),
                            USERNAME = current_app.username)
 
+    d = dict( 
+        success = True,
+        html = page 
+        )
 
-    return page
+    return jsonify(d)
