@@ -293,14 +293,15 @@ var OfflineApp = (function(window, undefined) {
 
     // Find any elements requiring histograms from files and load them
     $main.find('.histogram').each(function(index, el) {
+
       var $el = $(el),
           file = $el.data('file'),
-          histogram = $el.data('histogram');
+          histogram = $el.data('histogram'),
           hid = $el.data('hid'),
 	  referenceFile = $el.data('reference-file'),//reference file
 	  reference = $el.data('reference'),//reference name in reference file
 	  refNormalisation = $el.data('refnormalisation');
-	  
+
       if (file && histogram) {
         WebMonitor.appendSpinner(el);
         loadHistogramFromFileIntoContainer(histogram, file, hid, reference, referenceFile, refNormalisation, $el);
@@ -308,7 +309,7 @@ var OfflineApp = (function(window, undefined) {
     });
 
     // Add datepicker to appropriate fields
-    $main.find('.input-daterange').datepicker(WebMonitor.settings.datepickerDefaults);
+    //    $main.find('.input-daterange').datepicker(WebMonitor.settings.datepickerDefaults);
   };
 
   return {
