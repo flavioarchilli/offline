@@ -17,6 +17,8 @@ def data_for_object(obj):
     """Return a dictionary representing the data inside the object."""
     obj_class = obj.ClassName()
     d = {}
+    d['type'] = obj_class[2:]
+        
     if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TProfile':
         # For histograms, we provide
         #   binning: List of 2-tuples defining the (low, high) binning edges,
@@ -36,29 +38,29 @@ def data_for_object(obj):
             for i in range(nbins)
         ]
         d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
-        d['type'] = obj_class[2:]
 
-     if obj_class[0:3] == 'TH2':
+
+    if obj_class[0:3] == 'TH2':
        #Same logic for 2D Histograms
-       x_axis = obj.GetXaxis()
-       num_xbins = x_axis.GetNbins()
-       y_axis = obj.GetXaxis()
-       num_ybins = y_axis.GetNbins()
+        x_axis = obj.GetXaxis()
+        num_xbins = x_axis.GetNbins()
+        y_axis = obj.GetXaxis()
+        num_ybins = y_axis.GetNbins()
        
        
-       i = 1
-       j = 1
-       while i <= num_xbins:
-               while j <= num_ybins:
-                    d['values'].append(obj.GetBinContent(i,j))
-                    d['xbinning'].append((x_axis.GetBinLowEdge(i), x_axis.GetBinUpEdge(i)))
-                    d['ybinning'].append((y_axis.GetBinLowEdge(j), y_axis.GetBinUpEdge(j)))
-                    d['uncertainties'].append([obj.GetBinErrorLow(i,j), obj.GetBinErrorUp(i,j)])
+        i = 1
+        j = 1
+        while i <= num_xbins:
+            while j <= num_ybins:
+                d['values'].append(obj.GetBinContent(i,j))
+                d['xbinning'].append((x_axis.GetBinLowEdge(i), x_axis.GetBinUpEdge(i)))
+                d['ybinning'].append((y_axis.GetBinLowEdge(j), y_axis.GetBinUpEdge(j)))
+                d['uncertainties'].append([obj.GetBinErrorLow(i,j), obj.GetBinErrorUp(i,j)])
 
-                    i += 1
-                    j += 1
+                i += 1
+                j += 1
                
-                d['axis_titles'] = (x_axis.GetTitle(), y_axis.GetTitle())
+            d['axis_titles'] = (x_axis.GetTitle(), y_axis.GetTitle())
 
     return d
 
@@ -94,22 +96,30 @@ def get_key_from_file(filename, key_name):
     filename -- Name of file with full path, e.g. `/a/b/my_file.root`
     key_name -- Name of key object is stored as
     """
-    filename = tfile_path(add_file_extension(filename))
+#    filename = tfile_path(add_file_extension(filename))
+    filename = add_file_extension(filename)
+    print ">>> get_key_from_file :: filename = {0}".format(filename)
     f = ROOT.TFile(filename)
+    
+
+    print f
     if f.IsZombie():
         return dict(
             success=False,
             message='Could not open file `{0}`'.format(filename)
         )
-    obj = None
-    # This method, opposed to TFile.Get, is more robust against odd key names
-    for key in f.GetListOfKeys():
-        if key.GetName() == key_name:
-            obj = key.ReadObj()
+#    obj = None
+# This method, opposed to TFile.Get, is more robust against odd key names
+#    for key in f.GetListOfKeys():
+#        print key
+#        if key.GetName() == key_name:
+#            print key_name
+#            obj = key.ReadObj()
+    obj = f.Get(key_name)
     if not obj:
         d = dict(
             success=False,
-            message='Could not find key `{0}` in file `{1}`'.format(
+            message='Could not find key `{1}` in file `{0}`'.format(
                 filename, key_name
             )
         )

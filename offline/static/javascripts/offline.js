@@ -22,8 +22,8 @@ var OfflineApp = (function(window, undefined) {
   };
 
 
-  var localChache = {
-      listOfHistogram: []
+  var localCache = {
+      listOfHistogramData: []
   };
 
   // Draw a histogram in the `container` using `options`.
@@ -39,7 +39,6 @@ var OfflineApp = (function(window, undefined) {
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
 
     var histoOptions = $(document.getElementById("OPTIONS_FOR_"+opt.key_name));
-
     var xLabel = histoOptions.data("label-x")
     var yLabel = histoOptions.data("label-y")
 	
@@ -50,8 +49,8 @@ var OfflineApp = (function(window, undefined) {
       .attr('width', container.width())
       .attr('height', container.height())
       .chart('AxesChart')
-      .xAxisLabel(opt.xAxis.title.text)
-      .yAxisLabel(opt.yAxis.title.text);
+      .xAxisLabel(xLabel)
+      .yAxisLabel(yLabel);
     
     var info = [
       ['Entries', opt.numberEntries],
@@ -59,7 +58,6 @@ var OfflineApp = (function(window, undefined) {
       ['RMS', opt.RMS],
     ];
 	
-
     chart.addOrnament(d3.plotable.TextBox('info', info));
     chart.addPlotable(d3.plotable.Histogram('histogram', data));
 	
@@ -75,8 +73,8 @@ var OfflineApp = (function(window, undefined) {
   // Redraw histograms in the list
   var redrawHistograms = function(referenceState)
   {
-    for(var i = 0; i < OfflineApp.localChache.listOfHistogramData.length; i++) {
-      var histoContent = OfflineApp.localChache.listOfHistogramData[i] ;
+    for(var i = 0; i < localCache.listOfHistogramData.length; i++) {
+      var histoContent = localCache.listOfHistogramData[i] ;
   		
       histoContent.container.empty();
   		
@@ -98,29 +96,32 @@ var OfflineApp = (function(window, undefined) {
   //   undefined
   var displayHistogram = function(data, referenceData, refNormalisation, container) {
 
-    var name = data['name'],
-      type = data['type'],
-      title = data['title'],
-      binning = data['binning'],
-      values = data['values'],
-      uncertainties = data['uncertainties'],
-      axisTitles = data['axis_titles'],      
-      numberEntries = data['numberEntries'],
-      integral = data['integral'],
-      mean = data['mean'],
-      RMS = data['RMS'],
-      key_name = data['key_name'],
-      skewness = data['skewness'];
-      
+    var key_data = data['key_data'];
+
+    var name = key_data['name'],
+      type = key_data['type'],
+      title = data['key_title'],
+      binning = key_data['binning'],
+      values = key_data['values'],
+      uncertainties = key_data['uncertainties'],
+      axisTitles = key_data['axis_titles'],      
+      numberEntries = key_data['numberEntries'],
+      integral = key_data['integral'],
+      mean = key_data['mean'],
+      RMS = key_data['RMS'],
+      key_name = key_data['key_name'],
+      skewness = key_data['skewness'];
+
+
     var xbinning, 
       ybinning;
 
     if (type == "1D"){
-      xbinning = data['binning'];
+      xbinning = key_data['binning'];
 	    
     }else if (type == "2D"){
-      xbinning = data['xbinning'];
-      ybinning = data['ybinning'];
+      xbinning = key_data['xbinning'];
+      ybinning = key_data['ybinning'];
     }
 	
     // Binning of the reference histogram (Only 1D histograms have references)	
@@ -143,7 +144,7 @@ var OfflineApp = (function(window, undefined) {
 	formattedData.push({
 	  xlow: bins[0],
 	  xhigh: bins[1],
-	  y: data['values'][i],
+	  y: key_data['values'][i],
 	  yerr: uncertainties[i],
 	});
       }
@@ -156,7 +157,7 @@ var OfflineApp = (function(window, undefined) {
 	  xhigh: xbins[1],
 	  ylow: ybins[0],
 	  yhigh: ybins[1],				
-	  z: data['values'][i],
+	  z: key_data['values'][i],
 	  elow: uncertainties[i],
 	  eup: uncertainties[i],
         });		    
@@ -191,10 +192,10 @@ var OfflineApp = (function(window, undefined) {
     var options = {
       title: title,
       xAxis: {
-        title: axisTitles[0]
+	    title: "x" //axisTitles[0]
       },
       yAxis: {
-        title: axisTitles[1]
+	    title: "y"//axisTitles[1]
       },
       showUncertainties: true,
       color: "black",
@@ -203,6 +204,7 @@ var OfflineApp = (function(window, undefined) {
       RMS: RMS,
       key_name: key_name
     };
+
 
     
     var refoptions =  $.extend(true,{},options);		
@@ -220,10 +222,10 @@ var OfflineApp = (function(window, undefined) {
       options: options,
       refoptions: refoptions
     };    		
-    OfflineApp.localChache.listOfHistogramData[OfflineApp.localChache.listOfHistogramData.length] = histoContent;
+    localCache.listOfHistogramData[localCache.listOfHistogramData.length] = histoContent;
 
     // Draw the histogram in the container
-    drawHistogram(container, formattedData, options);
+    drawHistogram(container, formattedData, formattedRefData, options, refoptions);
   };
 
   // Fetches and draws the named `histogram`, residing in `file`, in to the `container`.
@@ -240,7 +242,7 @@ var OfflineApp = (function(window, undefined) {
     if (reference != "") {
       var referenceTask = WebMonitor.createTask('get_key_from_file', {filename: referenceFile, key_name: reference});
       referenceTask.done(function(job) {
-        referenceData = job['result']['data']['key_data'];
+        referenceData = job['result']['data']['key_data'];	
       });
       referenceTask.fail(function(message) {
         var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
@@ -257,7 +259,8 @@ var OfflineApp = (function(window, undefined) {
     // Request histogram from server
     var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
     task.done(function(job) {
-      displayHistogram(job['result']['data']['key_data'], referenceData, refNormalisation, container);
+	    //      displayHistogram(job['result']['data']['key_data'], referenceData, refNormalisation, container);
+      displayHistogram(job['result']['data'], referenceData, refNormalisation, container);
     });
     task.fail(function(message) {
       var failMsg = '<p>There was a problem retrieving histogram '
@@ -319,6 +322,6 @@ var OfflineApp = (function(window, undefined) {
 
 $(function() {
   // Adjust some WebMonitor settings before initialisation
-  WebMonitor.settings.debug = true;
+  WebMonitor.settings.debug = false;
   OfflineApp.init(activePage);
 });

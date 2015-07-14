@@ -54,15 +54,12 @@ function set_filename(event){
     var url = "/online_dq_bp/set_online_dq_filename?filename=";
     if (reference_flag) url = "/online_dq_bp/set_online_dq_reference_filename?filename=";
 
-    console.log("I'm setting the filename");
-    console.log("full_path = "+full_path);
     $.ajax({
 	    async : true,
 	    type : "GET",
 	    url : url+encodeURIComponent(full_path),
 
 	    success : function(json) {
-		console.log("STATUS = "+json.status_code);
 		set_online_dq_filename_feedback(json.status_code, full_path, visible_name);
 	    },  
 
@@ -78,13 +75,11 @@ function set_filename(event){
 function build_menu(el, status_code, data, reference_flag){
 
     if (status_code == "NO_ACCESS") {
-	console.log("NO access to /hist area");
 	setStatusField("NO access to /hist area", "danger");
 
     } else if (status_code == "OK") {
 	$(el).empty();
 	for(var i = 0; i < data.root_filename.length; i++) {
-	    console.log("i'm here"+reference_flag);
 	    var full_path = data.full_path[i];
 	    var visible_name = data.root_filename[i];
 
@@ -113,13 +108,12 @@ function build_menu(el, status_code, data, reference_flag){
 }
 
 function init_selector_for_online_dq(el, reference_flag){
-    console.log("init")
+
     $.ajax({
 	   async : true, 
 	   type : "GET",
 	   url : "get_online_dq_filename",
 	   success : function(json){
-		console.log("reference flag = " + reference_flag);
 		build_menu(el, json.status_code, json.data, reference_flag);
 	   },
 	   error : function(xhr, ajaxOptions, thrownError) {

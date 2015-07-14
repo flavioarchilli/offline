@@ -51,7 +51,7 @@ function checkDBConnection()
 function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, filter)
 {
     //if both or any of the both flags is true => read from db
-    console.log("I'm here in treeAjaxCall");
+
     readFromDB = enforceReadFromDBFlag || pageNormallyReadFromDBFlag;
     $.ajax({
 	    async : true,
@@ -64,22 +64,18 @@ function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, 
 		    filterFlag: filterFlag, 
 		    filter: filter}, 
 		success : function(json) {
-		console.log("I'll create a JStree");
-		createJSTrees(json);
-		$("#loading").css("display", "none");
+		    createJSTrees(json);
+		    $("#loading").css("display", "none");
 	    },  
 		error : function(xhr, ajaxOptions, thrownError) {
-		console.log("Error on menutree");
-		alert("JSON Error:" + thrownError);
+		    alert("JSON Error:" + thrownError);
 	    }
 	});
 }
 
 
-function createJSTrees(jsonData) {
-    console.log("I'm inside createJSTrees");
-    
-    console.log(jsonData);
+function createJSTrees(jsonData) {    
+
     $("#menuTree").jstree({
 	    "core" : {
 		"animation" : 1,
@@ -91,7 +87,6 @@ function createJSTrees(jsonData) {
 	if (data.node.id.indexOf("//F//") != 0){
 	    $("#connectionStatus").css("display", "none");
 	    
-	    //		window.location = "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id);
 	    $.ajax({
 		    async : true,
 		    type : "GET",
@@ -100,8 +95,7 @@ function createJSTrees(jsonData) {
 		    success : function(json){
 			console.log(json.html);
 			$("#main").empty();
-			$("#main").append(json.html);
-			
+			$("#main").append(json.html);			
 		    },
 
 		    error : function(xhr, ajaxOptions, thrownError) {

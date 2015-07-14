@@ -11,9 +11,14 @@
 	<div style="display: none" id="{{ HISTOGRAM_DISPLAY_OPTIONS }}" data-label-x="{{ HISTOGRAM_LABEL_X }}" 
 	data-label-y="{{ HISTOGRAM_LABEL_Y }}"></div>
 	
-	<div class="histogram" data-file="{{ DATA_FILE }}" data-histogram="{{ HISTOGRAM_NAME }}" data-hid="{{ HISTOGRAM_HID }}"
-	data-reference="{{ REFERENCE_NAME }}" data-reference-file="{{ REFERENCE_DATA_FILE }}"
-	 data-refnormalisation="{{ REFRENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
+	<div class="histogram" 
+        data-file="{{ DATA_FILE }}" 
+        data-histogram="{{ HISTOGRAM_NAME }}" 
+        data-hid="{{ HISTOGRAM_HID }}"
+	data-reference="{{ REFERENCE_NAME }}" 
+	data-plottype="{{PLOTTYPE}}"
+	data-reference-file="{{ REFERENCE_DATA_FILE }}"
+	data-refnormalisation="{{ REFRENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
 	</div>
 	
 	

@@ -321,11 +321,13 @@ def Histo(path=""):
     else :
         settings.setOptionWithTree(current_app.uid)        
     connection = current_app.config["HISTODB"]
-#    g.active_page = "Histo"
+    g.active_page = "Histo"
 #    if path == "":
     path = request.args.get('path')
     
     histosContained = connection.getHistosInPath(path)
+
+    print histosContained
     rows = ""
     columns = ""
     i = 0
@@ -339,7 +341,7 @@ def Histo(path=""):
         #end if	
     	
         #read out histogram
-        dataFile = "BrunelDaVinci_FULL_121752_00019821.root"
+#        dataFile = "BrunelDaVinci_FULL_121752_00019821.root"
         histogramName = histo.NAME.split("/", 1)[1]
         histogramLabelId = "LABEL_FOR_" + histogramName
         histogramDisplayOptions = "OPTIONS_FOR_" + histogramName
@@ -360,6 +362,7 @@ def Histo(path=""):
     		
         #save into template
 
+        print 'HISTOGRAM_LABEL_X :: {0} ; HISTOGRAM_LABEL_Y :: {1} ; HISTOGRAM_LABEL_ID :: {2}'.format(labelX,labelY,histogramLabelId)
 
 
         columns += render_template("histoCell.html", 
@@ -372,7 +375,7 @@ def Histo(path=""):
                                    HISTOGRAM_HID = HID,
                                    HISTOGRAM_LABEL_X = labelX,
                                    HISTOGRAM_LABEL_Y = labelY,
-                                   REFRENCE_NORMALISATION = ref,
+                                   REFERENCE_NORMALISATION = ref,
                                    HTML_HISTO_ID = "Histo_"+str(i),
                                    HISTO_TITLE= histogramTitle)
     		
