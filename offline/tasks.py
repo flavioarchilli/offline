@@ -17,7 +17,7 @@ def data_for_object(obj):
     """Return a dictionary representing the data inside the object."""
     obj_class = obj.ClassName()
     d = {}
-    if obj_class[0:3] == 'TH1':
+    if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TProfile':
         # For histograms, we provide
         #   binning: List of 2-tuples defining the (low, high) binning edges,
         #   values: List of bin contents, ith entry falling in the ith bin
@@ -37,6 +37,29 @@ def data_for_object(obj):
         ]
         d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
         d['type'] = obj_class[2:]
+
+     if obj_class[0:3] == 'TH2':
+       #Same logic for 2D Histograms
+       x_axis = obj.GetXaxis()
+       num_xbins = x_axis.GetNbins()
+       y_axis = obj.GetXaxis()
+       num_ybins = y_axis.GetNbins()
+       
+       
+       i = 1
+       j = 1
+       while i <= num_xbins:
+               while j <= num_ybins:
+                    d['values'].append(obj.GetBinContent(i,j))
+                    d['xbinning'].append((x_axis.GetBinLowEdge(i), x_axis.GetBinUpEdge(i)))
+                    d['ybinning'].append((y_axis.GetBinLowEdge(j), y_axis.GetBinUpEdge(j)))
+                    d['uncertainties'].append([obj.GetBinErrorLow(i,j), obj.GetBinErrorUp(i,j)])
+
+                    i += 1
+                    j += 1
+               
+                d['axis_titles'] = (x_axis.GetTitle(), y_axis.GetTitle())
+
     return d
 
 

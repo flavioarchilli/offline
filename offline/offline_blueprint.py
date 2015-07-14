@@ -60,7 +60,7 @@ def exiter():
 
 @offline_bp.route('/setReferenceState')	
 def changeReferenceState():
-     if check_auth() == "false":
+     if check_auth() == False:
         page = render_template("WelcomePage.html")
         return page
  
@@ -84,7 +84,7 @@ def storeVersion():
     reference file and saves it.
     
     """
-    if check_auth() == "false":
+    if check_auth() == False:
         page = render_template("WelcomePage.html")
         return page
     bkClient = current_app.config["BKKDB"]
@@ -146,7 +146,7 @@ def storeRunNmbr():
     Called by javascript via ajax call to set the run number.
     
     """
-    if check_auth() == "false":
+    if check_auth() == False:
         page = render_template("WelcomePage.html")
         return page
     bkClient = current_app.config["BKKDB"]

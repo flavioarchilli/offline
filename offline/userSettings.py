@@ -7,7 +7,6 @@ except:
 import os.path
 from config import *
 import ROOT
-#import pprint
 
 
 class userSettings:
@@ -22,7 +21,7 @@ class userSettings:
 
 	
 	def initFile(self):
-		try:
+		try:   
 			if not (os.path.exists(self.OptionsFileName) and os.path.isfile(self.OptionsFileName)):
 				options = dict()
 				options["runNmbr"] = "0"
@@ -75,7 +74,6 @@ class userSettings:
 				optionsFile = open(self.OptionsFileName, "r")
 				options = pickle.load(optionsFile)
 				optionsFile.close()
-                                print "inside set root file",rootFile
 				options["histoRootFile"] = rootFile
 	
 				optionsFile = open(self.OptionsFileName, "w")
@@ -95,17 +93,11 @@ class userSettings:
 	def readInHistoRootFileIfPossible(self):
 		try:
 			rootFile = self.getHistoROOTFileName()
-			print "inside readInHisto", rootFile
 			if rootFile != None and rootFile != "":
-				#open ROOT file
 				
-				#print "rootFile:"+rootFile
 				
 				self.actualROOTFile = ROOT.TFile.Open(rootFile)
 				
-				#pprint.pprint(self.actualROOTFile)
-				
-				#print "End: rootFile"
 				return True
 				
 		except Exception as inst:
@@ -118,11 +110,9 @@ class userSettings:
 		try:
 			self.initFile()
 
-                        print "OptionsFN = ",self.OptionsFileName
 			optionsFile = open(self.OptionsFileName, "r")
 			options = pickle.load(optionsFile)
 			optionsFile.close()
-                        print ">>> Inside getHisto ",options["histoRootFile"]
 			return options["histoRootFile"]
 		except Exception as inst:
 			self.err.rethrowException(inst)
@@ -158,13 +148,10 @@ class userSettings:
 			if referenceFile != None and referenceFile != "":
 				#open ROOT file
 				
-				#print "referenceFile:"+referenceFile
 				
 				self.actualROOTReferenceFile = ROOT.TFile.Open(referenceFile)
 				
-				#pprint.pprint(self.actualROOTReferenceFile)
 				
-				#print "End: referenceFile"
 				return True
 				
 		except Exception as inst:

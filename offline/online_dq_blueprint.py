@@ -46,7 +46,11 @@ def online_dq():
 
 @online_dq_bp.route('/get_online_dq_filename')
 def get_online_dq_filename():
-
+    if check_auth() == False:
+        page = render_template("WelcomePage.html")
+        return page
+    else :
+        settings.setOptionsFile(current_app.uid)
     mypath = "/hist/Savesets/2015/DQ/DataQuality/"
     results = [y for x in os.walk(mypath) for y in glob(os.path.join(x[0], '*-EOR.root'))] 
     filenames = []
@@ -65,12 +69,13 @@ def get_online_dq_filename():
 @online_dq_bp.route('/set_online_dq_filename')
 def set_online_dq_filename():
 
-    if check_auth() == "false":
+    if check_auth() == False:
         page = render_template("WelcomePage.html")
         return page
-
+    else :
+        settings.setOptionsFile(current_app.uid)
+ 
     filename = request.args.get('filename')
-    print filename
 
     status_filename = False;
 
@@ -99,10 +104,11 @@ def set_online_dq_filename():
 @online_dq_bp.route('/set_online_dq_reference_filename')
 def set_online_dq_reference_filename():
 
-    if check_auth() == "false":
+    if check_auth() == False:
         page = render_template("WelcomePage.html")
         return page
-
+    else :
+            settings.setOptionsFile(current_app.uid)
     filename = request.args.get('filename')
 
     status_filename = False;

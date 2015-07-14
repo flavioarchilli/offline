@@ -45,6 +45,8 @@ def checkDBConnection():
     if not check_auth():
         page = render_template("WelcomePage.html")
         return page
+    else :
+        settings.setOptionsFile(current_app.uid)
 
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
@@ -79,6 +81,8 @@ def generateMenuTreeJSON():
     if not check_auth():
         page = render_template("WelcomePage.html")
         return page
+    else :
+        settings.setOptionsFile(current_app.uid)
 
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
@@ -102,7 +106,8 @@ def menuTreeOpenOrCloseFolder():
     if not check_auth():
         page = render_template("WelcomePage.html")
         return page
-
+    else :
+        settings.setOptionsFile(current_app.uid)
     id = request.args.get('id')
     action = request.args.get('action')
     
@@ -213,6 +218,8 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     if not check_auth():
         page = render_template("WelcomePage.html")
         return page
+    else :
+        settings.setOptionsFile(current_app.uid)
 
     connection = current_app.config["HISTODB"]
 
@@ -319,6 +326,8 @@ def Histo(path=""):
     if not check_auth():
         page = render_template("WelcomePage.html")
         return page
+    else :
+        settings.setOptionsFile(current_app.uid)        
     connection = current_app.config["HISTODB"]
 #    g.active_page = "Histo"
 #    if path == "":
