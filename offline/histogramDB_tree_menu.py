@@ -46,7 +46,7 @@ def checkDBConnection():
         page = render_template("WelcomePage.html")
         return page
     else :
-        settings.setOptionsFile(current_app.uid)
+        settings.setOptionWithTree(current_app.uid)
 
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
@@ -82,7 +82,7 @@ def generateMenuTreeJSON():
         page = render_template("WelcomePage.html")
         return page
     else :
-        settings.setOptionsFile(current_app.uid)
+        settings.setOptionWithTree(current_app.uid)
 
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
@@ -107,7 +107,7 @@ def menuTreeOpenOrCloseFolder():
         page = render_template("WelcomePage.html")
         return page
     else :
-        settings.setOptionsFile(current_app.uid)
+        settings.setOptionWithTree(current_app.uid)
     id = request.args.get('id')
     action = request.args.get('action')
     
@@ -125,9 +125,7 @@ def menuTreeOpenOrCloseFolder():
             pathParts = folderName.split("/")
     	
         # Fetch structure from file
-        treeCache = open("treeCache.pcl", "r")
-        menuAsComplexObject = pickle.load(treeCache)
-        treeCache.close()
+        menuAsComplexObject = settings.readTree()
 
         # Containes the root folder
         # we are moving outgoing from root folder to the folder, 
@@ -188,10 +186,7 @@ def menuTreeOpenOrCloseFolder():
         #END while i < len(pathParts):
 
         #save changes
-        treeCache = open("treeCache.pcl", "w")
-        pickle.dump(menuAsComplexObject, treeCache)
-        treeCache.close()
-    	
+        settings.storeTree(menuAsComplexObject)    	
         d = dict(
             success=True,
             data=folderName
@@ -219,20 +214,18 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
         page = render_template("WelcomePage.html")
         return page
     else :
-        settings.setOptionsFile(current_app.uid)
+        settings.setOptionWithTree(current_app.uid)
 
     connection = current_app.config["HISTODB"]
 
     # loadFromDBFlag == "false" and not False because it is sent by json by javascript!
     # if we are reading it from the file and this file also exists
-    if loadFromDBFlag == "false" and filterFlag == "false" and os.path.exists("treeCache.pcl") and os.path.isfile("treeCache.pcl"):
+    if loadFromDBFlag == "false" and filterFlag == "false" and settings.checkTreeCache():
 
-        treeCache = open("treeCache.pcl", "r")
         
-        menuAsComplexObject = pickle.load(treeCache)
+        menuAsComplexObject = settings.readTree()
         menuAsJSONString = json.dumps(menuAsComplexObject)
     	
-        treeCache.close()
     	
         return menuAsJSONString
     # Get it freshly from the database
@@ -242,9 +235,8 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
         menuAsJSONString = json.dumps(menuAsComplexObject)
 
         # Save database content for further uses in cache
-        treeCache = open("treeCache.pcl", "w")
-        pickle.dump(menuAsComplexObject, treeCache)
-        treeCache.close()
+        settings.storeTree(menuAsComplexObject)
+
         
         return menuAsJSONString
 
@@ -327,7 +319,7 @@ def Histo(path=""):
         page = render_template("WelcomePage.html")
         return page
     else :
-        settings.setOptionsFile(current_app.uid)        
+        settings.setOptionWithTree(current_app.uid)        
     connection = current_app.config["HISTODB"]
 #    g.active_page = "Histo"
 #    if path == "":
@@ -369,7 +361,6 @@ def Histo(path=""):
         #save into template
 
 
-        print "FILENAME = ",settings.getHistoROOTFileName()
 
         columns += render_template("histoCell.html", 
                                    DATA_FILE = settings.getHistoROOTFileName(), 

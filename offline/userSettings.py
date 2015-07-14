@@ -13,12 +13,17 @@ class userSettings:
 	def __init__(self, err):
 		self.actualROOTFile = None
 		self.actualROOTReferenceFile = None
-                self.OptionsFileName = "sessions/default.tcl"
+                self.OptionsFileName = "sessions/default.pcl"
+                self.OptionsTreeFileName = "sessions/defaultTree.pcl"
+                self.err = err
 
 
         def setOptionsFile(self, uid):
                 self.OptionsFileName = "sessions/" + uid + "options.tcl" 
 
+        def setOptionWithTree(self, uid):
+                self.OptionsFileName = "sessions/" + uid + "options.tcl"
+                self.OptionsTreeFileName = "sessions/" + uid + "Tree.tcl" 
 	
 	def initFile(self):
 		try:   
@@ -36,6 +41,19 @@ class userSettings:
 		except Exception as inst:
 			self.err.rethrowException(inst)
 			return None
+
+
+        def checkTreeCache(self):
+                try:
+                        if (os.path.exists(self.OptionsTreeFileName) and os.path.isfile(self.OptionsTreeFileName)): 
+                           return True
+                        else: 
+                           return False
+                except Exception as inst:
+                        self.err.rethrowException(inst)
+                        return None
+
+
 		
 	def setReferenceState(self,state):
 		try:
@@ -240,3 +258,23 @@ class userSettings:
 		except Exception as inst:
 			self.err.rethrowException(inst)
 			return 0
+    
+        def storeTree(self, myTree): 
+                 try: 
+                        TreeCache = open(self.OptionsTreeFileName, "w")
+                        pickle.dump(myTree, TreeCache)
+                        TreeCache.close()
+                 except Exception as inst:
+                        self.err.rethrowException(inst)
+
+
+        def readTree(self):
+                 try:
+                        myTree = ''
+                        if self.checkTreeCache() :
+                              TreeCache = open(self.OptionsTreeFileName, "r")
+                              myTree = pickle.load(TreeCache)
+                              TreeCache.close()
+                        return myTree
+	         except Exception as inst:
+			self.err.rethrowException(inst)
