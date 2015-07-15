@@ -73,6 +73,7 @@ var OfflineApp = (function(window, undefined) {
   // Redraw histograms in the list
   var redrawHistograms = function(referenceState)
   {
+    console.log("redrawingHist "+referenceState);
     for(var i = 0; i < localCache.listOfHistogramData.length; i++) {
       var histoContent = localCache.listOfHistogramData[i] ;
   		
@@ -316,7 +317,8 @@ var OfflineApp = (function(window, undefined) {
   };
 
   return {
-    init: init
+      init: init,
+      redrawHistograms : redrawHistograms
   };
 })(window);
 
