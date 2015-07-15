@@ -18,6 +18,7 @@ import json
 
 from userSettings import *
 from errorhandler import *
+from webmonitor.auth import requires_auth 
  
 err = errorhandler()
 settings = userSettings(err)
@@ -27,42 +28,37 @@ settings.readInReferenceRootFileIfPossible()
 offline_bp = Blueprint('offline_bp', __name__,
                      template_folder='templates/offline_bp',
                      static_folder='static')
-
-def check_auth():
-    return current_app.auth
             
 
 @offline_bp.route('/')
 @offline_bp.route('/Overview')
+@requires_auth()
 def loginner():
 
-    if current_app.auth:
-         g.active_page = "offline_bp"
-         settings.setOptionsFile(current_app.uid)
-         err.setlogger(current_app.logger)
-         page = render_template("Overview.html",
+    g.active_page = "offline_bp"
+    settings.setOptionsFile(current_app.uid)
+    err.setlogger(current_app.logger)
+    page = render_template("Overview.html",
                            LOAD_FROM_DB_FLAG = "false",
                            RUN_NMBR =  settings.getRunNmbr(),
                            VERSION = settings.getVersion(),
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = current_app.username) 
-    else:
-         page = render_template("WelcomePage.html")
+                           USERNAME = current_app.username,
+                           PROJECTNAME = 'Offline DQM') 
     return page
 
 @offline_bp.route('/ConfirmQuit')
+@requires_auth()
 def exiter():
      page = render_template("ConfirmQuit.html",
                            USERNAME = current_app.username,
-                           PROJECTNAME = 'DQM')
+                           PROJECTNAME = 'Offline DQM')
      return page
 
 
-@offline_bp.route('/setReferenceState')	
+@offline_bp.route('/setReferenceState')
+@requires_auth()	
 def changeReferenceState():
-     if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
  
      state = request.args.get('state')
      
@@ -77,16 +73,14 @@ def changeReferenceState():
      return jsonify(d)
      	
  			
-@offline_bp.route('/setRecoVersion')	
+@offline_bp.route('/setRecoVersion')
+@requires_auth()	
 def storeVersion():
     """
     Called by javascript via ajax call. Save the RecoVersion, and together with the runNmbr creates the path to the ROOT and
     reference file and saves it.
     
     """
-    if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
     bkClient = current_app.config["BKKDB"]
     #save recoVersion
     #here called full path, because it is like /Real Data/Reco14 und not just Reco13
@@ -140,15 +134,13 @@ def storeVersion():
         return jsonify(d)
 
 		
-@offline_bp.route('/setRunNumber')	
+@offline_bp.route('/setRunNumber')
+@requires_auth()	
 def storeRunNmbr():
     """
     Called by javascript via ajax call to set the run number.
     
     """
-    if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
     bkClient = current_app.config["BKKDB"]
     #retrieve the run number as GET argument
     runNmbr = int(request.args.get('runNmbr'))
