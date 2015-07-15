@@ -192,75 +192,64 @@ function initRecoVersion(visibleName)
 	}
 }
 
-function initReferenceStateButton()
-{
-	var button = $("#changeReferenceMode")
-	var icon = $("#changeReferenceModeIcon")
-	var text = $("#changeReferenceModeText")
+function initReferenceStateButton() {
+    var button = $("#changeReferenceMode");
+    var icon = $("#changeReferenceModeIcon");
+    var text = $("#changeReferenceModeText");
 	
-	state = button.data("state");
+    state = button.data("state");
 	
-	if(state == "activated")
-	{	
-		button.removeClass("btn-danger");
-		button.addClass("btn-success");
-		
-		icon.removeClass("glyphicon-remove");
-		icon.addClass("glyphicon-ok");
-		
-		text.text(" Activated");
-	}
-	else
-	{
-		button.removeClass("btn-success");
-		button.addClass("btn-danger");
-		
-		icon.removeClass("glyphicon-ok");
-		icon.addClass("glyphicon-remove");
-		
-		text.text(" Deactivated");		
-	}
+    if(state == "activated"){	
+	button.removeClass("btn-danger");
+	button.addClass("btn-success");
+	
+	icon.removeClass("glyphicon-remove");
+	icon.addClass("glyphicon-ok");
+	
+	text.text(" Activated");
+    } else {
+	button.removeClass("btn-success");
+	button.addClass("btn-danger");
+	
+	icon.removeClass("glyphicon-ok");
+	icon.addClass("glyphicon-remove");
+	
+	text.text(" Deactivated");		
+    }
 }
 
-function initRunNmbrIcon()
-{
-	if($("#runNmbrTextfield").val() != "")
-	{
-		setRunNmbr();
-	}
+function initRunNmbrIcon() {
+    if($("#runNmbrTextfield").val() != ""){
+	setRunNmbr();
+    }
 }
 
-function decreaseRunNmbr()
-{
-	if($("#runNmbrTextfield").val() != "")
-	{
-		var val = parseInt($("#runNmbrTextfield").val()) -1;
-		$("#runNmbrTextfield").val(val);
-		setRunNmbr();
-	}
+function decreaseRunNmbr() {
+    if($("#runNmbrTextfield").val() != ""){
+	var val = parseInt($("#runNmbrTextfield").val()) -1;
+	$("#runNmbrTextfield").val(val);
+	setRunNmbr();
+    }
 }
 
-function increaseRunNmbr()
-{
-	if($("#runNmbrTextfield").val() != "")
-	{
-		var val = parseInt($("#runNmbrTextfield").val()) +1;
-		$("#runNmbrTextfield").val(val);
-		setRunNmbr();
-	}
+function increaseRunNmbr() {
+    if($("#runNmbrTextfield").val() != "") {
+	var val = parseInt($("#runNmbrTextfield").val()) +1;
+	$("#runNmbrTextfield").val(val);
+	setRunNmbr();
+    }
 }
 
-function changeReferenceMode()
-{
-	var button = $("#changeReferenceMode")
-	var icon = $("#changeReferenceModeIcon")
-	var text = $("#changeReferenceModeText")
+function changeReferenceMode() {
+    var button = $("#changeReferenceMode");
+    var icon = $("#changeReferenceModeIcon");
+    var text = $("#changeReferenceModeText");
 	
-	state = button.data("state");
+    state = button.data("state");
 	
-	var url = "changeReferenceState?state="+state
+    var url = "changeReferenceState?state="+state;
 	
-	//current state deactivated -> change it
+    //current state deactivated -> change it
 	if(state == "deactivated")
 	{
 		button.data("state", "activated");
