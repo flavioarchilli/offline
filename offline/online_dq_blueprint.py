@@ -37,7 +37,8 @@ def online_dq():
          page = render_template("online_dq.html",
                            LOAD_FROM_DB_FLAG = "false",
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = current_app.username) 
+                           USERNAME = current_app.username,
+                           PROJECTNAME = 'Online DQM') 
     else:
          page = render_template("WelcomePage.html")
     return page
