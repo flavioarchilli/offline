@@ -4,7 +4,7 @@ from offline import histogramDB_declaration
 from offline import bookKeepingDB
 
 # Application name, used in page titles etc.
-APP_NAME = 'Offline DQM'
+APP_NAME = 'LHCb DQM'
 
 # Description, shown in the <meta> tag
 APP_DESCRIPTION = 'An example app based on the WebMonitor.'
