@@ -13,33 +13,19 @@ def create_app():
     from offline.online_dq_blueprint import online_dq_bp
     from offline.histogramDB_tree_menu import histogramDB_tree_menu
     from offline.job_resolvers import tasks_resolver
-
+    from offline.presenter_bp import presenter 
     app = webmonitor.create_app()
     app.config.from_object('offline.config')
     
     if not app.debug:
         add_logging(app)
         app.logger.info('webmonitor startup')
-    
-    presenter = Blueprint('offline', __name__,
-                        template_folder='templates',
-                        static_folder='static',
-                        static_url_path='/{0}'.format(__name__))
-    @presenter.route('/')
-    def strange_fun():
-       return redirect('/offline_bp') 
-
-    @presenter.route('/ConfirmQuit')
-    def logout_fun():
-       return redirect('/offline_bp/ConfirmQuit')
+   
 
     app.register_blueprint(presenter)
-    app.register_blueprint(histogramDB_tree_menu, url_prefix='/histogramDB_tree_menu')
-
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
     app.register_blueprint(online_dq_bp, url_prefix='/online_dq_bp')
-
-
+    app.register_blueprint(histogramDB_tree_menu, url_prefix='/histogramDB_tree_menu')
     app.add_job_resolver(tasks_resolver)
 
     return app

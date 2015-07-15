@@ -13,7 +13,7 @@ from flask import (
 
 import os
 from glob import glob
-
+from webmonitor.auth import requires_auth
 from userSettings import *
 from errorhandler import *
  
@@ -26,12 +26,10 @@ online_dq_bp = Blueprint('online_dq_bp', __name__,
                      template_folder='templates/online_dq_bp',
                      static_folder='static')
 
-def check_auth():
-    return current_app.auth
 
 @online_dq_bp.route('/')
+@requires_auth()
 def online_dq():
-
     if current_app.auth:
          g.active_page = "online_dq_bp"
          settings.setOptionsFile(current_app.uid)
@@ -45,12 +43,9 @@ def online_dq():
     return page
 
 @online_dq_bp.route('/get_online_dq_filename')
+@requires_auth()
 def get_online_dq_filename():
-    if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionsFile(current_app.uid)
+    settings.setOptionsFile(current_app.uid)
     mypath = "/hist/Savesets/2015/DQ/DataQuality/"
     results = [y for x in os.walk(mypath) for y in glob(os.path.join(x[0], '*-EOR.root'))] 
     filenames = []
@@ -67,14 +62,11 @@ def get_online_dq_filename():
     return jsonify(d)
 
 @online_dq_bp.route('/set_online_dq_filename')
+@requires_auth()
 def set_online_dq_filename():
 
-    if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionsFile(current_app.uid)
- 
+    settings.setOptionsFile(current_app.uid)
+
     filename = request.args.get('filename')
 
     status_filename = False;
@@ -102,13 +94,10 @@ def set_online_dq_filename():
         return jsonify(d)
 
 @online_dq_bp.route('/set_online_dq_reference_filename')
+@requires_auth()
 def set_online_dq_reference_filename():
 
-    if check_auth() == False:
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-            settings.setOptionsFile(current_app.uid)
+    settings.setOptionsFile(current_app.uid)
     filename = request.args.get('filename')
 
     status_filename = False;

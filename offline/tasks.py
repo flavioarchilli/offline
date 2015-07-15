@@ -98,11 +98,9 @@ def get_key_from_file(filename, key_name):
     """
 #    filename = tfile_path(add_file_extension(filename))
     filename = add_file_extension(filename)
-    print ">>> get_key_from_file :: filename = {0}".format(filename)
     f = ROOT.TFile(filename)
     
 
-    print f
     if f.IsZombie():
         return dict(
             success=False,

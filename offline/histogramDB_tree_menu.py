@@ -18,6 +18,8 @@ import json
 
 from userSettings import *
 from errorhandler import *
+from webmonitor.auth import requires_auth
+
  
 err = errorhandler()
 settings = userSettings(err)
@@ -28,12 +30,11 @@ histogramDB_tree_menu = Blueprint('histogramDB_tree_menu', __name__,
                                   template_folder='templates/histogramDB_tree_menu',
                                   static_folder='static')
 
-def check_auth():
-    return current_app.auth
             
 
 
 @histogramDB_tree_menu.route('/checkDBConnection')
+@requires_auth()
 def checkDBConnection():
     """
     Checks wether we can connect to the DB. Called via ajax on the set timeperiod, e.g. all 5 minutes and provides a visual feedback
@@ -42,11 +43,7 @@ def checkDBConnection():
     Returns a JSON string, indicating if we could connect successfully.
     """
 
-    if not check_auth():
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(current_app.uid)
 
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
@@ -66,6 +63,7 @@ def checkDBConnection():
         return jsonify(d)
 
 @histogramDB_tree_menu.route('/menutree', methods=['GET'])		
+@requires_auth()
 def generateMenuTreeJSON():
     """
     Called by javascript via ajax call. Returns menu tree in json format.
@@ -78,11 +76,7 @@ def generateMenuTreeJSON():
     "expand all" and "collapse all" button.
 	
     """
-    if not check_auth():
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(current_app.uid)
 
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
@@ -95,6 +89,7 @@ def generateMenuTreeJSON():
     return menutree
     
 @histogramDB_tree_menu.route('/menuTreeOpenOrCloseFolder', methods=['GET'])
+@requires_auth()
 def menuTreeOpenOrCloseFolder():
     """
     This method is called via ajax by javascript whenever a folder is opened or closed. The idea is to save this in the cache, so that
@@ -103,11 +98,7 @@ def menuTreeOpenOrCloseFolder():
     action: Whether a node was closed or opened
     """
 
-    if not check_auth():
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(current_app.uid)
     id = request.args.get('id')
     action = request.args.get('action')
     
@@ -195,6 +186,7 @@ def menuTreeOpenOrCloseFolder():
         return jsonify(d)
 	
 def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filterFlag = "false", filterText = None):
+
     """
     Returns the JSON String for the tree menu.
     
@@ -210,11 +202,7 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     WARNING: to be reviewed 
     """
 
-    if not check_auth():
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(current_app.uid)
 
     connection = current_app.config["HISTODB"]
 
@@ -314,12 +302,9 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
 	
 @histogramDB_tree_menu.route('/Histo<path>')
 @histogramDB_tree_menu.route('/Histo')
+@requires_auth()
 def Histo(path=""):
-    if not check_auth():
-        page = render_template("WelcomePage.html")
-        return page
-    else :
-        settings.setOptionWithTree(current_app.uid)        
+    settings.setOptionWithTree(current_app.uid)        
     connection = current_app.config["HISTODB"]
     g.active_page = "Histo"
 #    if path == "":
