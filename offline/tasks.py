@@ -18,49 +18,49 @@ def data_for_object(obj):
     obj_class = obj.ClassName()
     d = {}
     d['type'] = obj_class[2:]
-        
+    d['numberEntries'] = obj.GetEntries()
+    d['integral'] = obj.Integral()
+    d['mean'] = "{:.4g}".format(obj.GetMean())
+    d['RMS'] = "{:.4g}".format(obj.GetRMS())
+    d['skewness'] = "{:.4g}".format(obj.GetSkewness())
+    d['values'] = list()
+    d['binning'] =  list()
+    d['uncertainties'] = list()
+    d['nbins'] = ""
+
+    xaxis = obj.GetXaxis()
+    yaxis = obj.GetYaxis()
+    d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
+    
     if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TProfile':
         # For histograms, we provide
         #   binning: List of 2-tuples defining the (low, high) binning edges,
         #   values: List of bin contents, ith entry falling in the ith bin
         #   uncertainties: List of 2-tuples of (low, high) errors on the values
         #   axis_titles: 2-tuple of (x, y) axis titles
-        xaxis = obj.GetXaxis()
-        yaxis = obj.GetYaxis()
-        nbins = xaxis.GetNbins()
-        d['binning'] = [
-            (xaxis.GetBinLowEdge(i), xaxis.GetBinUpEdge(i))
-            for i in range(nbins)
-        ]
-        d['values'] = [obj.GetBinContent(i) for i in range(nbins)]
-        d['uncertainties'] = [
-            (obj.GetBinErrorLow(i), obj.GetBinErrorUp(i))
-            for i in range(nbins)
-        ]
-        d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
 
+
+        nbins = xaxis.GetNbins()
+        d['nbins'] = nbins
+        
+        for i in range(nbins):
+            d['values'].append(obj.GetBinContent(i))
+            d['binning'].append((xaxis.GetBinLowEdge(i), xaxis.GetBinUpEdge(i)))
+            d['uncertainties'].append((obj.GetBinErrorLow(i), obj.GetBinErrorUp(i)))
 
     if obj_class[0:3] == 'TH2':
        #Same logic for 2D Histograms
-        x_axis = obj.GetXaxis()
-        num_xbins = x_axis.GetNbins()
-        y_axis = obj.GetXaxis()
-        num_ybins = y_axis.GetNbins()
-       
-       
-        i = 1
-        j = 1
-        while i <= num_xbins:
-            while j <= num_ybins:
-                d['values'].append(obj.GetBinContent(i,j))
-                d['xbinning'].append((x_axis.GetBinLowEdge(i), x_axis.GetBinUpEdge(i)))
-                d['ybinning'].append((y_axis.GetBinLowEdge(j), y_axis.GetBinUpEdge(j)))
-                d['uncertainties'].append([obj.GetBinErrorLow(i,j), obj.GetBinErrorUp(i,j)])
 
-                i += 1
-                j += 1
+        xnbins = xaxis.GetNbins()
+        ynbins = yaxis.GetNbins()
+       
+        for i in range(xnbins):
+            for j in range(xnbins):
+                d['values'].append(obj.GetBinContent(i,j))
+                d['xbinning'].append((xaxis.GetBinLowEdge(i), xaxis.GetBinUpEdge(i)))
+                d['ybinning'].append((yaxis.GetBinLowEdge(j), yaxis.GetBinUpEdge(j)))
+                d['uncertainties'].append((obj.GetBinErrorLow(i,j), obj.GetBinErrorUp(i,j)))
                
-            d['axis_titles'] = (x_axis.GetTitle(), y_axis.GetTitle())
 
     return d
 

@@ -36,6 +36,7 @@ var OfflineApp = (function(window, undefined) {
   // Returns:
   //   undefined
   var drawHistogram = function(container, data, referenceData, options, refOptions) {
+
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
 
     var histoOptions = $(document.getElementById("OPTIONS_FOR_"+opt.key_name));
@@ -73,12 +74,12 @@ var OfflineApp = (function(window, undefined) {
   // Redraw histograms in the list
   var redrawHistograms = function(referenceState)
   {
-    console.log("redrawingHist "+referenceState);
+    console.log("redrawingHist "+referenceState+" "+localCache.listOfHistogramData.length);
+
     for(var i = 0; i < localCache.listOfHistogramData.length; i++) {
       var histoContent = localCache.listOfHistogramData[i] ;
-  		
       histoContent.container.empty();
-  		
+      
       drawHistogram(histoContent.container,
         histoContent.formattedData,
         histoContent.formattedRefData,
@@ -95,14 +96,17 @@ var OfflineApp = (function(window, undefined) {
   //   container: A jQuery object in which to draw the histogram
   // Returns:
   //   undefined
-  var displayHistogram = function(data, referenceData, refNormalisation, container) {
+  var displayHistogram = function(data, reference_data, refNormalisation, container) {
 
     var key_data = data['key_data'];
+
+    var key_ref = "";
+    if (reference_data['key_data']) key_ref = reference_data['key_data'];
 
     var name = key_data['name'],
       type = key_data['type'],
       title = data['key_title'],
-      binning = key_data['binning'],
+    //      binning = key_data['binning'],
       values = key_data['values'],
       uncertainties = key_data['uncertainties'],
       axisTitles = key_data['axis_titles'],      
@@ -112,7 +116,6 @@ var OfflineApp = (function(window, undefined) {
       RMS = key_data['RMS'],
       key_name = key_data['key_name'],
       skewness = key_data['skewness'];
-
 
     var xbinning, 
       ybinning;
@@ -126,11 +129,11 @@ var OfflineApp = (function(window, undefined) {
     }
 	
     // Binning of the reference histogram (Only 1D histograms have references)	
-    var refbinning = referenceData['binning'],
-      refvalues = referenceData['values'],
-      refuncertainties = referenceData['uncertainties'],
-      refnumberEntries = referenceData['numberEntries'],
-      refintegral = referenceData['integral'];
+    var refbinning = key_ref['binning'],
+      refvalues = key_ref['values'],
+      refuncertainties = key_ref['uncertainties'],
+      refnumberEntries = key_ref['numberEntries'],
+      refintegral = key_ref['integral'];
 		  	  
 
     var v, binCenter, uLow, uHigh;
@@ -138,15 +141,16 @@ var OfflineApp = (function(window, undefined) {
     // See the d3.chart.histogram documentation for the specifics
     var formattedData = [];
 
-
     for (var i = 0; i < values.length; i++) {
       if (type == "1D"){		    
         var bins = xbinning[i];
+
+	console.log(bins[0]);
 	formattedData.push({
 	  xlow: bins[0],
 	  xhigh: bins[1],
 	  y: key_data['values'][i],
-	  yerr: uncertainties[i],
+	  yerr: uncertainties[i]
 	});
       }
       else if (type == "2D"){
@@ -160,13 +164,15 @@ var OfflineApp = (function(window, undefined) {
 	  yhigh: ybins[1],				
 	  z: key_data['values'][i],
 	  elow: uncertainties[i],
-	  eup: uncertainties[i],
+	  eup: uncertainties[i]
         });		    
       }		
     }
+
     var formattedRefData = [];
     //check if data-reference != ""
     if (null != refvalues) {
+	console.log("refvalues is different from null");
       var factor = 1;
       //check normalisation mode, if not specified normalise anyway (to be corrected)
       if(constants.s_Entries == refNormalisation) {
@@ -178,14 +184,26 @@ var OfflineApp = (function(window, undefined) {
       }
       
       for (var i = 0; i < refvalues.length; i++) {
-	var bins = refbinning[i];
-	  
-	formattedRefData.push({
-	  xlow: bins[0],
-	  xhigh: bins[1],
-	  y: factor*refvalues[i],
-	  yerr: [factor*refuncertainties[i][0], factor*refuncertainties[i][1]],
-	});
+	  if (type == "1D"){		    
+	      var bins = refbinning[i];
+	      formattedRefData.push({
+	          xlow: bins[0],
+		  xhigh: bins[1],
+		  y: factor*key_ref['values'][i],
+		  yerr: [factor*refuncertainties[i][0],factor*refuncertainties[i][1]]
+	       });
+	      console.log()
+	  }
+
+
+//	var bins = refbinning[i];
+//	  
+//	formattedRefData.push({
+//	  xlow: bins[0],
+//	  xhigh: bins[1],
+//	  y: factor*refvalues[i],
+//	  yerr: [factor*refuncertainties[i][0], factor*refuncertainties[i][1]],
+//	});
       }	
     }
 
@@ -193,10 +211,10 @@ var OfflineApp = (function(window, undefined) {
     var options = {
       title: title,
       xAxis: {
-	    title: "x" //axisTitles[0]
+	    title: axisTitles[0]
       },
       yAxis: {
-	    title: "y"//axisTitles[1]
+	    title: axisTitles[1]
       },
       showUncertainties: true,
       color: "black",
@@ -206,8 +224,6 @@ var OfflineApp = (function(window, undefined) {
       key_name: key_name
     };
 
-
-    
     var refoptions =  $.extend(true,{},options);		
     refoptions.color = "red"; // This will be dinamically set using the HistogramDB database
 
@@ -243,7 +259,7 @@ var OfflineApp = (function(window, undefined) {
     if (reference != "") {
       var referenceTask = WebMonitor.createTask('get_key_from_file', {filename: referenceFile, key_name: reference});
       referenceTask.done(function(job) {
-        referenceData = job['result']['data']['key_data'];	
+        referenceData = job['result']['data'];	
       });
       referenceTask.fail(function(message) {
         var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
@@ -260,7 +276,6 @@ var OfflineApp = (function(window, undefined) {
     // Request histogram from server
     var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
     task.done(function(job) {
-	    //      displayHistogram(job['result']['data']['key_data'], referenceData, refNormalisation, container);
       displayHistogram(job['result']['data'], referenceData, refNormalisation, container);
     });
     task.fail(function(message) {

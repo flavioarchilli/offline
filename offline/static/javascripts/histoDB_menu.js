@@ -93,7 +93,6 @@ function createJSTrees(jsonData) {
 		    url : "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id),
 
 		    success : function(json){
-			console.log(json.html);
 			$("#main").empty();
 			$("#main").append(json.html);			
 		    },
