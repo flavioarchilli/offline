@@ -65,7 +65,7 @@ function change_reference_mode(){
 		
 	url = url + "activated";
 	
-	WebMonitor.redrawHistograms("activated");
+	OfflineApp.redrawHistograms("activated");
     } else {
 	button.data("state", "deactivated");
 	
@@ -78,33 +78,27 @@ function change_reference_mode(){
 	text.text(" Deactivated");
 	
 	url = url + "deactivated";
-		
-	WebMonitor.redrawHistograms("deactivated");				
+	OfflineApp.redrawHistograms("deactivated");				
     }
 	
-    disableNavBar(true);
-    
-    $.ajax({
-	    async : true,
-		type : "GET",
-		url : url,
-
-		success : function(json) {
-			if (json.success == false)
-			{
-		
-			}
-			else
-			{
-		
-			}
-		},  
-
-		error : function(xhr, ajaxOptions, thrownError) {
-		  alert("<2> JSON Error:" + thrownError);
-		},
-		  complete: function(){disableNavBar(false);}
-  	});
+//    
+//    $.ajax({
+//	    async : true,
+//	    type : "GET",
+//	    url : url,
+//
+//	    success : function(json) {
+//		if (json.success == false) {
+//		    
+//		} else {
+//		    
+//		}
+//	    },  
+//		
+//	    error : function(xhr, ajaxOptions, thrownError) {
+//		alert("<2> JSON Error:" + thrownError);
+//	    }
+//  	});
 	  
 }
 

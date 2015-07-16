@@ -264,7 +264,7 @@ function changeReferenceMode() {
 		
 		url = url + "activated"
 		
-		WebMonitor.redrawHistograms("activated");
+		OfflineApp.redrawHistograms("activated");
 	}
 	else
 	{
@@ -280,7 +280,7 @@ function changeReferenceMode() {
 		
 		url = url + "deactivated"
 		
-		WebMonitor.redrawHistograms("deactivated");				
+		OfflineApp.redrawHistograms("deactivated");				
 	}
 	
 	disableNavBar(true);
@@ -291,12 +291,9 @@ function changeReferenceMode() {
 		url : url,
 
 		success : function(json) {
-			if (json.success == false)
-			{
+			if (json.success == false){
 		
-			}
-			else
-			{
+			} else {
 		
 			}
 		},  
