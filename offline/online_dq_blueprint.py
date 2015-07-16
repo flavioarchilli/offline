@@ -30,18 +30,17 @@ online_dq_bp = Blueprint('online_dq_bp', __name__,
 @online_dq_bp.route('/')
 @requires_auth()
 def online_dq():
-    if current_app.auth:
-         g.active_page = "online_dq_bp"
-         settings.setOptionsFile(current_app.uid)
-         err.setlogger(current_app.logger)
-         page = render_template("online_dq.html",
+      g.active_page = "online_dq_bp"
+      settings.setOptionsFile(current_app.uid)
+      err.setlogger(current_app.logger)
+      blueprint_list = current_app.create_bplist()
+      page = render_template("online_dq.html",
                            LOAD_FROM_DB_FLAG = "false",
                            REFERENCE_STATE = settings.getReferenceState(),
                            USERNAME = current_app.username,
+                           PROJECTFULLLIST = current_app.create_bplist(),
                            PROJECTNAME = 'Online DQM') 
-    else:
-         page = render_template("WelcomePage.html")
-    return page
+      return page
 
 @online_dq_bp.route('/get_online_dq_filename')
 @requires_auth()

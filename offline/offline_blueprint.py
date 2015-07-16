@@ -19,7 +19,7 @@ import json
 from userSettings import *
 from errorhandler import *
 from webmonitor.auth import requires_auth 
- 
+
 err = errorhandler()
 settings = userSettings(err)
 settings.readInHistoRootFileIfPossible()
@@ -34,7 +34,6 @@ offline_bp = Blueprint('offline_bp', __name__,
 @offline_bp.route('/Overview')
 @requires_auth()
 def loginner():
-
     g.active_page = "offline_bp"
     settings.setOptionsFile(current_app.uid)
     err.setlogger(current_app.logger)
@@ -44,6 +43,7 @@ def loginner():
                            VERSION = settings.getVersion(),
                            REFERENCE_STATE = settings.getReferenceState(),
                            USERNAME = current_app.username,
+                           PROJECTFULLLIST = current_app.create_bplist(),
                            PROJECTNAME = 'Offline DQM') 
     return page
 

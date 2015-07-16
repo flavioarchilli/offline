@@ -2,6 +2,9 @@
 
 {% block htmlHeader %}
 {% endblock %}
+{% block namebar %}
+{% endblock %}
+
 
 
 {% block pageheader %}Monitoring pages{% endblock %}
@@ -12,17 +15,8 @@ Welcome to monitoring pages. You must be logged in to view the content. Please, 
 <br><br><br><br>
 <table border ="0" style="width:300px;table-layout:fixed" >
 <tr>
-<td align="center">
+         {{PROJECTBUTTONS|safe}}
 
-                <form action="/online_dq_bp" method="get">
-                <input type="submit" value="Online">
-                </form>                
-</td>
-<td align="center">
-                <form action="/offline_bp" method="get">
-                <input type="submit" value="Offline">
-                </form> 
-</td>
 </tr>
 </table>
  </center>

@@ -17,7 +17,9 @@ presenter = Blueprint('offline', __name__,
                         static_url_path='/{0}'.format(__name__))
 @presenter.route('/')
 def welcome_fun():
-         page = render_template("Hello.html")
+         page = render_template("Hello.html",
+                                PROJECTBUTTONS = current_app.make_project_buttons())
+
          return page
    
 

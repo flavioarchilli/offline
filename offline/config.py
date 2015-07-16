@@ -41,3 +41,4 @@ BKKDB = bookKeepingDB.bookKeepingDB()
 
 # Debug mode
 DEBUG = True
+

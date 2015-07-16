@@ -16,11 +16,16 @@ def create_app():
     from offline.presenter_bp import presenter 
     app = webmonitor.create_app()
     app.config.from_object('offline.config')
+
     
     if not app.debug:
         add_logging(app)
         app.logger.info('webmonitor startup')
+
+    app.add_to_bplist(["offline_bp", "Offline DQM"])
+    app.add_to_bplist(["online_dq_bp", "Online DQM"])
    
+
 
     app.register_blueprint(presenter)
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
