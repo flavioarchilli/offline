@@ -77,10 +77,23 @@ var OfflineApp = (function(window, undefined) {
 	  .attr('height', container.height())
 	  .chart('AxesChart')
 	  .xAxisLabel(xLabel)
-	  .yAxisLabel(yLabel);
+	  .yAxisLabel(yLabel)
+	  .animate(false);
 
 	histo2D.addPlotable(d3.plotable.Histogram2D('histogram', data));
        
+    } else if (opt.type == "Profile"){
+	
+	var profile = d3.select(container.get()[0]).append('svg')
+	  .attr('width', container.width())
+	  .attr('height', container.height())
+	  .chart('AxesChart')
+	  .xAxisLabel(xLabel)
+	  .yAxisLabel(yLabel)
+	  .animate(false);
+
+	profile.addPlotable(d3.plotable.LineChart('histogram', data, {showPoints: true, showUncertainties: true}));
+
     }
 
   };
