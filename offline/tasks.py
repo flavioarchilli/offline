@@ -17,7 +17,7 @@ def data_for_object(obj):
     """Return a dictionary representing the data inside the object."""
     obj_class = obj.ClassName()
     d = {}
-    d['type'] = obj_class[2:]
+    d['type'] = obj_class[1:]
     d['numberEntries'] = obj.GetEntries()
     d['integral'] = obj.Integral()
     d['mean'] = "{:.4g}".format(obj.GetMean())
@@ -31,7 +31,7 @@ def data_for_object(obj):
     yaxis = obj.GetYaxis()
     d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
     
-    if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TProfile':
+    if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TPr':        
         # For histograms, we provide
         #   binning: List of 2-tuples defining the (low, high) binning edges,
         #   values: List of bin contents, ith entry falling in the ith bin

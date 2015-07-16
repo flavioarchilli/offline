@@ -40,13 +40,14 @@ var OfflineApp = (function(window, undefined) {
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
 
     var histoOptions = $(document.getElementById("OPTIONS_FOR_"+opt.key_name));
+    console.log(histoOptions);
     var xLabel = histoOptions.data("label-x")
     var yLabel = histoOptions.data("label-y")
 	
     var histoTitle = document.getElementById("LABEL_FOR_"+opt.key_name);
     $(histoTitle).text(opt.title.text);
 
-    if (opt.type == "1D") {
+    if (opt.type == "H1D") {
 
       var chart = d3.select(container.get()[0]).append('svg')
 	  .attr('width', container.width())
@@ -70,7 +71,7 @@ var OfflineApp = (function(window, undefined) {
 	      chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
 	  }
       
-    } else if (opt.type == "2D"){
+    } else if (opt.type == "H2D"){
 	
 	var histo2D = d3.select(container.get()[0]).append('svg')
 	  .attr('width', container.width())
@@ -147,10 +148,10 @@ var OfflineApp = (function(window, undefined) {
     var xbinning, 
       ybinning;
 
-    if (type == "1D"){
+    if (type == "H1D"){
       xbinning = key_data['binning'];
 	    
-    }else if (type == "2D"){
+    }else if (type == "H2D"){
       xbinning = key_data['xbinning'];
       ybinning = key_data['ybinning'];
     }
@@ -169,7 +170,7 @@ var OfflineApp = (function(window, undefined) {
     var formattedData = [];
 
     for (var i = 0; i < values.length; i++) {
-      if (type == "1D"){		    
+      if (type == "H1D"){		    
         var bins = xbinning[i];
 
 	formattedData.push({
@@ -179,7 +180,7 @@ var OfflineApp = (function(window, undefined) {
 	  yerr: uncertainties[i]
 	});
       }
-      else if (type == "2D"){
+      else if (type == "H2D"){
 	  var xbins = xbinning[i],
 	      ybins = ybinning[i];
 	  
@@ -210,7 +211,7 @@ var OfflineApp = (function(window, undefined) {
       }
       
       for (var i = 0; i < refvalues.length; i++) {
-	  if (type == "1D"){		    
+	  if (type == "H1D"){		    
 	      var bins = refbinning[i];
 	      formattedRefData.push({
 	          xlow: bins[0],
