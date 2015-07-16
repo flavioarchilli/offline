@@ -46,27 +46,43 @@ var OfflineApp = (function(window, undefined) {
     var histoTitle = document.getElementById("LABEL_FOR_"+opt.key_name);
     $(histoTitle).text(opt.title.text);
 
-    var chart = d3.select(container.get()[0]).append('svg')
-      .attr('width', container.width())
-      .attr('height', container.height())
-      .chart('AxesChart')
-      .xAxisLabel(xLabel)
-      .yAxisLabel(yLabel);
-    
-    var info = [
-      ['Entries', opt.numberEntries],
-      ['Mean', opt.mean],
-      ['RMS', opt.RMS],
-    ];
+    if (opt.type == "1D") {
+
+      var chart = d3.select(container.get()[0]).append('svg')
+	  .attr('width', container.width())
+	  .attr('height', container.height())
+	  .chart('AxesChart')
+	  .xAxisLabel(xLabel)
+	  .yAxisLabel(yLabel);
+      
+      var info = [
+		  ['Entries', opt.numberEntries],
+		  ['Mean', opt.mean],
+		  ['RMS', opt.RMS],
+		  ];
+      
+      chart.addOrnament(d3.plotable.TextBox('info', info));
+      chart.addPlotable(d3.plotable.Histogram('histogram', data));
+      
+      var button = $("#changeReferenceMode");
+      if(button.data("state") == "activated")
+	  {
+	      chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
+	  }
+      
+    } else if (opt.type == "2D"){
 	
-    chart.addOrnament(d3.plotable.TextBox('info', info));
-    chart.addPlotable(d3.plotable.Histogram('histogram', data));
-	
-    var button = $("#changeReferenceMode");
-    if(button.data("state") == "activated")
-      {
-        chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
-      }
+	var histo2D = d3.select(container.get()[0]).append('svg')
+	  .attr('width', container.width())
+	  .attr('height', container.height())
+	  .chart('AxesChart')
+	  .xAxisLabel(xLabel)
+	  .yAxisLabel(yLabel);
+
+	histo2D.addPlotable(d3.plotable.Histogram2D('histogram', data));
+       
+    }
+
   };
 
 
@@ -74,8 +90,6 @@ var OfflineApp = (function(window, undefined) {
   // Redraw histograms in the list
   var redrawHistograms = function(referenceState)
   {
-    console.log("redrawingHist "+referenceState+" "+localCache.listOfHistogramData.length);
-
     for(var i = 0; i < localCache.listOfHistogramData.length; i++) {
       var histoContent = localCache.listOfHistogramData[i] ;
       histoContent.container.empty();
@@ -145,7 +159,6 @@ var OfflineApp = (function(window, undefined) {
       if (type == "1D"){		    
         var bins = xbinning[i];
 
-	console.log(bins[0]);
 	formattedData.push({
 	  xlow: bins[0],
 	  xhigh: bins[1],
@@ -154,18 +167,18 @@ var OfflineApp = (function(window, undefined) {
 	});
       }
       else if (type == "2D"){
-        var xbins = xbinning[i];
-          ybins = ybinning[i];
+	  var xbins = xbinning[i],
+	      ybins = ybinning[i];
 	  
 	formattedData.push({
-	  xlow: xbins[0],
-	  xhigh: xbins[1],
-	  ylow: ybins[0],
-	  yhigh: ybins[1],				
-	  z: key_data['values'][i],
-	  elow: uncertainties[i],
-	  eup: uncertainties[i]
-        });		    
+		xlow: xbins[0],
+		xhigh: xbins[1],
+		ylow: ybins[0],
+		yhigh: ybins[1],				
+		z: key_data['values'][i],
+		elow: uncertainties[i],
+		eup: uncertainties[i]
+	      });		    
       }		
     }
 
@@ -195,15 +208,6 @@ var OfflineApp = (function(window, undefined) {
 	      console.log()
 	  }
 
-
-//	var bins = refbinning[i];
-//	  
-//	formattedRefData.push({
-//	  xlow: bins[0],
-//	  xhigh: bins[1],
-//	  y: factor*refvalues[i],
-//	  yerr: [factor*refuncertainties[i][0], factor*refuncertainties[i][1]],
-//	});
       }	
     }
 
@@ -221,7 +225,8 @@ var OfflineApp = (function(window, undefined) {
       numberEntries: numberEntries,
       mean: mean,
       RMS: RMS,
-      key_name: key_name
+      key_name: key_name,
+      type: type
     };
 
     var refoptions =  $.extend(true,{},options);		

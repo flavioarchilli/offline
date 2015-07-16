@@ -24,7 +24,6 @@ def data_for_object(obj):
     d['RMS'] = "{:.4g}".format(obj.GetRMS())
     d['skewness'] = "{:.4g}".format(obj.GetSkewness())
     d['values'] = list()
-    d['binning'] =  list()
     d['uncertainties'] = list()
     d['nbins'] = ""
 
@@ -39,6 +38,7 @@ def data_for_object(obj):
         #   uncertainties: List of 2-tuples of (low, high) errors on the values
         #   axis_titles: 2-tuple of (x, y) axis titles
 
+        d['binning'] =  list()
 
         nbins = xaxis.GetNbins()
         d['nbins'] = nbins
@@ -50,6 +50,8 @@ def data_for_object(obj):
 
     if obj_class[0:3] == 'TH2':
        #Same logic for 2D Histograms
+        d['xbinning'] =  list()
+        d['ybinning'] =  list()
 
         xnbins = xaxis.GetNbins()
         ynbins = yaxis.GetNbins()
