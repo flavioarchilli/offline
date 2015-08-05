@@ -8,8 +8,11 @@
   		</button>
   	</div>
 	
-	<div style="display: none" id="{{ HISTOGRAM_DISPLAY_OPTIONS }}" data-label-x="{{ HISTOGRAM_LABEL_X }}" 
-	data-label-y="{{ HISTOGRAM_LABEL_Y }}"></div>
+	<div id='{{ HISTOGRAM_DISPLAY_OPTIONS }}' 
+        data-lab-x="{{ HISTOGRAM_LABEL_X }}" 
+	data-lab-y="{{ HISTOGRAM_LABEL_Y }}"
+        data-lab-histo = "{{ HISTO_SHOW_TITLE }}">
+        </div>
 	
 	<div class="histogram" 
         data-file="{{ DATA_FILE }}" 
@@ -20,6 +23,5 @@
 	data-reference-file="{{ REFERENCE_DATA_FILE }}"
 	data-refnormalisation="{{ REFERENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
 	</div>
-	
 	
 </div>

@@ -38,14 +38,13 @@ var OfflineApp = (function(window, undefined) {
   var drawHistogram = function(container, data, referenceData, options, refOptions) {
 
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
+    var optionsName = 'OPTIONS_FOR_'+opt.key_name;
+    var histoOptions = document.getElementById(optionsName);
+    
+    var xLabel = histoOptions.getAttribute('data-lab-x');
+    var yLabel = histoOptions.getAttribute('data-lab-y');
+    var histoLabel = histoOptions.getAttribute('data-lab-histo');
 
-    var histoOptions = $(document.getElementById("OPTIONS_FOR_"+opt.key_name));
-    console.log(histoOptions);
-    var xLabel = histoOptions.data("label-x")
-    var yLabel = histoOptions.data("label-y")
-	
-    var histoTitle = document.getElementById("LABEL_FOR_"+opt.key_name);
-    $(histoTitle).text(opt.title.text);
 
     if (opt.type == "H1D") {
 
@@ -55,14 +54,20 @@ var OfflineApp = (function(window, undefined) {
 	  .chart('AxesChart')
 	  .xAxisLabel(xLabel)
 	  .yAxisLabel(yLabel);
+
+ 
       
       var info = [
 		  ['Entries', opt.numberEntries],
 		  ['Mean', opt.mean],
 		  ['RMS', opt.RMS],
 		  ];
-      
-      chart.addOrnament(d3.plotable.TextBox('info', info));
+
+
+
+
+      chart.addOrnament(d3.plotable.TextBox('info', info, {x:100, y:30}));
+      chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
       chart.addPlotable(d3.plotable.Histogram('histogram', data));
       
       var button = $("#changeReferenceMode");
@@ -144,7 +149,6 @@ var OfflineApp = (function(window, undefined) {
       RMS = key_data['RMS'],
       key_name = key_data['key_name'],
       skewness = key_data['skewness'];
-
     var xbinning, 
       ybinning;
 
@@ -199,7 +203,6 @@ var OfflineApp = (function(window, undefined) {
     var formattedRefData = [];
     //check if data-reference != ""
     if (null != refvalues) {
-	console.log("refvalues is different from null");
       var factor = 1;
       //check normalisation mode, if not specified normalise anyway (to be corrected)
       if(constants.s_Entries == refNormalisation) {
@@ -209,7 +212,6 @@ var OfflineApp = (function(window, undefined) {
       } else if(constants.s_NoNormalization != refNormalisation) {
 	factor = integral/refintegral;
       }
-      
       for (var i = 0; i < refvalues.length; i++) {
 	  if (type == "H1D"){		    
 	      var bins = refbinning[i];
@@ -219,7 +221,6 @@ var OfflineApp = (function(window, undefined) {
 		  y: factor*key_ref['values'][i],
 		  yerr: [factor*refuncertainties[i][0],factor*refuncertainties[i][1]]
 	       });
-	      console.log()
 	  }
 
       }	
@@ -243,6 +244,7 @@ var OfflineApp = (function(window, undefined) {
       type: type
     };
 
+
     var refoptions =  $.extend(true,{},options);		
     refoptions.color = "red"; // This will be dinamically set using the HistogramDB database
 
@@ -259,7 +261,6 @@ var OfflineApp = (function(window, undefined) {
       refoptions: refoptions
     };    		
     localCache.listOfHistogramData[localCache.listOfHistogramData.length] = histoContent;
-
     // Draw the histogram in the container
     drawHistogram(container, formattedData, formattedRefData, options, refoptions);
   };
@@ -339,7 +340,6 @@ var OfflineApp = (function(window, undefined) {
 	  referenceFile = $el.data('reference-file'),//reference file
 	  reference = $el.data('reference'),//reference name in reference file
 	  refNormalisation = $el.data('refnormalisation');
-
       if (file && histogram) {
         WebMonitor.appendSpinner(el);
         loadHistogramFromFileIntoContainer(histogram, file, hid, reference, referenceFile, refNormalisation, $el);

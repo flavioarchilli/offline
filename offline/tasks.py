@@ -26,10 +26,11 @@ def data_for_object(obj):
     d['values'] = list()
     d['uncertainties'] = list()
     d['nbins'] = ""
-
+    MyDisplayName = obj.GetName().split("/")[-1]
+    d['key_name'] = MyDisplayName
     xaxis = obj.GetXaxis()
     yaxis = obj.GetYaxis()
-    d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
+    d['axis_titles'] = (xaxis.GetTitleSize(), yaxis.GetTitleSize())
     
     if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TPr':        
         # For histograms, we provide

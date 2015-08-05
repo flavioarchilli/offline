@@ -328,15 +328,16 @@ def Histo(path=""):
         #read out histogram
 #        dataFile = "BrunelDaVinci_FULL_121752_00019821.root"
         histogramName = histo.NAME.split("/", 1)[1]
+        histogramShowName = histo.NAME.split("/")[-1]
         histogramLabelId = "LABEL_FOR_" + histogramName
-        histogramDisplayOptions = "OPTIONS_FOR_" + histogramName
+        histogramDisplayOptions = "OPTIONS_FOR_" + histogramShowName
         histogramTitle = histo.NAME
         HID = histo.HID
         
         #if opt is available read it out (we are doing an OUTER JOIN, so expect NULL values for OPT!!)
-        labelX = ""
-        labelY = ""
-        ref = ""
+        labelX = "NONAME"
+        labelY = "NONAME"
+        ref = "NOREF"
         if hasattr(histo, 'OPT'):
             if hasattr(histo.OPT, 'LABEL_X'):
                 labelX = histo.OPT.LABEL_X
@@ -344,6 +345,10 @@ def Histo(path=""):
                 labelY = histo.OPT.LABEL_Y
             if hasattr(histo.OPT, 'REF'):
                 ref = histo.OPT.REF
+        else: 
+            labelX = "NOOPT"
+            labelY = "NOOPT"
+
     		
         #save into template
 
@@ -362,7 +367,7 @@ def Histo(path=""):
                                    HISTOGRAM_LABEL_Y = labelY,
                                    REFERENCE_NORMALISATION = ref,
                                    HTML_HISTO_ID = "Histo_"+str(i),
-                                   HISTO_TITLE= histogramTitle)
+                                   HISTO_SHOW_TITLE= histogramTitle)
     		
         i += 1
     if columns != "":
