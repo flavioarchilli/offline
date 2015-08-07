@@ -38,8 +38,11 @@
   function styles(dom) {
     var used = "";
     var sheets = document.styleSheets;
+    console.log(sheets);
     for (var i = 0; i < sheets.length; i++) {
       var rules = sheets[i].cssRules;
+    console.log(rules);
+      if (rules == null) continue;
       for (var j = 0; j < rules.length; j++) {
         var rule = rules[j];
         if (typeof(rule.style) != "undefined") {
@@ -68,7 +71,7 @@
       var clone = el.cloneNode(true);
       var width = parseInt(clone.getAttribute("width"));
       var height = parseInt(clone.getAttribute("height"));
-
+      console.log("clone width = ", width);
       var xmlns = "http://www.w3.org/2000/xmlns/";
 
       clone.setAttribute("version", "1.1");
@@ -78,11 +81,12 @@
       clone.setAttribute("height", height * scaleFactor);
       clone.setAttribute("viewBox", "0 0 " + width + " " + height);
       outer.appendChild(clone);
-
+      console.log("outer = ", outer);
       clone.insertBefore(styles(clone), clone.firstChild);
 
       var svg = doctype + outer.innerHTML;
       var uri = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
+      console.log("uri = ", uri);
       if (cb) {
         cb(uri);
       }
