@@ -90,6 +90,7 @@
   }
 
   out$.saveSvgAsPng = function(el, name, scaleFactor) {
+    console.log("here, el = "+ el  +" name = " + name + " scale = ", scaleFactor);
     out$.svgAsDataUri(el, scaleFactor, function(uri) {
       var image = new Image();
       image.src = uri;

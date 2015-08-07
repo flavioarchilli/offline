@@ -78,7 +78,8 @@ function change_reference_mode(){
 	text.text(" Deactivated");
 	
 	url = url + "deactivated";
-	console.log($('#main').html());
+//	console.log($('#main').html());
+        console.log("button deactivated");
 	OfflineApp.redrawHistograms("deactivated");				
     }
 	

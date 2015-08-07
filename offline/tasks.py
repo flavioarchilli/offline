@@ -13,7 +13,7 @@ def tfile_path(filename):
     return '{0}/static/files/{1}'.format(here, filename)
 
 
-def data_for_object(obj):
+def data_for_object(obj,filename):
     """Return a dictionary representing the data inside the object."""
     obj_class = obj.ClassName()
     d = {}
@@ -30,8 +30,8 @@ def data_for_object(obj):
     d['key_name'] = MyDisplayName
     xaxis = obj.GetXaxis()
     yaxis = obj.GetYaxis()
-    d['axis_titles'] = (xaxis.GetTitleSize(), yaxis.GetTitleSize())
-    
+    d['axis_titles'] = (xaxis.GetTitle(), yaxis.GetTitle())
+    d['run_number'] = filename#.split("-")[1]
     if obj_class[0:3] == 'TH1' or obj_class[0:3] == 'TPr':        
         # For histograms, we provide
         #   binning: List of 2-tuples defining the (low, high) binning edges,
@@ -99,7 +99,6 @@ def get_key_from_file(filename, key_name):
     filename -- Name of file with full path, e.g. `/a/b/my_file.root`
     key_name -- Name of key object is stored as
     """
-#    filename = tfile_path(add_file_extension(filename))
     filename = add_file_extension(filename)
     f = ROOT.TFile(filename)
     
@@ -109,13 +108,6 @@ def get_key_from_file(filename, key_name):
             success=False,
             message='Could not open file `{0}`'.format(filename)
         )
-#    obj = None
-# This method, opposed to TFile.Get, is more robust against odd key names
-#    for key in f.GetListOfKeys():
-#        print key
-#        if key.GetName() == key_name:
-#            print key_name
-#            obj = key.ReadObj()
     obj = f.Get(key_name)
     if not obj:
         d = dict(
@@ -132,7 +124,7 @@ def get_key_from_file(filename, key_name):
                 key_name=obj.GetName(),
                 key_title=obj.GetTitle(),
                 key_class=obj.ClassName(),
-                key_data=data_for_object(obj)
+                key_data=data_for_object(obj, filename)
             )
         )
     f.Close()

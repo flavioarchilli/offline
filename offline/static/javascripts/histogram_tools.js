@@ -3,9 +3,11 @@
 
 // Save recursively all the histograms
 function saveAllHistograms() {
+  console.log('inside saveAll');
   var elm = $('#histoContainer').find("svg").each( 
     function() {
-      var name = $(this).parent().parent().find(".histoTitle").text() + ".png";
+//      console.log("this = " + $(this).parent().parent().parent().text());
+      var name = $(this).find(".histoTitle").text() + ".png";
       saveSvgAsPng($(this)[0], name);
     });
 }

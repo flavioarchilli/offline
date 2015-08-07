@@ -1,4 +1,3 @@
-
 // This structure is similar to that used by WebMonitor.js.
 // You have access to both the WebMonitor object and activePage (if the page
 // is being served by the catchall.serve_page route), which you can use to
@@ -11,7 +10,6 @@ var OfflineApp = (function(window, undefined) {
   //   container: jQuery element to insert msg into
   //   msg: HTML message to display inside container
   var displayFailure = function(container, msg) {
-//    container.html('<div class="alert alert-danger">' + msg + '</div>');
       console.log(msg);
   };
 
@@ -40,21 +38,33 @@ var OfflineApp = (function(window, undefined) {
   //   undefined
   var drawHistogram = function(container, data, referenceData, options, refOptions, histFail, refFail) {
     console.log("in drawHistogram", histFail, refFail);
+    console.log("data = ", data);
+    console.log("referenceData = ", referenceData);
+
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
+    var refopt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, refOptions);
     var xLabel ="", yLabel="", histoLabel ="Failed";
     if (histFail!=true){
        console.log("in getopt parts", histFail, refFail);
  
         var optionsName = 'OPTIONS_FOR_'+opt.key_name;
         var histoOptions = document.getElementById(optionsName);
-        console.log("histoOptions = ", histoOptions);
+        if (histoOptions!=null){
+                     xLabel = histoOptions.getAttribute('data-lab-x');
+                     yLabel = histoOptions.getAttribute('data-lab-y');
+                     histoLabel = histoOptions.getAttribute('data-lab-histo');
+        }
+     }else if (refFail!=true){
+         console.log("in ref getopt parts", histFail, refFail);
+
+        var optionsName = 'OPTIONS_FOR_'+opt.key_name;
+        var histoOptions = document.getElementById(optionsName);
         if (histoOptions!=null){
         xLabel = histoOptions.getAttribute('data-lab-x');
         yLabel = histoOptions.getAttribute('data-lab-y');
         histoLabel = histoOptions.getAttribute('data-lab-histo');
-        }
-     }
-
+    }
+    }
     if (opt.type == "H1D") {
 
       var chart = d3.select(container.get()[0]).append('svg')
@@ -74,13 +84,12 @@ var OfflineApp = (function(window, undefined) {
 		  ];
 
 
-
       chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
       if(histFail!=true){
-                       chart.addOrnament(d3.plotable.TextBox('info', info, {x:0.2*myWidth, y:0.05*myHeight}));
+                       chart.addOrnament(d3.plotable.TextBox('info', info));
                        chart.addPlotable(d3.plotable.Histogram('histogram', data));
        }else{
-		       chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Signal Failed', {x:0.7*myWidth, y:0.05*myHeight, color:"#ff0000"}));
+		       chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
 
        } 
       var button = $("#changeReferenceMode");
@@ -89,34 +98,40 @@ var OfflineApp = (function(window, undefined) {
               if(refFail!=true){
 	                       chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
               }else{
-			       chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.05*myHeight, color:"#ff0000"}));
+			       chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
               }
 
 	  }
       
     } else if (opt.type == "H2D"){
-	
-	var histo2D = d3.select(container.get()[0]).append('svg')
-	  .attr('width', container.width())
-	  .attr('height', container.height())
-	  .chart('AxesChart')
-	  .xAxisLabel(xLabel)
-	  .yAxisLabel(yLabel)
-	  .animate(false);
+        var histo2D = d3.select(container.get()[0]).append('svg')
+          .attr('width', container.width())
+          .attr('height', container.height())
+          .chart('AxesChart')
+          .xAxisLabel(xLabel)
+          .yAxisLabel(yLabel)
+          .animate(false);
+        histo2D.addOrnament(d3.plotable.LabelBox('label', histoLabel));
+        if(histFail!=true){	
+	      histo2D.addPlotable(d3.plotable.Histogram2D('histogram', data));
+        }else{
+              histo2D.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
+        }
 
-	histo2D.addPlotable(d3.plotable.Histogram2D('histogram', data));
-       
     } else if (opt.type == "Profile"){
-	
-	var profile = d3.select(container.get()[0]).append('svg')
-	  .attr('width', container.width())
-	  .attr('height', container.height())
-	  .chart('AxesChart')
-	  .xAxisLabel(xLabel)
-	  .yAxisLabel(yLabel)
-	  .animate(false);
-
-	profile.addPlotable(d3.plotable.LineChart('histogram', data, {showPoints: true, showUncertainties: true}));
+        var profile = d3.select(container.get()[0]).append('svg')
+          .attr('width', container.width())
+          .attr('height', container.height())
+          .chart('AxesChart')
+          .xAxisLabel(xLabel)
+          .yAxisLabel(yLabel)
+          .animate(false);
+        profile.addOrnament(d3.plotable.LabelBox('label', histoLabel));
+        if(histFail!=true){      
+	  profile.addPlotable(d3.plotable.LineChart('histogram', data, {showPoints: true, showUncertainties: true}));
+        }else{
+          profile.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
+        }
 
     }
 
@@ -135,7 +150,9 @@ var OfflineApp = (function(window, undefined) {
         histoContent.formattedData,
         histoContent.formattedRefData,
 	histoContent.options,
-	histoContent.refoptions
+	histoContent.refoptions,
+        histoContent.histFail,
+        histoContent.refFail
       );		
     }
   };
@@ -148,21 +165,15 @@ var OfflineApp = (function(window, undefined) {
   // Returns:
   //   undefined
   var displayHistogram = function(data, reference_data, refNormalisation, container, histFail, refFail) {
-
-    // We need to manipulate the values slightly for d3.chart.histogram
-    //     // See the d3.chart.histogram documentation for the specifics
+    console.log("got data = ", data);
     var formattedData = [];
     var name, type, title, values, uncertainties, axisTitles= [], numberEntries, integral, mean, RMS, key_name, skewness;
     if(histFail==false){
     var key_data = data['key_data'];
 
-    var key_ref = "";
-    if (reference_data['key_data']) key_ref = reference_data['key_data'];
-
       name = key_data['name'];
       type = key_data['type'];
       title = data['key_title'];
-    //      binning = key_data['binning'],
       values = key_data['values'];
       uncertainties = key_data['uncertainties'];
       axisTitles = key_data['axis_titles'];      
@@ -175,7 +186,7 @@ var OfflineApp = (function(window, undefined) {
     var xbinning, 
       ybinning;
 
-    if (type == "H1D"){
+    if (type == "H1D" || type == "Profile" ){
       xbinning = key_data['binning'];
 	    
     }else if (type == "H2D"){
@@ -183,13 +194,6 @@ var OfflineApp = (function(window, undefined) {
       ybinning = key_data['ybinning'];
     }
 	
-    // Binning of the reference histogram (Only 1D histograms have references)	
-    var refbinning = key_ref['binning'],
-      refvalues = key_ref['values'],
-      refuncertainties = key_ref['uncertainties'],
-      refnumberEntries = key_ref['numberEntries'],
-      refintegral = key_ref['integral'];
-		  	  
 
     var v, binCenter, uLow, uHigh;
 
@@ -217,8 +221,19 @@ var OfflineApp = (function(window, undefined) {
 		elow: uncertainties[i],
 		eup: uncertainties[i]
 	      });		    
-      }		
+      }else if (type == "Profile"){
+        var bins = xbinning[i];
+        formattedData.push({
+          x: bins[0]+(bins[1]-bins[0])/2.,
+          xerr: [(bins[1]-bins[0])/2.,(bins[1]-bins[0])/2.],
+          y: values[i],
+          yerr: uncertainties[i]
+        });
+       }
+
+
     }
+    
     }else{
       title = "failure";
       axisTitles[0] = "";
@@ -229,6 +244,19 @@ var OfflineApp = (function(window, undefined) {
       key_name = ""; 
       type = "H1D";
     }
+    // Binning of the reference histogram (Only 1D histograms have references)  
+    var key_ref = "";
+    var refbinning, refvalues, refuncertainties, refnumberEntries, refintegral;
+    if (refFail == false){
+      if (reference_data['key_data']) key_ref = reference_data['key_data'];
+           refbinning = key_ref['binning'],
+           refvalues = key_ref['values'],
+           refuncertainties = key_ref['uncertainties'],
+           refnumberEntries = key_ref['numberEntries'],
+           refintegral = key_ref['integral'];
+    }
+        
+   
 
     var formattedRefData = [];
     //check if data-reference != ""
@@ -258,6 +286,7 @@ var OfflineApp = (function(window, undefined) {
 
 
     var options = {
+      run : key_ref['run_number'],
       title: title,
       xAxis: {
 	    title: axisTitles[0]
@@ -288,7 +317,9 @@ var OfflineApp = (function(window, undefined) {
       formattedData: formattedData,
       formattedRefData: formattedRefData,
       options: options,
-      refoptions: refoptions
+      refoptions: refoptions,
+      histFail: histFail, 
+      refFail: refFail
     };    		
     localCache.listOfHistogramData[localCache.listOfHistogramData.length] = histoContent;
     // Draw the histogram in the container
@@ -328,6 +359,7 @@ var OfflineApp = (function(window, undefined) {
     var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
     var histFail = false;
     task.done(function(job) {
+        console.log("getting ",histogram);
         displayHistogram(job['result']['data'], referenceData, refNormalisation, container, histFail, refFail);
     });
     task.fail(function(message, job) {
@@ -341,7 +373,7 @@ var OfflineApp = (function(window, undefined) {
        histFail = true;
        displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
     });
-
+     
   };
 
   // Page-specific modules
