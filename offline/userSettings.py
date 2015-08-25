@@ -7,7 +7,7 @@ except:
 import os.path
 from config import *
 import ROOT
-
+ROOT.std.__file__ = 'dummy'
 
 class userSettings:
 	def __init__(self, err):

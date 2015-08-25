@@ -1,6 +1,6 @@
 import os
 import ROOT
-
+ROOT.std.__file__ = 'dummy'
 
 def add_file_extension(filename):
     """Add `.root` extension to `filename`, if it's not already present."""
