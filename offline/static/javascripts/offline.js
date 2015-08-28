@@ -25,8 +25,6 @@ var OfflineApp = (function(window, undefined) {
       listOfHistogramData: []
   };
 
-
-
   // Draw a histogram in the `container` using `options`.
   // Accepts:
   //   container: A jQuery object in which to draw the histogram
@@ -44,65 +42,69 @@ var OfflineApp = (function(window, undefined) {
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
     var refopt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, refOptions);
     var xLabel ="", yLabel="", histoLabel ="Failed";
-    if (histFail!=true){
-       console.log("in getopt parts", histFail, refFail);
- 
-        var optionsName = 'OPTIONS_FOR_'+opt.key_name;
-        var histoOptions = document.getElementById(optionsName);
-        if (histoOptions!=null){
-                     xLabel = histoOptions.getAttribute('data-lab-x');
-                     yLabel = histoOptions.getAttribute('data-lab-y');
-                     histoLabel = histoOptions.getAttribute('data-lab-histo');
-        }
-     }else if (refFail!=true){
-         console.log("in ref getopt parts", histFail, refFail);
 
+    if (histFail!=true) {
+	console.log("in getopt parts", histFail, refFail);
+	
+	var optionsName = 'OPTIONS_FOR_'+opt.title;
+	var histoOptions = document.getElementById(optionsName);
+	console.log("keyname = ",opt.key_name);
+	console.log("optionsName = ",optionsName);
+	console.log("histoOptions is null = ",histoOptions==null);
+	console.log("histoOptions",histoOptions);
+	if (histoOptions!=null) {
+	    xLabel = histoOptions.getAttribute('data-lab-x');
+	    yLabel = histoOptions.getAttribute('data-lab-y');
+	    histoLabel = histoOptions.getAttribute('data-lab-histo');
+	}
+    } else if (refFail!=true) {
+	console.log("in ref getopt parts", histFail, refFail);
+	
         var optionsName = 'OPTIONS_FOR_'+opt.key_name;
         var histoOptions = document.getElementById(optionsName);
-        if (histoOptions!=null){
-        xLabel = histoOptions.getAttribute('data-lab-x');
-        yLabel = histoOptions.getAttribute('data-lab-y');
-        histoLabel = histoOptions.getAttribute('data-lab-histo');
+        if (histoOptions!=null) {
+	    xLabel = histoOptions.getAttribute('data-lab-x');
+	    yLabel = histoOptions.getAttribute('data-lab-y');
+	    histoLabel = histoOptions.getAttribute('data-lab-histo');
+	}
     }
-    }
+
     if (opt.type == "H1D") {
-
-      var chart = d3.select(container.get()[0]).append('svg')
-	  .attr('width', container.width())
-	  .attr('height', container.height())
-	  .chart('AxesChart')
-	  .xAxisLabel(xLabel)
-	  .yAxisLabel(yLabel);
-
- 
-      var myWidth = container.width();
-      var myHeight = container.height();
-      var info = [
-		  ['Entries', opt.numberEntries],
-		  ['Mean', opt.mean],
-		  ['RMS', opt.RMS],
-		  ];
-
-
-      chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
-      if(histFail!=true){
-                       chart.addOrnament(d3.plotable.TextBox('info', info));
-                       chart.addPlotable(d3.plotable.Histogram('histogram', data));
-       }else{
-		       chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
-
-       } 
-      var button = $("#changeReferenceMode");
-      if(button.data("state") == "activated")
-	  {
-              if(refFail!=true){
-	                       chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
-              }else{
-			       chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
-              }
-
-	  }
-      
+	
+	var chart = d3.select(container.get()[0]).append('svg')
+	.attr('width', container.width())
+	.attr('height', container.height())
+	.chart('AxesChart')
+	.xAxisLabel(xLabel)
+	.yAxisLabel(yLabel);
+	
+	var myWidth = container.width();
+	var myHeight = container.height();
+	var info = [
+		    ['Entries', opt.numberEntries],
+		    ['Mean', opt.mean],
+		    ['RMS', opt.RMS],
+		    ];
+	
+	
+	chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
+	if(histFail!=true) {
+	    chart.addOrnament(d3.plotable.TextBox('info', info));
+	    chart.addPlotable(d3.plotable.Histogram('histogram', data));
+	} else {
+	    chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
+	    
+	} 
+	var button = $("#changeReferenceMode");
+	if(button.data("state") == "activated") {
+	    if(refFail!=true) {
+		chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
+	    } else {
+		chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
+	    }
+	    
+	}
+	
     } else if (opt.type == "H2D"){
         var histo2D = d3.select(container.get()[0]).append('svg')
           .attr('width', container.width())
@@ -181,22 +183,22 @@ var OfflineApp = (function(window, undefined) {
       integral = key_data['integral'];
       mean = key_data['mean'];
       RMS = key_data['RMS'];
-      key_name = key_data['key_name'];
+      key_name = data['key_name'];
       skewness = key_data['skewness'];
     var xbinning, 
       ybinning;
 
     if (type == "H1D" || type == "Profile" ){
-      xbinning = key_data['binning'];
+	xbinning = key_data['binning'];
 	    
     }else if (type == "H2D"){
-      xbinning = key_data['xbinning'];
-      ybinning = key_data['ybinning'];
+	xbinning = key_data['xbinning'];
+	ybinning = key_data['ybinning'];
     }
 	
 
     var v, binCenter, uLow, uHigh;
-
+    
     for (var i = 0; i < values.length; i++) {
       if (type == "H1D"){		    
         var bins = xbinning[i];
@@ -372,8 +374,7 @@ var OfflineApp = (function(window, undefined) {
       displayFailure(container, failMsg);
        histFail = true;
        displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
-    });
-     
+    });     
   };
 
   // Page-specific modules

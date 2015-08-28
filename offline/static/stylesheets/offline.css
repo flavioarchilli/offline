@@ -18,6 +18,15 @@
     font-weight: bold;
 }
 
+.svg-canvas{
+    display: inline-block;
+    position: relative;
+    width: 100%
+    padding-bottom: 100%;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
 body {
     /* Move down content to compensate for fixed nav bar */
     padding-top: 35px;

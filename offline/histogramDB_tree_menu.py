@@ -352,7 +352,7 @@ def Histo(path=""):
     		
         #save into template
 
-        print 'HISTOGRAM_LABEL_X :: {0} ; HISTOGRAM_LABEL_Y :: {1} ; HISTOGRAM_LABEL_ID :: {2}'.format(labelX,labelY,histogramLabelId)
+#        print 'HISTOGRAM_LABEL_X :: {0} ; HISTOGRAM_LABEL_Y :: {1} ; HISTOGRAM_LABEL_ID :: {2}'.format(labelX,labelY,histogramLabelId)
 
 
         columns += render_template("histoCell.html", 

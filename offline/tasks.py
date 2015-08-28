@@ -1,6 +1,10 @@
 import os
+import cppyy
 import ROOT
 ROOT.std.__file__ = 'dummy'
+
+cppyy.gbl.gSystem.Load("lib/libHistograms.so")
+cppyy.gbl.gInterpreter.Declare('#include <offline/lib/libHistograms.h>')
 
 def add_file_extension(filename):
     """Add `.root` extension to `filename`, if it's not already present."""
@@ -101,31 +105,43 @@ def get_key_from_file(filename, key_name):
     """
     filename = add_file_extension(filename)
     f = ROOT.TFile(filename)
-    
 
-    if f.IsZombie():
-        return dict(
-            success=False,
-            message='Could not open file `{0}`'.format(filename)
-        )
-    obj = f.Get(key_name)
-    if not obj:
-        d = dict(
-            success=False,
-            message='Could not find key `{1}` in file `{0}`'.format(
-                filename, key_name
-            )
-        )
-    else:
-        d = dict(
-            success=True,
-            data=dict(
-                filename=filename,
-                key_name=obj.GetName(),
-                key_title=obj.GetTitle(),
-                key_class=obj.ClassName(),
-                key_data=data_for_object(obj, filename)
-            )
-        )
+#    if f.IsZombie():
+#        return dict(
+#            success=False,
+#            message='Could not open file `{0}`'.format(filename)
+#        )
+#    obj = f.Get(key_name)
+#    if not obj:
+#        d = dict(
+#            success=False,
+#            message='Could not find key `{1}` in file `{0}`'.format(
+#                filename, key_name
+#            )
+#        )
+#    else: 
+#        d = dict(
+#            success=True,
+#            data=dict(
+#                filename=filename,
+#                key_name=obj.GetName(),
+#                key_title=obj.GetTitle(),
+#                key_class=obj.ClassName(),
+#                key_data=data_for_object(obj, filename)
+#            )
+#        )
+
+#        key_dict = eval(cppyy.gbl.getInfo(obj))
+#
+#        key_dict['filename'] = filename
+#        d = dict(
+#            success=True,
+#            data=key_dict
+#            )
+
+    d = eval(cppyy.gbl.getDictionary(f,key_name))
+#    d['data']['filename'] = filename
+
+        
     f.Close()
     return d
