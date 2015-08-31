@@ -9,20 +9,23 @@
   	</div>
 	
 	<div id='{{ HISTOGRAM_DISPLAY_OPTIONS }}' 
-        data-lab-x="{{ HISTOGRAM_LABEL_X }}" 
-	data-lab-y="{{ HISTOGRAM_LABEL_Y }}"
-        data-lab-histo = "{{ HISTO_SHOW_TITLE }}">
-
+             data-lab-x="{{ HISTOGRAM_LABEL_X }}" 
+	     data-lab-y="{{ HISTOGRAM_LABEL_Y }}"
+             data-lab-histo = "{{ HISTO_SHOW_TITLE }}"
+	     data-center-x = "{{ HISTO_CENTER_X }}"
+	     data-center-y = "{{ HISTO_CENTER_Y }}"
+	     data-size-x = "{{ HISTO_SIZE_X }}"
+	     data-size-y = "{{ HISTO_SIZE_Y }}">
         </div>
 	
 	<div class="histogram" 
-        data-file="{{ DATA_FILE }}" 
-        data-histogram="{{ HISTOGRAM_NAME }}" 
-        data-hid="{{ HISTOGRAM_HID }}"
-	data-reference="{{ REFERENCE_NAME }}" 
-	data-plottype="{{PLOTTYPE}}"
-	data-reference-file="{{ REFERENCE_DATA_FILE }}"
-	data-refnormalisation="{{ REFERENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
+             data-file="{{ DATA_FILE }}" 
+             data-histogram="{{ HISTOGRAM_NAME }}" 
+             data-hid="{{ HISTOGRAM_HID }}"
+	     data-reference="{{ REFERENCE_NAME }}" 
+	     data-plottype="{{PLOTTYPE}}"
+	     data-reference-file="{{ REFERENCE_DATA_FILE }}"
+	     data-refnormalisation="{{ REFERENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
 	</div>
 	
 </div>

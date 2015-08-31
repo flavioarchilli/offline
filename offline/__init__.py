@@ -12,6 +12,7 @@ def create_app():
     from offline.offline_blueprint import offline_bp
     from offline.online_dq_blueprint import online_dq_bp
     from offline.histogramDB_tree_menu import histogramDB_tree_menu
+    from offline.tasks_blueprint import tasks_bp
     from offline.job_resolvers import tasks_resolver
     from offline.presenter_bp import presenter 
     app = webmonitor.create_app()
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(offline_bp, url_prefix='/offline_bp')
     app.register_blueprint(online_dq_bp, url_prefix='/online_dq_bp')
     app.register_blueprint(histogramDB_tree_menu, url_prefix='/histogramDB_tree_menu')
+    app.register_blueprint(tasks_bp, url_prefix='/tasks_bp')
     app.add_job_resolver(tasks_resolver)
 
     return app

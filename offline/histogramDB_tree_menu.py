@@ -367,8 +367,12 @@ def Histo(path=""):
                                    HISTOGRAM_LABEL_Y = labelY,
                                    REFERENCE_NORMALISATION = ref,
                                    HTML_HISTO_ID = "Histo_"+str(i),
+                                   HISTO_CENTER_X = histo.CENTER_X,
+                                   HISTO_CENTER_Y = histo.CENTER_Y,
+                                   HISTO_SIZE_X = histo.SIZE_X,
+                                   HISTO_SIZE_Y = histo.SIZE_Y,
                                    HISTO_SHOW_TITLE= histogramTitle)
-    		
+        
         i += 1
     if columns != "":
         rows += render_template("histoRow.html", COLUMNS = columns)

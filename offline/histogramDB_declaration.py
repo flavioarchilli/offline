@@ -27,7 +27,10 @@ def histogramDB_declaration():
         PAGE = Column(String(350))
         PAGEFOLDER= Column(String(300))
         HISTO = Column(String(12), ForeignKey('HISTOGRAM.HID')) #Reference to HISTOGRAM.HID
-    
+        CENTER_X = Column(Float)
+        CENTER_Y = Column(Float)
+        SIZE_X = Column(Float)
+        SIZE_Y = Column(Float)
     
     class HISTOGRAMSET(Base):
         __tablename__ = "HISTOGRAMSET"
@@ -392,7 +395,16 @@ def histogramDB_declaration():
             we can find two histograms to be displayed.
             """
             try:
-                return self.session.query(SHOWHISTO.SHID, HISTOGRAM.NAME, HISTOGRAM.DISPLAY, SHOWHISTO.PAGE, HISTOGRAM.HID, DISPLAYOPTIONS.OPT).\
+                return self.session.query(SHOWHISTO.SHID, 
+                                          SHOWHISTO.CENTER_X, 
+                                          SHOWHISTO.CENTER_Y, 
+                                          SHOWHISTO.SIZE_X, 
+                                          SHOWHISTO.SIZE_Y, 
+                                          HISTOGRAM.NAME, 
+                                          HISTOGRAM.DISPLAY, 
+                                          SHOWHISTO.PAGE, 
+                                          HISTOGRAM.HID, 
+                                          DISPLAYOPTIONS.OPT).\
                     join(HISTOGRAM, HISTOGRAM.HID == SHOWHISTO.HISTO).\
                     outerjoin(DISPLAYOPTIONS, DISPLAYOPTIONS.DOID == HISTOGRAM.DISPLAY).\
                     filter(SHOWHISTO.PAGE == path).\

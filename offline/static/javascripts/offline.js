@@ -340,42 +340,97 @@ var OfflineApp = (function(window, undefined) {
     var referenceData = "";
     var refFail = false; 
     if (reference != "") {
-      var referenceTask = WebMonitor.createTask('get_key_from_file', {filename: referenceFile, key_name: reference});
-      referenceTask.done(function(job) {
-        referenceData = job['result']['data'];	
-      });
-      referenceTask.fail(function(message) {
-        var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
-          + '<code>' + reference + '</code>'
-          + ' from file '
-          + '<code>' + file + '</code>'
-          + '. Please contact the administrator.</p>'
-          + message;
-        displayFailure(container, failMsg);
-          refFail = true;
-      });
+	var referenceUrl = '/tasks_bp/get_key_from_file';
+	var referenceRequest = $.ajax(referenceUrl, {
+		type: 'POST',
+		contentType: 'application/json; charset=utf-8',
+		dataType: 'json',
+		data: JSON.stringify({
+			filename: referenceFile, 
+			key_name: reference, 
+			is_reference: true})
+	    })
+	    .done(function(job) {
+		    referenceData = job['data'];	
+		})
+	    .fail(function(message) {
+		    var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
+		    + '<code>' + reference + '</code>'
+		    + ' from file '
+		    + '<code>' + file + '</code>'
+		    + '. Please contact the administrator.</p>'
+		    + message;
+		    displayFailure(container, failMsg);
+		    refFail = true;
+		});
+
+//      var referenceTask = WebMonitor.createTask('get_key_from_file', {filename: referenceFile, key_name: reference});
+//      referenceTask.done(function(job) {
+//        referenceData = job['result']['data'];	
+//      });
+//      referenceTask.fail(function(message) {
+//        var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
+//          + '<code>' + reference + '</code>'
+//          + ' from file '
+//          + '<code>' + file + '</code>'
+//          + '. Please contact the administrator.</p>'
+//          + message;
+//        displayFailure(container, failMsg);
+//          refFail = true;
+//      });
     }
 
 
     // Request histogram from server
-    var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
+
+    var url = '/tasks_bp/get_key_from_file';
     var histFail = false;
-    task.done(function(job) {
-        console.log("getting ",histogram);
-        displayHistogram(job['result']['data'], referenceData, refNormalisation, container, histFail, refFail);
-    });
-    task.fail(function(message, job) {
-      var failMsg = '<p>There was a problem retrieving histogram '
-      + '<code>' + histogram + '</code>'
-      + ' from file '
-      + '<code>' + file + '</code>'
-      + '. Please contact the administrator.</p>'
-      + message;
-      displayFailure(container, failMsg);
-       histFail = true;
-       displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
-    });     
+    var request = $.ajax(url, {
+	    type: 'POST',
+	    contentType: 'application/json; charset=utf-8',
+	    dataType: 'json',
+	    data: JSON.stringify({
+		    filename: file, 
+		    key_name: histogram, 
+		    is_reference: false})
+	})
+    .done(function(job) {
+	    console.log("getting ",histogram);
+	    displayHistogram(job['data'], referenceData, refNormalisation, container, histFail, refFail);
+
+	})
+    .fail(function(message) {
+	    var failMsg = '<p>There was a problem retrieving histogram '
+	    + '<code>' + histogram + '</code>'
+	    + ' from file '
+	    + '<code>' + file + '</code>'
+	    + '. Please contact the administrator.</p>'
+	    + message;
+	    displayFailure(container, failMsg);
+	    var histFail = true;
+	    displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
+	});     
+
   };
+
+//    var task = WebMonitor.createTask('get_key_from_file', {filename: file, key_name: histogram});
+//    var histFail = false;
+//    task.done(function(job) {
+//        console.log("getting ",histogram);
+//        displayHistogram(job['result']['data'], referenceData, refNormalisation, container, histFail, refFail);
+//    });
+//    task.fail(function(message, job) {
+//      var failMsg = '<p>There was a problem retrieving histogram '
+//      + '<code>' + histogram + '</code>'
+//      + ' from file '
+//      + '<code>' + file + '</code>'
+//      + '. Please contact the administrator.</p>'
+//      + message;
+//      displayFailure(container, failMsg);
+//       histFail = true;
+//       displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
+//    });     
+//  };
 
   // Page-specific modules
   var pages = {
