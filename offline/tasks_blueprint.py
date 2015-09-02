@@ -144,33 +144,37 @@ def get_key_from_file():
  #   f = settings.actualROOTFile    
  #   if (is_reference) :
  #       f = settings.actualROOTReferenceFile
- 
+    settings.setOptionsFile(current_app.uid)
+    print ">>>> current_app.uid : ", current_app.uid
+    print ">>>> ROOT file : ",settings.actualROOTFile
+    print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
     f = ROOT.TFile(filename)
 
-    if f.IsZombie():
-        return dict(
-            success=False,
-            message='Could not open file `{0}`'.format(filename)
-        )
-    obj = f.Get(key_name)
-    if not obj:
-        d = dict(
-            success=False,
-            message='Could not find key `{1}` in file `{0}`'.format(
-                filename, key_name
-            )
-        )
-    else: 
-        d = dict(
-            success=True,
-            data=dict(
-                filename=filename,
-                key_name=obj.GetName(),
-                key_title=obj.GetTitle(),
-                key_class=obj.ClassName(),
-                key_data=data_for_object(obj, filename)
-            )
-        )
+
+#    if f.IsZombie():
+#        return dict(
+#            success=False,
+#            message='Could not open file `{0}`'.format(filename)
+#        )
+#    obj = f.Get(key_name)
+#    if not obj:
+#        d = dict(
+#            success=False,
+#            message='Could not find key `{1}` in file `{0}`'.format(
+#                filename, key_name
+#            )
+#        )
+#    else: 
+#        d = dict(
+#            success=True,
+#            data=dict(
+#                filename=filename,
+#                key_name=obj.GetName(),
+#                key_title=obj.GetTitle(),
+#                key_class=obj.ClassName(),
+#                key_data=data_for_object(obj, filename)
+#            )
+#        )
 
 #        key_dict = eval(cppyy.gbl.getInfo(obj))
 #
@@ -179,8 +183,9 @@ def get_key_from_file():
 #            success=True,
 #            data=key_dict
 #            )
-#
-#    d = eval(cppyy.gbl.getDictionary(f,key_name))
-        
+
+    d = eval(cppyy.gbl.getDictionary(f,key_name))
+    
+    print d
     f.Close()
     return jsonify(d)

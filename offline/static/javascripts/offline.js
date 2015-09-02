@@ -146,8 +146,10 @@ var OfflineApp = (function(window, undefined) {
   {
     for(var i = 0; i < localCache.listOfHistogramData.length; i++) {
       var histoContent = localCache.listOfHistogramData[i] ;
-      histoContent.container.empty();
       
+
+      histoContent.container.html('');;
+
       drawHistogram(histoContent.container,
         histoContent.formattedData,
         histoContent.formattedRefData,
@@ -169,9 +171,9 @@ var OfflineApp = (function(window, undefined) {
   var displayHistogram = function(data, reference_data, refNormalisation, container, histFail, refFail) {
     console.log("got data = ", data);
     var formattedData = [];
-    var name, type, title, values, uncertainties, axisTitles= [], numberEntries, integral, mean, RMS, key_name, skewness;
+    var name, type, title, values, uncertainties, axisTitles= [], numberEntries, integral, mean, RMS, key_name;//, skewness;
     if(histFail==false){
-    var key_data = data['key_data'];
+      var key_data = data['key_data'];
 
       name = key_data['name'];
       type = key_data['type'];
@@ -184,8 +186,8 @@ var OfflineApp = (function(window, undefined) {
       mean = key_data['mean'];
       RMS = key_data['RMS'];
       key_name = data['key_name'];
-      skewness = key_data['skewness'];
-    var xbinning, 
+      //      skewness = key_data['skewness'];
+      var xbinning, 
       ybinning;
 
     if (type == "H1D" || type == "Profile" ){
@@ -351,7 +353,12 @@ var OfflineApp = (function(window, undefined) {
 			is_reference: true})
 	    })
 	    .done(function(job) {
-		    referenceData = job['data'];	
+		    if (job['success']) {
+			referenceData = job['data'];	
+		    } else {
+			refFail = true;
+			referenceData = "";
+		    }
 		})
 	    .fail(function(message) {
 		    var failMsg = '<p>There was a problem retrieving the REFERENCE histogram '
@@ -384,6 +391,7 @@ var OfflineApp = (function(window, undefined) {
     // Request histogram from server
 
     var url = '/tasks_bp/get_key_from_file';
+    var histData = "";
     var histFail = false;
     var request = $.ajax(url, {
 	    type: 'POST',
@@ -396,7 +404,15 @@ var OfflineApp = (function(window, undefined) {
 	})
     .done(function(job) {
 	    console.log("getting ",histogram);
-	    displayHistogram(job['data'], referenceData, refNormalisation, container, histFail, refFail);
+	    console.log("job status ",job['success']);
+	    if (job['success']) {
+		histData = job['data'];	
+	    } else {
+		histFail = true;
+		histData = "";
+	    }
+
+	    displayHistogram(histData, referenceData, refNormalisation, container, histFail, refFail);
 
 	})
     .fail(function(message) {
@@ -407,7 +423,7 @@ var OfflineApp = (function(window, undefined) {
 	    + '. Please contact the administrator.</p>'
 	    + message;
 	    displayFailure(container, failMsg);
-	    var histFail = true;
+	    histFail = true;
 	    displayHistogram("", referenceData, refNormalisation, container, histFail, refFail);
 	});     
 

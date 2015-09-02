@@ -10,7 +10,7 @@ std::string get1DHistoInfo(TH1D *o) {
   double integral = o->Integral();
   double mean = o->GetMean();
   double RMS = o->GetRMS();
-  double skewness = o->GetSkewness();
+  //  double skewness = o->GetSkewness();
   TAxis *xaxis = o->GetXaxis();
   TAxis *yaxis = o->GetYaxis();
   string_pair axis_titles(xaxis->GetTitle(),yaxis->GetTitle());
@@ -33,7 +33,7 @@ std::string get1DHistoInfo(TH1D *o) {
       << double_item("integral" , integral).toString() << ", "
       << double_item("mean",mean).toString() << ", "
       << double_item("RMS",RMS).toString() << ", "
-      << double_item("skewness",skewness).toString() << ", "
+    //      << double_item("skewness",skewness).toString() << ", "
       << int_item("nbins",nbins).toString() << ", "
       << _item<string_pair>("axis_titles",axis_titles).toString() << ", "
       << _item<list_of_object<double_type> >("values",values).toString() << ", "
@@ -54,7 +54,7 @@ std::string get2DHistoInfo(TH2D *o) {
   double integral = o->Integral();
   double mean = o->GetMean();
   double RMS = o->GetRMS();
-  double skewness = o->GetSkewness();
+  //  double skewness = o->GetSkewness();
   TAxis *xaxis = o->GetXaxis();
   TAxis *yaxis = o->GetYaxis();
   string_pair axis_titles(xaxis->GetTitle(),yaxis->GetTitle());
@@ -84,7 +84,7 @@ std::string get2DHistoInfo(TH2D *o) {
       << double_item("integral" , integral).toString() << ", "
       << double_item("mean",mean).toString() << ", "
       << double_item("RMS",RMS).toString() << ", "
-      << double_item("skewness",skewness).toString() << ", "
+    //      << double_item("skewness",skewness).toString() << ", "
       << int_item("nbins",nbins).toString() << ", "
       << int_item("xnbins",nbins).toString() << ", "
       << int_item("ynbins",nbins).toString() << ", "
