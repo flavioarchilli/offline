@@ -14,6 +14,8 @@ from flask import (
 import os
 from glob import glob
 from webmonitor.auth import requires_auth
+from webmonitor.auth import get_info
+
 from userSettings import *
 from errorhandler import *
 import cppyy
@@ -125,8 +127,8 @@ def list_file(filename):
 
 
 
-@requires_auth()
 @tasks_bp.route('/get_key_from_file', methods=['POST'])
+@requires_auth()
 def get_key_from_file():
     """Return the object, stored under `key_name`, in `filename`.
 
@@ -134,7 +136,7 @@ def get_key_from_file():
     filename -- Name of file with full path, e.g. `/a/b/my_file.root`
     key_name -- Name of key object is stored as
     """
-#    settings.setOptionsFile(current_app.uid)
+    settings.setOptionsFile(get_info('uid'))
     json_data = request.get_json()
     
     is_reference = json_data['is_reference']
@@ -144,8 +146,7 @@ def get_key_from_file():
  #   f = settings.actualROOTFile    
  #   if (is_reference) :
  #       f = settings.actualROOTReferenceFile
-    settings.setOptionsFile(current_app.uid)
-    print ">>>> current_app.uid : ", current_app.uid
+    print ">>>> get_info('uid') : ", get_info('uid')
     print ">>>> ROOT file : ",settings.actualROOTFile
     print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
     f = ROOT.TFile(filename)

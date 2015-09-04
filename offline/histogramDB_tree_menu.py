@@ -19,7 +19,7 @@ import json
 from userSettings import *
 from errorhandler import *
 from webmonitor.auth import requires_auth
-
+from webmonitor.auth import get_info
  
 err = errorhandler()
 settings = userSettings(err)
@@ -43,7 +43,7 @@ def checkDBConnection():
     Returns a JSON string, indicating if we could connect successfully.
     """
 
-    settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(get_info('uid'))
 
     connection = current_app.config["HISTODB"]
     status = connection.checkDBConnection()
@@ -76,7 +76,7 @@ def generateMenuTreeJSON():
     "expand all" and "collapse all" button.
 	
     """
-    settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(get_info('uid'))
 
     loadFromDBFlag = request.args.get('loadFromDBFlag')
     allNodesStandardState = request.args.get('allNodesStandardState')
@@ -98,7 +98,7 @@ def menuTreeOpenOrCloseFolder():
     action: Whether a node was closed or opened
     """
 
-    settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(get_info('uid'))
     id = request.args.get('id')
     action = request.args.get('action')
     
@@ -202,7 +202,7 @@ def generateMenu(loadFromDBFlag = True, allNodesStandardState = "closed", filter
     WARNING: to be reviewed 
     """
 
-    settings.setOptionWithTree(current_app.uid)
+    settings.setOptionWithTree(get_info('uid'))
 
     connection = current_app.config["HISTODB"]
 
@@ -304,7 +304,7 @@ def generateMenuRecursion(processedInputList, priorPath="", allNodesStandardStat
 @histogramDB_tree_menu.route('/Histo')
 @requires_auth()
 def Histo(path=""):
-    settings.setOptionWithTree(current_app.uid)        
+    settings.setOptionWithTree(get_info('uid'))        
     connection = current_app.config["HISTODB"]
     g.active_page = "Histo"
 #    if path == "":
@@ -392,7 +392,7 @@ def Histo(path=""):
                            VERSION_FULL = settings.getVersion(),
                            VERSION_VISIBLE = visiblePart,
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = current_app.username)
+                           USERNAME = get_info('username'))
 
     d = dict( 
         success = True,

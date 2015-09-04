@@ -14,6 +14,7 @@ from flask import (
 import os
 from glob import glob
 from webmonitor.auth import requires_auth
+from webmonitor.auth import get_info
 from userSettings import *
 from errorhandler import *
  
@@ -31,13 +32,13 @@ online_dq_bp = Blueprint('online_dq_bp', __name__,
 @requires_auth()
 def online_dq():
       g.active_page = "online_dq_bp"
-      settings.setOptionsFile(current_app.uid)
+      settings.setOptionsFile(get_info('uid'))
       err.setlogger(current_app.logger)
       blueprint_list = current_app.create_bplist()
       page = render_template("online_dq.html",
                            LOAD_FROM_DB_FLAG = "false",
                            REFERENCE_STATE = settings.getReferenceState(),
-                           USERNAME = current_app.username,
+                           USERNAME = get_info('username'),
                            PROJECTFULLLIST = current_app.create_bplist(),
                            PROJECTNAME = 'Online DQM') 
       return page
@@ -45,7 +46,7 @@ def online_dq():
 @online_dq_bp.route('/get_online_dq_filename')
 @requires_auth()
 def get_online_dq_filename():
-    settings.setOptionsFile(current_app.uid)
+    settings.setOptionsFile(get_info('uid'))
     mypath = "/hist/Savesets/2015/DQ/DataQuality/"
     results = [y for x in os.walk(mypath) for y in glob(os.path.join(x[0], '*-EOR.root'))] 
     filenames = []
@@ -65,8 +66,7 @@ def get_online_dq_filename():
 @requires_auth()
 def set_online_dq_filename():
 
-    settings.setOptionsFile(current_app.uid)
-
+    settings.setOptionsFile(get_info('uid'))
     filename = request.args.get('filename')
 
     status_filename = False;
@@ -96,8 +96,8 @@ def set_online_dq_filename():
 @online_dq_bp.route('/set_online_dq_reference_filename')
 @requires_auth()
 def set_online_dq_reference_filename():
+    settings.setOptionsFile(get_info('uid'))
 
-    settings.setOptionsFile(current_app.uid)
     filename = request.args.get('filename')
 
     status_filename = False;
