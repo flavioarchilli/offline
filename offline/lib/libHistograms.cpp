@@ -107,7 +107,7 @@ std::string getInfo(TObject * o){
   if (!class_name.compare("TH1D") || !class_name.compare("TProfile")) {    
     data = get1DHistoInfo((TH1D*) o);
     
-  } else if (!class_name.compare("TH2F")){
+  } else if (!class_name.compare("TH2D")){
     data = get2DHistoInfo((TH2D*) o);
 
   }

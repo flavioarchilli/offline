@@ -124,7 +124,6 @@ class userSettings:
          self.actualROOTReferenceFile = None
          return False
    
-
    def getHistoROOTFileName(self):
       try:
          self.initFile()
@@ -136,6 +135,7 @@ class userSettings:
       except Exception as inst:
          self.err.rethrowException(inst)
          return None
+
    
    def setReferenceROOTFileName(self,rootFile):
       try:
@@ -193,6 +193,7 @@ class userSettings:
       except Exception as inst:
          self.err.rethrowException(inst)
          return None
+
 
    def setVersion(self,version):
       try:

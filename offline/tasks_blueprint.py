@@ -136,57 +136,78 @@ def get_key_from_file():
     filename -- Name of file with full path, e.g. `/a/b/my_file.root`
     key_name -- Name of key object is stored as
     """
-    settings.setOptionsFile(get_info('uid'))
     json_data = request.get_json()
     
     is_reference = json_data['is_reference']
     filename = json_data['filename']
     key_name = json_data['key_name']
 
- #   f = settings.actualROOTFile    
- #   if (is_reference) :
- #       f = settings.actualROOTReferenceFile
+    
+    settings.setOptionsFile(get_info('uid'))
     print ">>>> get_info('uid') : ", get_info('uid')
-    print ">>>> ROOT file : ",settings.actualROOTFile
+    print ">>>> ROOT file : ", settings.getHistoROOTFileName()
     print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
     f = ROOT.TFile(filename)
-
-
-#    if f.IsZombie():
-#        return dict(
-#            success=False,
-#            message='Could not open file `{0}`'.format(filename)
-#        )
-#    obj = f.Get(key_name)
-#    if not obj:
-#        d = dict(
-#            success=False,
-#            message='Could not find key `{1}` in file `{0}`'.format(
-#                filename, key_name
-#            )
-#        )
-#    else: 
-#        d = dict(
-#            success=True,
-#            data=dict(
-#                filename=filename,
-#                key_name=obj.GetName(),
-#                key_title=obj.GetTitle(),
-#                key_class=obj.ClassName(),
-#                key_data=data_for_object(obj, filename)
-#            )
-#        )
-
-#        key_dict = eval(cppyy.gbl.getInfo(obj))
-#
-#        key_dict['filename'] = filename
-#        d = dict(
-#            success=True,
-#            data=key_dict
-#            )
 
     d = eval(cppyy.gbl.getDictionary(f,key_name))
     
     print d
     f.Close()
+    return jsonify(d)
+
+
+@tasks_bp.route('/get_keys_from_list', methods=['POST'])
+@requires_auth()
+def get_keys_from_list():
+    """Return the object, stored under `key_name`, in `filename`.
+
+    Keyword arguments:
+    filename -- Name of file with full path, e.g. `/a/b/my_file.root`
+    key_name -- Name of key object is stored as
+    """
+    json_data = request.get_json()
+
+    d = dict()
+    d['elements'] = list()
+    settings.setOptionsFile(get_info('uid'))
+    fn = settings.getHistoROOTFileName()
+    rfn = settings.getReferenceROOTFileName()
+# open root file stored in the root database
+    f = ROOT.TFile(fn)
+# open reference root file stored in the root database
+    rf = ROOT.TFile(rfn)
+
+    for values in json_data.itervalues():
+        for k in values:
+            subd = dict()
+            subd["index"] = k["index"]
+            if fn != k["file"]: 
+                fn = k["file"]
+                settings.setHistoROOTFileName(fn)
+                f = ROOT.TFile(fn)
+            subd["data"] = eval(cppyy.gbl.getDictionary(f,k["histogram"]))
+            if rfn != k["referenceFile"]: 
+                rfn = k["referenceFile"]
+                settings.setReferenceROOTFileName(rfn)
+                rf = ROOT.TFile(rfn)
+            subd["refdata"] = eval(cppyy.gbl.getDictionary(rf,k["reference"]))
+            d['elements'].append(subd)
+
+
+    print d
+#    is_reference = json_data['is_reference']
+#    filename = json_data['filename']
+#    key_name = json_data['key_name']
+#
+#    
+#    settings.setOptionsFile(get_info('uid'))
+#    print ">>>> get_info('uid') : ", get_info('uid')
+#    print ">>>> ROOT file : ", settings.getHistoROOTFileName()
+#    print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
+#    f = ROOT.TFile(filename)
+#
+#    d = eval(cppyy.gbl.getDictionary(f,key_name))
+#    
+#    print d
+#    f.Close()
     return jsonify(d)

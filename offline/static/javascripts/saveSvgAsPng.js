@@ -35,17 +35,31 @@
     }
   }
 
+
   function styles(dom) {
     var used = "";
     var sheets = document.styleSheets;
     console.log(sheets);
+    var defs = document.createElement('defs');
+
     for (var i = 0; i < sheets.length; i++) {
-      var rules = sheets[i].cssRules;
-    console.log(rules);
-      if (rules == null) continue;
-      for (var j = 0; j < rules.length; j++) {
-        var rule = rules[j];
+
+      try {	  
+        if (!sheets[i].cssRules)
+	    return defs;
+      } catch(e) {
+        if (e.name !== 'SecurityError')
+	  throw e;
+	return defs;
+      }
+
+//      var rules = sheets[i].cssRules;
+//      console.log(rules);
+//      if (rules == null) continue;
+      for (var j = 0; j < sheets[i].cssRules.length; j++) {
+        var rule = sheets[i].cssRules[j];
         if (typeof(rule.style) != "undefined") {
+	    //          var elems = dom.querySelectorAll(rule.selectorText);
           var elems = dom.querySelectorAll(rule.selectorText);
           if (elems.length > 0) {
             used += rule.selectorText + " { " + rule.style.cssText + " }\n";
@@ -58,7 +72,7 @@
     s.setAttribute('type', 'text/css');
     s.innerHTML = "<![CDATA[\n" + used + "\n]]>";
 
-    var defs = document.createElement('defs');
+
     defs.appendChild(s);
     return defs;
   }

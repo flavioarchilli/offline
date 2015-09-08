@@ -95,7 +95,7 @@ function createJSTrees(jsonData) {
 		    success : function(json){
 			$("#main").empty();
 			$("#main").append(json.html);
-			console.log(json.html)
+//			console.log(json.html)
 		    },
 
 		    error : function(xhr, ajaxOptions, thrownError) {

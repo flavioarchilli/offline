@@ -35,30 +35,30 @@ var OfflineApp = (function(window, undefined) {
   // Returns:
   //   undefined
   var drawHistogram = function(container, data, referenceData, options, refOptions, histFail, refFail) {
-    console.log("in drawHistogram", histFail, refFail);
-    console.log("data = ", data);
-    console.log("referenceData = ", referenceData);
+//    console.log("in drawHistogram", histFail, refFail);
+//    console.log("data = ", data);
+//    console.log("referenceData = ", referenceData);
 
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
     var refopt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, refOptions);
     var xLabel ="", yLabel="", histoLabel ="Failed";
 
     if (histFail!=true) {
-	console.log("in getopt parts", histFail, refFail);
+	//	console.log("in getopt parts", histFail, refFail);
 	
 	var optionsName = 'OPTIONS_FOR_'+opt.title;
 	var histoOptions = document.getElementById(optionsName);
-	console.log("keyname = ",opt.key_name);
-	console.log("optionsName = ",optionsName);
-	console.log("histoOptions is null = ",histoOptions==null);
-	console.log("histoOptions",histoOptions);
+//	console.log("keyname = ",opt.key_name);
+//	console.log("optionsName = ",optionsName);
+//	console.log("histoOptions is null = ",histoOptions==null);
+//	console.log("histoOptions",histoOptions);
 	if (histoOptions!=null) {
 	    xLabel = histoOptions.getAttribute('data-lab-x');
 	    yLabel = histoOptions.getAttribute('data-lab-y');
 	    histoLabel = histoOptions.getAttribute('data-lab-histo');
 	}
     } else if (refFail!=true) {
-	console.log("in ref getopt parts", histFail, refFail);
+	//	console.log("in ref getopt parts", histFail, refFail);
 	
         var optionsName = 'OPTIONS_FOR_'+opt.key_name;
         var histoOptions = document.getElementById(optionsName);
@@ -92,7 +92,7 @@ var OfflineApp = (function(window, undefined) {
 	    chart.addOrnament(d3.plotable.TextBox('info', info));
 	    chart.addPlotable(d3.plotable.Histogram('histogram', data));
 	} else {
-	    chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
+	    chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
 	    
 	} 
 	var button = $("#changeReferenceMode");
@@ -132,7 +132,7 @@ var OfflineApp = (function(window, undefined) {
         if(histFail!=true){      
 	  profile.addPlotable(d3.plotable.LineChart('histogram', data, {showPoints: true, showUncertainties: true}));
         }else{
-          profile.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
+          profile.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
         }
 
     }
@@ -168,99 +168,117 @@ var OfflineApp = (function(window, undefined) {
   //   container: A jQuery object in which to draw the histogram
   // Returns:
   //   undefined
-  var displayHistogram = function(data, reference_data, refNormalisation, container, histFail, refFail) {
-    console.log("got data = ", data);
+  //  var displayHistogram = function(data, reference_data, refNormalisation, container, histFail, refFail) {
+  var displayHistogram = function(result) {
+ 
+      //    console.log("got data = ", result);
+
+    var refNormalisation = result["refNormalisation"];
+    var container = result["el"]
+
     var formattedData = [];
     var name, type, title, values, uncertainties, axisTitles= [], numberEntries, integral, mean, RMS, key_name;//, skewness;
-    if(histFail==false){
-      var key_data = data['key_data'];
+    
+    //    if(histFail==false){
+    if(result["data"]["success"]){
+	var data = result["data"]["data"];
+	var key_data = data['key_data'];
 
-      name = key_data['name'];
-      type = key_data['type'];
-      title = data['key_title'];
-      values = key_data['values'];
-      uncertainties = key_data['uncertainties'];
-      axisTitles = key_data['axis_titles'];      
-      numberEntries = key_data['numberEntries'];
-      integral = key_data['integral'];
-      mean = key_data['mean'];
-      RMS = key_data['RMS'];
-      key_name = data['key_name'];
-      //      skewness = key_data['skewness'];
-      var xbinning, 
-      ybinning;
-
-    if (type == "H1D" || type == "Profile" ){
-	xbinning = key_data['binning'];
+	name = key_data['name'];
+	type = key_data['type'];
+	title = data['key_title'];
+	values = key_data['values'];
+	uncertainties = key_data['uncertainties'];
+	axisTitles = key_data['axis_titles'];      
+	numberEntries = key_data['numberEntries'];
+	integral = key_data['integral'];
+	mean = key_data['mean'];
+	RMS = key_data['RMS'];
+	key_name = data['key_name'];
+	//      skewness = key_data['skewness'];
+	var xbinning, 
+	    ybinning;
+	console.log("Type == " , type);
+	if (type == "H1D" || type == "Profile" ){
+	    xbinning = key_data['binning'];
 	    
-    }else if (type == "H2D"){
-	xbinning = key_data['xbinning'];
-	ybinning = key_data['ybinning'];
-    }
+	}else if (type == "H2D"){
+	    xbinning = key_data['xbinning'];
+	    ybinning = key_data['ybinning'];
+	}
 	
 
-    var v, binCenter, uLow, uHigh;
+	var v, binCenter, uLow, uHigh;
     
-    for (var i = 0; i < values.length; i++) {
-      if (type == "H1D"){		    
-        var bins = xbinning[i];
+	if (type == "H1D" || type == "Profile"){		    
 
-	formattedData.push({
-	  xlow: bins[0],
-	  xhigh: bins[1],
-	  y: key_data['values'][i],
-	  yerr: uncertainties[i]
-	});
-      }
-      else if (type == "H2D"){
-	  var xbins = xbinning[i],
-	      ybins = ybinning[i];
-	  
-	formattedData.push({
-		xlow: xbins[0],
-		xhigh: xbins[1],
-		ylow: ybins[0],
-		yhigh: ybins[1],				
-		z: key_data['values'][i],
-		elow: uncertainties[i],
-		eup: uncertainties[i]
-	      });		    
-      }else if (type == "Profile"){
-        var bins = xbinning[i];
-        formattedData.push({
-          x: bins[0]+(bins[1]-bins[0])/2.,
-          xerr: [(bins[1]-bins[0])/2.,(bins[1]-bins[0])/2.],
-          y: values[i],
-          yerr: uncertainties[i]
-        });
-       }
+	    for (var i = 0; i < values.length; i++) {
+		if (type == "H1D"){		    
+		    var bins = xbinning[i];
+		    
+		    formattedData.push({
+			    xlow: bins[0],
+				xhigh: bins[1],
+				y: key_data['values'][i],
+				yerr: uncertainties[i]
+				});
+		}else if (type == "Profile"){
+		    var bins = xbinning[i];
+		    formattedData.push({
+			    x: bins[0]+(bins[1]-bins[0])/2.,
+				xerr: [(bins[1]-bins[0])/2.,(bins[1]-bins[0])/2.],
+				y: values[i],
+				yerr: uncertainties[i]
+				});
+		}
 
+		
+	    }
+	} else if (type == "H2D") {
 
-    }
-    
-    }else{
-      title = "failure";
-      axisTitles[0] = "";
-      axisTitles[1] = ""; 
-      numberEntries = 0;
-      mean = 0;
-      RMS = 0; 
-      key_name = ""; 
-      type = "H1D";
+	    for (var i = 0; i < xbinning.length; i++) {
+		var xbins = xbinning[i];
+
+		for (var j = 0; j < ybinning.length; j++) {
+	    
+		    var ybins = ybinning[j];
+		    formattedData.push({
+			    xlow: xbins[0],
+				xhigh: xbins[1],
+				ylow: ybins[0],
+				yhigh: ybins[1],				
+				z: key_data['values'][i],
+				elow: uncertainties[i],
+				eup: uncertainties[i]
+				});		    
+		}
+	    }
+	}
+    } else { //no data in the container - problem in loading the histogram 
+	title = "Data not loaded";
+	axisTitles[0] = "";
+	axisTitles[1] = ""; 
+	numberEntries = 0;
+	mean = 0;
+	RMS = 0; 
+	key_name = ""; 
+	type = "H1D";
     }
     // Binning of the reference histogram (Only 1D histograms have references)  
     var key_ref = "";
     var refbinning, refvalues, refuncertainties, refnumberEntries, refintegral;
-    if (refFail == false){
-      if (reference_data['key_data']) key_ref = reference_data['key_data'];
-           refbinning = key_ref['binning'],
-           refvalues = key_ref['values'],
-           refuncertainties = key_ref['uncertainties'],
-           refnumberEntries = key_ref['numberEntries'],
-           refintegral = key_ref['integral'];
+    //    if (refFail == false){
+    if (result["refdata"]["success"]){
+	var reference_data = result["refdata"]["data"];
+	if (reference_data['key_data']) {
+	    key_ref = reference_data['key_data'];
+	    refbinning = key_ref['binning'];
+	    refvalues = key_ref['values'];
+	    refuncertainties = key_ref['uncertainties'];
+	    refnumberEntries = key_ref['numberEntries'];
+	    refintegral = key_ref['integral'];
+	}
     }
-        
-   
 
     var formattedRefData = [];
     //check if data-reference != ""
@@ -283,6 +301,15 @@ var OfflineApp = (function(window, undefined) {
 		  y: factor*key_ref['values'][i],
 		  yerr: [factor*refuncertainties[i][0],factor*refuncertainties[i][1]]
 	       });
+
+	  }else if (type == "Profile"){
+	      var bins = xbinning[i];
+	      formattedRefData.push({
+		      x: bins[0]+(bins[1]-bins[0])/2.,
+			  xerr: [(bins[1]-bins[0])/2.,(bins[1]-bins[0])/2.],
+			  y: values[i],
+			  yerr: uncertainties[i]
+			  });
 	  }
 
       }	
@@ -290,7 +317,7 @@ var OfflineApp = (function(window, undefined) {
 
 
     var options = {
-      run : key_ref['run_number'],
+	//      run : key_ref['run_number'],
       title: title,
       xAxis: {
 	    title: axisTitles[0]
@@ -322,12 +349,12 @@ var OfflineApp = (function(window, undefined) {
       formattedRefData: formattedRefData,
       options: options,
       refoptions: refoptions,
-      histFail: histFail, 
-      refFail: refFail
+      histFail: !result["data"]["success"], 
+      refFail: !result["refdata"]["success"]
     };    		
     localCache.listOfHistogramData[localCache.listOfHistogramData.length] = histoContent;
     // Draw the histogram in the container
-    drawHistogram(container, formattedData, formattedRefData, options, refoptions, histFail, refFail);
+    drawHistogram(container, formattedData, formattedRefData, options, refoptions, !result["data"]["success"], !result["refdata"]["success"]);
   };
 
   // Fetches and draws the named `histogram`, residing in `file`, in to the `container`.
@@ -403,8 +430,8 @@ var OfflineApp = (function(window, undefined) {
 		    is_reference: false})
 	})
     .done(function(job) {
-	    console.log("getting ",histogram);
-	    console.log("job status ",job['success']);
+//	    console.log("getting ",histogram);
+//	    console.log("job status ",job['success']);
 	    if (job['success']) {
 		histData = job['data'];	
 	    } else {
@@ -448,6 +475,51 @@ var OfflineApp = (function(window, undefined) {
 //    });     
 //  };
 
+
+
+  var loadHistograms = function(list) {
+      //      console.log("length = " , list.elements.length)
+      if (list.elements.length > 0) {
+	  var url = '/tasks_bp/get_keys_from_list';
+	  var histData = "";
+	  var histFail = false;
+	  var request = $.ajax(url, {
+		  type: 'POST',
+		  contentType: 'application/json; charset=utf-8',
+		  dataType: 'json',
+		  data: JSON.stringify(list)
+	      })
+	  .done(function(job) {		      
+		  // merge the list with data 
+		  //		  var merge = list.elements.map(function(inlist){
+		  list.elements.map(function(inlist){
+			  var ret;
+			  $.each( job['elements'], function(k, results) { 
+				  if(results.index === inlist.index) {
+				      ret = $.extend({},results,inlist);
+				      
+				      return false;
+				  }
+			      });
+			  displayHistogram(ret);
+			  //			  return ret;
+		      });
+		  
+		  
+
+	      })
+	  .fail(function(message) {
+		  var failMsg = '<p>There was a problem retrieving histograms for this pafe '
+		  + '<code>' + 'PAGENAME' + '</code>'
+		  + '. Please contact the administrator.</p>'
+		  + message;
+		  displayFailure(container, failMsg);
+	      });     
+	  
+
+      }
+  };
+
   // Page-specific modules
   var pages = {
     home: {
@@ -466,25 +538,37 @@ var OfflineApp = (function(window, undefined) {
   // Initialise the monitoring app
   var init = function(pageModule) {
     WebMonitor.init(pageModule, pages);
-
+    
     var $main = $('#main');
-
+    
+    var list = { elements : []};
     // Find any elements requiring histograms from files and load them
     $main.find('.histogram').each(function(index, el) {
-
+	    
       var $el = $(el),
-          file = $el.data('file'),
-          histogram = $el.data('histogram'),
-          hid = $el.data('hid'),
-	  referenceFile = $el.data('reference-file'),//reference file
-	  reference = $el.data('reference'),//reference name in reference file
-	  refNormalisation = $el.data('refnormalisation');
+      file = $el.data('file'),
+      histogram = $el.data('histogram'),
+      hid = $el.data('hid'),
+      referenceFile = $el.data('reference-file'),//reference file
+      reference = $el.data('reference'),//reference name in reference file
+      refNormalisation = $el.data('refnormalisation');
       if (file && histogram) {
         WebMonitor.appendSpinner(el);
-        loadHistogramFromFileIntoContainer(histogram, file, hid, reference, referenceFile, refNormalisation, $el);
+	 //        loadHistogramFromFileIntoContainer(histogram, file, hid, reference, referenceFile, refNormalisation, $el);
+	list.elements.push({
+		"index" : index,
+		"file" : file,
+		"histogram" : histogram,
+		"hid" : hid,
+		"referenceFile" : referenceFile,
+		"reference" : reference,
+		"refNormalisation" : refNormalisation, 
+		"el" : $el			
+		});
       }
-    });
-
+  });
+    
+  loadHistograms(list);
     // Add datepicker to appropriate fields
     //    $main.find('.input-daterange').datepicker(WebMonitor.settings.datepickerDefaults);
   };
@@ -492,7 +576,7 @@ var OfflineApp = (function(window, undefined) {
   return {
       init: init,
       redrawHistograms : redrawHistograms
-  };
+      };
 })(window);
 
 $(function() {
