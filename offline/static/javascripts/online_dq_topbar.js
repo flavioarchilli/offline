@@ -3,6 +3,20 @@
 // Reads out global variables set by python program and sets toolbar icons accordingly
 var loading = [false,false];
 
+// Disable buttons while loading
+function disable_nav_bar(disabled){
+  var buttons = $('.btn-default').each(function(){
+	  if (disabled){
+		$(this).addClass('disabled');
+	  }		
+	  else{
+		$(this).removeClass('disabled');
+	  }
+	});
+  
+}
+
+
 function init_status_indicator() {
     	
   if(filename == "") {
@@ -49,7 +63,7 @@ function change_reference_mode(){
 	
     state = button.data("state");
 	
-    var url = "changeReferenceState?state="+state;
+    //    var url = "changeReferenceState?state="+state;
 	
     //current state deactivated -> change it
     if(state == "deactivated"){
@@ -78,30 +92,9 @@ function change_reference_mode(){
 	text.text(" Deactivated");
 	
 	url = url + "deactivated";
-//	console.log($('#main').html());
-        console.log("button deactivated");
 	OfflineApp.redrawHistograms("deactivated");				
     }
-	
-//    
-//    $.ajax({
-//	    async : true,
-//	    type : "GET",
-//	    url : url,
-//
-//	    success : function(json) {
-//		if (json.success == false) {
-//		    
-//		} else {
-//		    
-//		}
-//	    },  
-//		
-//	    error : function(xhr, ajaxOptions, thrownError) {
-//		alert("<2> JSON Error:" + thrownError);
-//	    }
-//  	});
-	  
+		  
 }
 
 
@@ -138,126 +131,97 @@ function set_status_field(message, status)
 
 }
 
-function set_online_dq_filename_feedback(status_code, el, full_path, visible_name){
-    if (status_code == "ROOT_FILE_NOT_FOUND" || status_code == "REFERENCE_FILE_NOT_FOUND"){
-	set_status_field(status_code, "danger");
-	el.closest('.btn-group').find('btn-text').html('<span id="btn-text">no file</span> <span class="caret"></span>');
-    } else {
-
-	if (status_code == "ROOT_FILE_FOUND") loading[0] = true;
-	if (status_code == "REFERENCE_FILE_FOUND") loading[1] = true;
-
-	console.log("loading "+loading[0]+" "+loading[1]);
-	if (!(loading[0] && loading[1])) {
-	    set_status_field(status_code, "info");
-	} else {
-	    set_status_field("ALL_FILE_LOADED", "success");		    
-	    $("#changeReferenceMode").click( function() { change_reference_mode(); } ); 
-	}
-	el.closest('.btn-group').find('.dropdown-toggle').html('<span id="btn-text">'+visible_name+'</span> <span class="caret"></span>');
+function set_run_number_visual_feedback(sc, data) {
+    if (sc == "ROOT_FILE_NOT_FOUND") {
+	set_status_field(sc, "danger");
+	$("#changeReferenceMode").click( function() { return false; } ); 
+    } else if (sc == "ROOT_AND_REFERENCE_NOT_FOUND") {
+	set_status_field(sc, "danger");
+	$("#changeReferenceMode").click( function() { return false; } ); 
+    } else if (sc == "ROOT_FILE_FOUND_NO_REF") {
+	set_status_field(sc, "warning");	
+	$("#changeReferenceMode").click( function() { return false; } ); 
+    } else if (sc == "ROOT_AND_REFERENCE_FOUND") {
+	set_status_field(sc, "success");	
+	$("#changeReferenceMode").click( function() { change_reference_mode(); } ); 
     }
-
-    
 }
 
-function set_filename(event){
-    var el = event.data.element;
-    var full_path = event.data.full_path;
-    var visible_name = event.data.visible_name;
-    var reference_flag = event.data.reference_flag;
-    var url = "/online_dq_bp/set_online_dq_filename?filename=";
-    if (reference_flag) url = "/online_dq_bp/set_online_dq_reference_filename?filename=";
-
-    console.log("Inside setfilename "+reference_flag);
-
-    $.ajax({
-	    async : true,
-	    type : "GET",
-	    url : url+encodeURIComponent(full_path),
-
-	    success : function(json) {
-		console.log("Setting the feedback "+reference_flag);
-				    
-		set_online_dq_filename_feedback(json.status_code, el, full_path, visible_name);
-	    },  
-
-	    error : function(xhr, ajaxOptions, thrownError) {
-		alert("JSON Error:" + thrownError);
-		set_status_field("JSON Error:" + thrownError, "danger");
-	    },
-		//		complete : function(){disableNavBar(false);}
-	});
-
-}
-
-function build_menu(el, status_code, data, reference_flag){
-
-    if (status_code == "NO_ACCESS") {
-	set_status_field("NO access to /hist area", "danger");
-
-    } else if (status_code == "OK") {
-	el.empty();
-	for(var i = 0; i < data.root_filename.length; i++) {
-	    var full_path = data.full_path[i];
-	    var visible_name = data.root_filename[i];
-
-	    var html = '<li role="presentation"><a role="menuitem" data-fullpath="' + 
-		full_path + 
-		'" tabindex="-1" id="' + 
-		visible_name.replace(".","_")+reference_flag + 
-		'">' + 
-		visible_name + 
-		'</a></li>';
-	    $(el).append(html);
 
 
+function set_run_number() {
 
-	    $("#"+visible_name.replace(".","_")+reference_flag).on("click", {
-		    "element": $(el),
-		    "full_path": full_path,
-		    "visible_name": visible_name, 
-		    "reference_flag": reference_flag}, 
-		function( event ) {
-		    console.log("Just click "+reference_flag);
+    $("#runNmbrTextfieldIndicatorContainer").addClass("hidden");
+    var number = $("#runNmbrTextfield").val();
+    disable_nav_bar(false);
+  
+    if(number != "0") {
+	set_status_field("Please wait...", "info");
+	$.ajax({
+		async : true,
+		type : "GET",
+		url : "set_run_number?run_number="+number,
+		
+		success : function(json) {
+		    set_run_number_visual_feedback(json.StatusCode, json.data);
+		},  
 
-		    set_filename(event);
-		}
-		);
+		error : function(xhr, ajaxOptions, thrownError) {
+		    alert("<runnumber> JSON Error:" + thrownError);
+		    set_status_field("JSON Error:" + thrownError, "danger");
+		    $("#recoVersionDropdownButtonText").text("???");
+		},
+
+		complete : function(){disable_nav_bar(false);}
+		});
+	  
 	}
+	
+
+}
+
+
+
+function init_run_number_icon() {
+    if($("#runNmbrTextfield").val() != ""){
+	set_run_number();
     }
-    
 }
 
-function init_selector_for_online_dq(el, reference_flag){
-
-    $.ajax({
-	   async : true, 
-	   type : "GET",
-	   url : "get_online_dq_filename",
-	   success : function(json){
-		console.log("I'll build the menu "+reference_flag);
-		build_menu(el, json.status_code, json.data, reference_flag);
-	   },
-	   error : function(xhr, ajaxOptions, thrownError) {
-	       alert("<reconumber> JSON Error:" + thrownError);
-	       set_status_field("JSON Error:" + thrownError, "danger");
-	   }
-	});
+function decrease_run_number() {
+    if($("#runNmbrTextfield").val() != ""){
+	var val = parseInt($("#runNmbrTextfield").val()) -1;
+	$("#runNmbrTextfield").val(val);
+	set_run_number();
+    }
 }
+
+function increase_run_number() {
+    if($("#runNmbrTextfield").val() != "") {
+	var val = parseInt($("#runNmbrTextfield").val()) +1;
+	$("#runNmbrTextfield").val(val);
+	set_run_number();
+    }
+}
+
 
 ////////////////////////////////////////////
 //jQuery part
 ////////////////////////////////////////////
 
-$(function() {
-	
+$(function() {	
 
 	init_status_indicator();
 	init_reference_state_button();
-	el =  $("#filename_online_dq_DropdownMenu");
-	init_selector_for_online_dq(el,false);
-	ref_el = $("#reference_online_dq_DropdownMenu");
-	init_selector_for_online_dq(ref_el, true);
-
+	init_run_number_icon();
+	$("#runNmbrTextfield").keypress(function (e){ 
+		if (e.keyCode == 13) { 
+		    set_run_number(); 
+		    return false;
+		} 
+	    }); 
+	$("#setRunNmbrButton").click( function() { set_run_number(); } ); 
+	$("#decreaseRunNmbrButton").click( function() { decrease_run_number(); } ); 
+	$("#increaseRunNmbrButton").click( function() { increase_run_number(); } ); 	
 
 });

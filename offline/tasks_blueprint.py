@@ -144,14 +144,14 @@ def get_key_from_file():
 
     
     settings.setOptionsFile(get_info('uid'))
-    print ">>>> get_info('uid') : ", get_info('uid')
-    print ">>>> ROOT file : ", settings.getHistoROOTFileName()
-    print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
+#    print ">>>> get_info('uid') : ", get_info('uid')
+#    print ">>>> ROOT file : ", settings.getHistoROOTFileName()
+#    print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
     f = ROOT.TFile(filename)
 
     d = eval(cppyy.gbl.getDictionary(f,key_name))
     
-    print d
+#    print d
     f.Close()
     return jsonify(d)
 
@@ -193,21 +193,7 @@ def get_keys_from_list():
             subd["refdata"] = eval(cppyy.gbl.getDictionary(rf,k["reference"]))
             d['elements'].append(subd)
 
+    f.Close()
+    rf.Close()
 
-    print d
-#    is_reference = json_data['is_reference']
-#    filename = json_data['filename']
-#    key_name = json_data['key_name']
-#
-#    
-#    settings.setOptionsFile(get_info('uid'))
-#    print ">>>> get_info('uid') : ", get_info('uid')
-#    print ">>>> ROOT file : ", settings.getHistoROOTFileName()
-#    print ">>>> ROOT reference file : ",settings.actualROOTReferenceFile
-#    f = ROOT.TFile(filename)
-#
-#    d = eval(cppyy.gbl.getDictionary(f,key_name))
-#    
-#    print d
-#    f.Close()
     return jsonify(d)

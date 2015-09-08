@@ -2,7 +2,7 @@ import os
 
 from offline import histogramDB_declaration
 from offline import bookKeepingDB
-
+from offline import dataqualityDB
 # Application name, used in page titles etc.
 APP_NAME = 'LHCb DQM'
 
@@ -38,6 +38,7 @@ HISTODB_PATH = os.environ["HISTODB_PATH"]
 
 HISTODB = histogramDB_declaration.histogramDB_declaration()
 BKKDB = bookKeepingDB.bookKeepingDB()
+DQDB = dataqualityDB.dataqualityDB()
 
 # Debug mode
 DEBUG = True

@@ -37,6 +37,7 @@ def online_dq():
       blueprint_list = current_app.create_bplist()
       page = render_template("online_dq.html",
                            LOAD_FROM_DB_FLAG = "false",
+                           RUN_NMBR =  settings.getRunNmbr(),                             
                            REFERENCE_STATE = settings.getReferenceState(),
                            USERNAME = get_info('username'),
                            PROJECTFULLLIST = current_app.create_bplist(),
@@ -124,3 +125,68 @@ def set_online_dq_reference_filename():
         return jsonify(d)
 
             
+@online_dq_bp.route('/set_run_number')
+@requires_auth()	
+def set_run_number():
+    """
+    Called by javascript via ajax call to set the run number.
+    
+    """
+    # set database reference 
+    dataqualityDB = current_app.config["DQDB"]
+    
+    #set current option file
+    settings.setOptionsFile(get_info('uid'))
+
+    #retrieve the run number as GET argument
+    rn = int(request.args.get('run_number'))
+    #and store it 
+    settings.setRunNmbr(rn)
+    
+
+    fn = dataqualityDB.getOnlineDQFile(rn)
+    settings.setHistoROOTFileName(fn)
+ 
+    rfn = dataqualityDB.getOnlineDQRef(rn)    
+    settings.setReferenceROOTFileName(rfn)
+           
+    if (fn == None and rfn == None):
+          
+          d = dict(
+                success = False,
+                StatusCode = 'ROOT_AND_REFERENCE_NOT_FOUND',
+                data = dict(
+                      message = "ROOT File not found."
+                      )
+                )
+          return jsonify(d)
+
+    elif (fn != None and rfn != None):
+          d = dict(
+                success = True,
+                StatusCode = 'ROOT_AND_REFERENCE_FOUND',
+                data = dict(
+                      message = "ROOT File and Refernce File found."
+                      )
+                )
+          return jsonify(d)
+
+    elif (fn != None):
+          d = dict(
+                success = True,
+                StatusCode = 'ROOT_FILE_FOUND_NO_REF',
+                data = dict(
+                      message = "ROOT File and found but Reference File."
+                      )
+                )
+          return jsonify(d)
+
+    else:
+          d = dict(
+                success = False,
+                StatusCode = 'ROOT_FILE_NOT_FOUND',
+                data = dict(
+                      message = "ROOT File not found."
+                      )
+                )
+          return jsonify(d)

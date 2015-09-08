@@ -89,7 +89,7 @@ var OfflineApp = (function(window, undefined) {
 	
 	chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
 	if(histFail!=true) {
-	    chart.addOrnament(d3.plotable.TextBox('info', info));
+	    chart.addOrnament(d3.plotable.TextBox('info', info, {x:0.62*myWidth, y:0.015*myWidth}));
 	    chart.addPlotable(d3.plotable.Histogram('histogram', data));
 	} else {
 	    chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
@@ -130,10 +130,19 @@ var OfflineApp = (function(window, undefined) {
           .animate(false);
         profile.addOrnament(d3.plotable.LabelBox('label', histoLabel));
         if(histFail!=true){      
-	  profile.addPlotable(d3.plotable.LineChart('histogram', data, {showPoints: true, showUncertainties: true}));
+	    profile.addPlotable(d3.plotable.ProfileChart('histogram', data, {showPoints: true, showUncertainties: true}));
         }else{
           profile.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
         }
+	var button = $("#changeReferenceMode");
+	if(button.data("state") == "activated") {
+	    if(refFail!=true) {
+		profile.addPlotable(d3.plotable.ProfileChart('reference', referenceData, $.extend(true, {}, refopt, {showPoints: true, showUncertainties: true}) ) );
+	    } else {
+		profile.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
+	    }
+	    
+	}
 
     }
 
