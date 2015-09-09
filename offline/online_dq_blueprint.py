@@ -139,7 +139,7 @@ def set_run_number():
     settings.setOptionsFile(get_info('uid'))
 
     #retrieve the run number as GET argument
-    rn = int(request.args.get('run_number'))
+    rn = int(request.args.get('runnumber'))
     #and store it 
     settings.setRunNmbr(rn)
     
@@ -187,6 +187,80 @@ def set_run_number():
                 StatusCode = 'ROOT_FILE_NOT_FOUND',
                 data = dict(
                       message = "ROOT File not found."
+                      )
+                )
+          return jsonify(d)
+
+
+
+@online_dq_bp.route('/change_reference_state')
+@requires_auth()	
+def change_reference_state():
+
+    state = request.args.get('state')
+    
+    settings.setReferenceState(state)
+
+    d = dict(
+          success = True,
+          data = dict(
+                message = "Set State:"+ str(state)
+                )
+          )
+    return jsonify(d)
+
+
+@online_dq_bp.route('/get_next_runnumber')
+@requires_auth()
+def get_next_runnumber():
+      
+    rn = request.args.get('runnumber')
+    # set database reference 
+    dataqualityDB = current_app.config["DQDB"]
+     
+    nrn = dataqualityDB.nextOnlineDQRun(rn);
+    
+     
+    if (nrn != None):
+          d = dict(
+                success = True,
+                data = dict(
+                      runnumber = nrn,
+                      )
+                )
+          return jsonify(d)
+    else:
+          d = dict(
+                success = False,
+                data = dict(
+                      runnumber = 0,
+                      )
+                )
+          return jsonify(d)
+
+@online_dq_bp.route('/get_previous_runnumber')
+@requires_auth()
+def get_previous_runnumber():
+      
+    rn = request.args.get('runnumber')
+    # set database reference 
+    dataqualityDB = current_app.config["DQDB"]
+     
+    prn = dataqualityDB.prevOnlineDQRun(rn);
+     
+    if (prn != None):
+          d = dict(
+                success = True,
+                data = dict(
+                      runnumber = prn,
+                      )
+                )
+          return jsonify(d)
+    else:
+          d = dict(
+                success = False,
+                data = dict(
+                      runnumber = 0,
                       )
                 )
           return jsonify(d)

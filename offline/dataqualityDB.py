@@ -222,6 +222,26 @@ class dataqualityDB:
         result       = h.execute()
         return
 
+    def nextOnlineDQRun(self, runNumber):
+        nextRun = None
+        runs    = self._table('runs')
+
+        s = select([runs]).where(runs.c.runNumber>runNumber).order_by(runs.c.runNumber).limit(1)
+        for rows in self.conn.execute(s):
+            nextRun = rows[0]
+
+        return nextRun
+
+    def prevOnlineDQRun(self, runNumber):
+        nextRun = None
+        runs    = self._table('runs')
+
+        s = select([runs]).where(runs.c.runNumber<runNumber).order_by(desc(runs.c.runNumber)).limit(1)
+        for rows in self.conn.execute(s):
+            nextRun = rows[0]
+
+        return nextRun
+
     def _table(self, name):
         retVal = None
         for t in self.metadata.sorted_tables:

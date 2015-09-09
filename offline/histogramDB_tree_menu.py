@@ -326,7 +326,6 @@ def Histo(path=""):
         #end if	
     	
         #read out histogram
-#        dataFile = "BrunelDaVinci_FULL_121752_00019821.root"
         histogramName = histo.NAME.split("/", 1)[1]
         histogramShowName = histo.NAME.split("/")[-1]
         histogramLabelId = "LABEL_FOR_" + histogramName
@@ -341,23 +340,22 @@ def Histo(path=""):
         if hasattr(histo, 'OPT'):
             if hasattr(histo.OPT, 'LABEL_X'):
                 labelX = histo.OPT.LABEL_X
+                print "labelX >>>> ",labelX
             if hasattr(histo.OPT, 'LABEL_Y'):
                 labelY = histo.OPT.LABEL_Y
             if hasattr(histo.OPT, 'REF'):
                 ref = histo.OPT.REF
         else: 
+            print "labelX <<<< ",labelX
             labelX = "NOOPT"
             labelY = "NOOPT"
 
     		
         #save into template
-
-#        print 'HISTOGRAM_LABEL_X :: {0} ; HISTOGRAM_LABEL_Y :: {1} ; HISTOGRAM_LABEL_ID :: {2}'.format(labelX,labelY,histogramLabelId)
-
-
         columns += render_template("histoCell.html", 
                                    DATA_FILE = settings.getHistoROOTFileName(), 
                                    HISTOGRAM_NAME = histogramName, 
+                                   HISTOGRAM_SHOW = histogramShowName, 
                                    REFERENCE_NAME = histogramName,
                                    REFERENCE_DATA_FILE = settings.getReferenceROOTFileName(),
                                    HISTOGRAM_LABEL_ID = histogramLabelId,

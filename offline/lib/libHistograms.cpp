@@ -127,14 +127,15 @@ std::string getInfo(TObject * o){
 std::string getDictionary(TFile* f, const char*  objname){
   TObject *o = f->Get(objname);
   std::ostringstream ost;
+
   if (f->IsZombie()){
-    ost << "{ 'success': False, 'message': 'Could not find key " << objname 
-	<< " in file " << f->GetName() << "'}";
+    ost << "{ 'success': False, 'message': 'Could not open file " << f->GetName() << "'}";    
     return ost.str();
   }
 
   if (!o) {
-    ost << "{ 'success': False, 'message': 'Could not open file " << f->GetName() << "'}";    
+    ost << "{ 'success': False, 'message': 'Could not find key " << objname 
+	<< " in file " << f->GetName() << "'}";
   } else {
     ost << "{ 'success': True, 'data': " << getInfo(o) << "}"; 
   }
@@ -142,3 +143,6 @@ std::string getDictionary(TFile* f, const char*  objname){
   return ost.str();
 
 }
+
+
+// load the entire list to be implemented

@@ -283,7 +283,7 @@ function changeReferenceMode() {
 		OfflineApp.redrawHistograms("deactivated");				
 	}
 	
-	disableNavBar(true);
+	//	disableNavBar(true);
 
 	$.ajax({
 		async : true,
@@ -301,7 +301,7 @@ function changeReferenceMode() {
 		error : function(xhr, ajaxOptions, thrownError) {
 		  alert("<2> JSON Error:" + thrownError);
 		},
-		  complete: function(){disableNavBar(false);}
+		    //		  complete: function(){disableNavBar(false);}
   	});
 	  
 }
