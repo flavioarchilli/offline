@@ -3,8 +3,11 @@
 
 #include "helpers.h"
 #include "TObject.h"
+#include "TProfile.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include "TAxis.h"
 #include "TFile.h"
 
@@ -23,8 +26,9 @@ typedef _item<float_type> float_item;
 typedef _item<double_type> double_item;
 typedef _item<string_type> string_item;
 
-std::string get1DHistoInfo(TH1D *o);
-std::string get2DHistoInfo(TH2D *o);
+//template <typename T>
+//std::string get1DHistoInfo(T *o);
+//std::string get2DHistoInfo(T *o);
 std::string getInfo(TObject *o);
 std::string getDictionary(TFile *f,const char* objname);
 

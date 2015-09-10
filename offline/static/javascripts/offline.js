@@ -25,6 +25,15 @@ var OfflineApp = (function(window, undefined) {
       listOfHistogramData: [],
   };
 
+
+  var empty_data = [{ xlow: 0,
+		     xhigh: 0.1,
+		     y: 0,
+		     yerr: 0
+  }];
+
+
+
   // Draw a histogram in the `container` using `options`.
   // Accepts:
   //   container: A jQuery object in which to draw the histogram
@@ -46,104 +55,74 @@ var OfflineApp = (function(window, undefined) {
 
     var xLabel ="", yLabel="";
     var histoLabel = histoOptions.getAttribute('data-lab-histo');
-
-    if (histFail!=true) {
-
-	if (histoOptions!=null) {
-	    xLabel = histoOptions.getAttribute('data-lab-x');
-	    yLabel = histoOptions.getAttribute('data-lab-y');
-	    histoLabel = histoOptions.getAttribute('data-lab-histo');
-	}
-    } else if (refFail!=true) {
-
-	
-        var optionsName = 'OPTIONS_FOR_'+opt.key_name;
-        var histoOptions = document.getElementById(optionsName);
-        if (histoOptions!=null) {
-	    xLabel = histoOptions.getAttribute('data-lab-x');
-	    yLabel = histoOptions.getAttribute('data-lab-y');
-	    histoLabel = histoOptions.getAttribute('data-lab-histo');
-	}
+    if (histoOptions!=null) {
+	xLabel = histoOptions.getAttribute('data-lab-x');
+	yLabel = histoOptions.getAttribute('data-lab-y');
+	histoLabel = histoOptions.getAttribute('data-lab-histo');
     }
 
-    if (opt.type == "H1D") {
-	
-	var chart = d3.select(container.get()[0]).append('svg')
-	.attr('width', container.width())
-	.attr('height', container.height())
-	.chart('AxesChart')
-	.xAxisLabel(xLabel)
-	.yAxisLabel(yLabel);
-	
-	var myWidth = container.width();
-	var myHeight = container.height();
-	var info = [
-		    ['Entries', opt.numberEntries],
-		    ['Mean', opt.mean],
-		    ['RMS', opt.RMS],
-		    ];
-	
-	
-	chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
-	if(histFail!=true) {
-	    chart.addOrnament(d3.plotable.TextBox('info', info, {x:0.62*myWidth, y:0.015*myWidth}));
+    var chart = d3.select(container.get()[0]).append('svg')
+    .attr('width', container.width())
+    .attr('height', container.height())
+    .chart('AxesChart')
+    .xAxisLabel(xLabel)
+    .yAxisLabel(yLabel);
+
+    var myWidth = container.width();
+    var myHeight = container.height();
+    chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
+
+    if(histFail!=true) {
+	if (opt.type == "H1D" || opt.type == "H1F") {		
+	    var info = [
+			['Entries', opt.numberEntries],
+			['Mean', opt.mean],
+			['RMS', opt.RMS],
+			];
+	    
 	    chart.addPlotable(d3.plotable.Histogram('histogram', data));
-	} else {
-	    chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
-	    
-	} 
+	    chart.addOrnament(d3.plotable.TextBox('info', info, {x:0.62*myWidth, y:0.015*myWidth}));
 
-	var button = $("#changeReferenceMode");
-	console.log("state = ",button.data("state"));
-	if(button.data("state") == "activated") {
-	    if(refFail!=true) {
-		chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refOptions));
-	    } else {
-		chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
-	    }
-	    
-	}
 	
-    } else if (opt.type == "H2D"){
-        var histo2D = d3.select(container.get()[0]).append('svg')
-          .attr('width', container.width())
-          .attr('height', container.height())
-          .chart('AxesChart')
-          .xAxisLabel(xLabel)
-          .yAxisLabel(yLabel)
-          .animate(false);
-        histo2D.addOrnament(d3.plotable.LabelBox('label', histoLabel));
-        if(histFail!=true){	
-	      histo2D.addPlotable(d3.plotable.Histogram2D('histogram', data));
-        }else{
-              histo2D.addOrnament(d3.plotable.LabelBox('sigFail', 'Run Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
-        }
+	} else if (opt.type == "H2D" || opt.type == "H2F"){
 
-    } else if (opt.type == "Profile"){
-        var profile = d3.select(container.get()[0]).append('svg')
-          .attr('width', container.width())
-          .attr('height', container.height())
-          .chart('AxesChart')
-          .xAxisLabel(xLabel)
-          .yAxisLabel(yLabel)
-          .animate(false);
-        profile.addOrnament(d3.plotable.LabelBox('label', histoLabel));
-        if(histFail!=true){      
-	    profile.addPlotable(d3.plotable.ProfileChart('histogram', data, {showPoints: true, showUncertainties: true}));
-        }else{
-          profile.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));
-        }
-	var button = $("#changeReferenceMode");
-	if(button.data("state") == "activated") {
-	    if(refFail!=true) {
-		profile.addPlotable(d3.plotable.ProfileChart('reference', referenceData, $.extend(true, {}, refopt, {showPoints: true, showUncertainties: true}) ) );
-	    } else {
-		profile.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
-	    }
+	    chart.addPlotable(d3.plotable.Histogram2D('histogram', data));
+
 	    
+	} else if (opt.type == "Profile"){
+
+	    chart.addPlotable(d3.plotable.ProfileChart('histogram', data, {showPoints: true, showUncertainties: true}));
+
 	}
+    } else {
+//	console.log("I'm here");
+//	chart.addPlotable(d3.plotable.Histogram('histogram', empty_data));
+//	chart.addOrnament(d3.plotable.LabelBox('sigFail', 'Data Failed', {x:0.7*myWidth, y:0.15*myHeight, color:"#ff0000", bkg:"#ffcabd"}));	    
 
     }
+
+//    console.log("ref data = ", referenceData);
+    var button = $("#changeReferenceMode");
+    if(button.data("state") == "activated") {
+	if(refFail!=true) {
+	    console.log("I'm here in the reference");
+
+	    if (opt.type == "H1D" || opt.type == "H1F") {		
+		console.log("I'm here in h1d ref");
+		chart.addPlotable(d3.plotable.Histogram('reference', referenceData, refopt));		    
+	    } else if (opt.type == "Profile"){	    
+		chart.addPlotable(d3.plotable.ProfileChart('reference', referenceData, $.extend(true, {}, refopt, {showPoints: true, showUncertainties: true}) ) );
+	    }
+	} else {
+
+
+//	    chart.addPlotable(d3.plotable.Histogram('histogram', empty_data));
+//	    chart.addOrnament(d3.plotable.LabelBox('refFail', 'Reference Failed', {x:0.7*myWidth, y:0.15*myHeight+22, color:"#ff0000",bkg:"#ffcabd"}));
+	}
+	    
+    }
+
+
 
   };
 
@@ -220,11 +199,11 @@ var OfflineApp = (function(window, undefined) {
 	//      skewness = key_data['skewness'];
 	var xbinning, 
 	    ybinning;
-	console.log("Type == " , type);
-	if (type == "H1D" || type == "Profile" ){
+
+	if (type == "H1D" || type == "H1F" || type == "Profile" ){
 	    xbinning = key_data['binning'];
 	    
-	}else if (type == "H2D"){
+	}else if (type == "H2D" || type == "H2F"){
 	    xbinning = key_data['xbinning'];
 	    ybinning = key_data['ybinning'];
 	}
@@ -232,10 +211,10 @@ var OfflineApp = (function(window, undefined) {
 
 	var v, binCenter, uLow, uHigh;
 	console.log(">>>>>> TYPE ::",type);
-	if (type == "H1D" || type == "Profile"){		    
+	if (type == "H1D" || type == "H1F" || type == "Profile"){		    
 
 	    for (var i = 0; i < values.length; i++) {
-		if (type == "H1D"){		    
+		if (type == "H1D" || type == "H1F" ){		    
 		    var bins = xbinning[i];
 		    
 		    formattedData.push({
@@ -256,7 +235,7 @@ var OfflineApp = (function(window, undefined) {
 
 		
 	    }
-	} else if (type == "H2D") {
+	} else if (type == "H2D" || type == "H2F") {
 
 	    for (var i = 0; i < xbinning.length; i++) {
 		var xbins = xbinning[i];
@@ -318,7 +297,7 @@ var OfflineApp = (function(window, undefined) {
 	factor = integral/refintegral;
       }
       for (var i = 0; i < refvalues.length; i++) {
-	  if (type == "H1D"){		    
+	  if (type == "H1D" || type == "H1F"){		    
 	      var bins = refbinning[i];
 	      formattedRefData.push({
 	          xlow: bins[0],

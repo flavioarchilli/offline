@@ -1,6 +1,7 @@
 #include "libHistograms.h"
 
-std::string get1DHistoInfo(TH1D *o) {
+template <typename T>
+std::string get1DHistoInfo(T *o) {
 
   std::ostringstream ost; 
 
@@ -44,7 +45,8 @@ std::string get1DHistoInfo(TH1D *o) {
 
 }
 
-std::string get2DHistoInfo(TH2D *o) {
+template <typename T>
+std::string get2DHistoInfo(T *o) {
   
   std::ostringstream ost; 
 
@@ -104,11 +106,20 @@ std::string getInfo(TObject * o){
   std::string data;
 
   std::string class_name = o->ClassName();
-  if (!class_name.compare("TH1D") || !class_name.compare("TProfile")) {    
+  if (!class_name.compare("TH1D")){
     data = get1DHistoInfo((TH1D*) o);
-    
+  
+  } else if (!class_name.compare("TProfile")){
+    data = get1DHistoInfo((TProfile*) o);
+
+  } else if (!class_name.compare("TH1F")){
+    data = get1DHistoInfo((TH1F*) o);
+
   } else if (!class_name.compare("TH2D")){
     data = get2DHistoInfo((TH2D*) o);
+
+  } else if (!class_name.compare("TH2F")){
+    data = get2DHistoInfo((TH2F*) o);
 
   }
 
