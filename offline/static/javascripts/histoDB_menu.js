@@ -2,6 +2,7 @@ function checkDBConnection()
 {
 	$.ajax({
 		async : true,
+		timeout: 4000,
 		type : "GET",
 		url : "/histogramDB_tree_menu/checkDBConnection",
 		dataType : "json",  
@@ -66,10 +67,10 @@ function treeAjaxCall(enforceReadFromDBFlag, allNodesStandardState, filterFlag, 
 		success : function(json) {
 		    createJSTrees(json);
 		    $("#loading").css("display", "none");
-	    },  
+	        },  
 		error : function(xhr, ajaxOptions, thrownError) {
 		    alert("JSON Error:" + thrownError);
-	    }
+		}
 	});
 }
 
@@ -89,6 +90,9 @@ function createJSTrees(jsonData) {
 	    
 	    $.ajax({
 		    async : true,
+		    timeout: 4000,
+		    tryCount : 0,
+		    retryLimit: 10,
 		    type : "GET",
 		    url : "/histogramDB_tree_menu/Histo?path="+encodeURIComponent(data.node.id),
 
@@ -99,8 +103,25 @@ function createJSTrees(jsonData) {
 		    },
 
 		    error : function(xhr, ajaxOptions, thrownError) {
-			alert("JSON Error:" + thrownError);
-		    },
+
+			if(ajaxOptions == 'timeout' || ajaxOptions == 'error') {
+			    this.tryCount++;
+			    if(this.tryCount <= this.retryLimit) {
+				$.ajax(this);
+				return;
+			    }
+			    var check = confirm('We have tried ' + this.retryLimit + ' times to do this and the server has not responded. Do you want to try again?');
+			    if(check) {
+				this.timeout = 200000;
+				$.ajax(this);
+				return;
+			    } else {
+				alert("JSON Error:" + thrownError + "; Page not reachable");
+
+				return;
+			    }
+			}   
+		    }
 
 		});
 
@@ -124,6 +145,7 @@ function createJSTrees(jsonData) {
 		//Create ajax call to save tree state
 	    $.ajax({
 		    url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
+			async : true,
 			type: 'GET',
 			data: { id: data.node.id, action: "open"} ,
 			contentType: 'application/json; charset=utf-8',
@@ -157,6 +179,7 @@ function createJSTrees(jsonData) {
 		//Create ajax call to save tree state
 		$.ajax({
 			url: '/histogramDB_tree_menu/menuTreeOpenOrCloseFolder',
+			    async : true,
 			    type: 'GET',
 			    data: { id: data.node.id, action: "close"} ,
 			    contentType: 'application/json; charset=utf-8',
