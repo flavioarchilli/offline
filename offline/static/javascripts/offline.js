@@ -33,7 +33,6 @@ var OfflineApp = (function(window, undefined) {
   }];
 
 
-
   // Draw a histogram in the `container` using `options`.
   // Accepts:
   //   container: A jQuery object in which to draw the histogram
@@ -55,11 +54,38 @@ var OfflineApp = (function(window, undefined) {
 
     var xLabel ="", yLabel="";
     var histoLabel = histoOptions.getAttribute('data-lab-histo');
+    var histoCx = histoOptions.getAttribute('data-center-x');
+    var histoCy = histoOptions.getAttribute('data-center-y');
+    var histoSx = histoOptions.getAttribute('data-size-x');
+    var histoSy = histoOptions.getAttribute('data-size-y');
     if (histoOptions!=null) {
 	xLabel = histoOptions.getAttribute('data-lab-x');
 	yLabel = histoOptions.getAttribute('data-lab-y');
-	histoLabel = histoOptions.getAttribute('data-lab-histo');
+	histoLabel = histoOptions.getAttribute('data-lab-histo');	
     }
+
+    var cx = opt["canvassize"][0] * parseFloat(histoCx);
+    var cy = opt["canvassize"][1] * parseFloat(histoCy) + 100;
+    var sx = opt["canvassize"][0] * (parseFloat(histoSx) - parseFloat(histoCx));
+    var sy = opt["canvassize"][1] * (parseFloat(histoSy) - parseFloat(histoCy));
+//    console.log("position respect the full canvas");
+//    console.log("Cx",histoCx);
+//    console.log("Cy",histoCy);
+//    console.log("Sx",histoSx);
+//    console.log("Sy",histoSy);
+//    console.log("Cx",cx);
+//    console.log("Cy",cy);
+//    console.log("Sx",sx);
+//    console.log("Sy",sy);
+    
+//    container.get()[0].setAttribute("style",
+//	    "position : absolute;"+ 
+//		"top : "+cy+"px;"+
+//		"left : "+cx+"px;"+
+//		"width : "+sx+"px;"+
+//		"height : "+sy+"px;"
+//    );
+//    console.log(container.get()[0]);
 
     var chart = d3.select(container.get()[0]).append('svg')
     .attr('width', container.width())
@@ -179,7 +205,7 @@ var OfflineApp = (function(window, undefined) {
     //    if(histFail==false){
 
     title = result["showname"];
-
+    var canvassize = [result["canvaswidth"],result["canvaswidth"]];
     if(result["data"]["success"]){
 	var data = result["data"]["data"];
 	var key_data = data['key_data'];
@@ -248,9 +274,9 @@ var OfflineApp = (function(window, undefined) {
 				xhigh: xbins[1],
 				ylow: ybins[0],
 				yhigh: ybins[1],				
-				z: key_data['values'][i],
-				elow: uncertainties[i],
-				eup: uncertainties[i]
+				z: key_data['values'][i*ybinning.length + j],
+				elow: uncertainties[i*ybinning.length + j],
+				eup: uncertainties[i*ybinning.length + j]
 				});		    
 		}
 	    }
@@ -323,6 +349,7 @@ var OfflineApp = (function(window, undefined) {
     var options = {
 	//      run : key_ref['run_number'],
       title: title,
+      canvassize: canvassize,
       xAxis: {
 	    title: axisTitles[0]
       },
@@ -439,6 +466,11 @@ var OfflineApp = (function(window, undefined) {
     
     var list = { elements : []};
     // Find any elements requiring histograms from files and load them
+    var svgcanvas = $('#svg-canvas');
+    var canvasheight = svgcanvas.height();
+    var canvaswidth = svgcanvas.width();
+
+    
     $main.find('.histogram').each(function(index, el) {
 	    
       var $el = $(el),
@@ -461,7 +493,9 @@ var OfflineApp = (function(window, undefined) {
 		"referenceFile" : referenceFile,
 		"reference" : reference,
 		"refNormalisation" : refNormalisation, 
-		"el" : $el			
+		    "el" : $el,			
+		    "canvaswidth" : canvaswidth,
+		    "canvasheight" : canvasheight		    
 		});
       }
   });

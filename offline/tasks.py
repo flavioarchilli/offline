@@ -62,7 +62,7 @@ def data_for_object(obj,filename):
         ynbins = yaxis.GetNbins()
        
         for i in range(xnbins):
-            for j in range(xnbins):
+            for j in range(ynbins):
                 d['values'].append(obj.GetBinContent(i,j))
                 d['xbinning'].append((xaxis.GetBinLowEdge(i), xaxis.GetBinUpEdge(i)))
                 d['ybinning'].append((yaxis.GetBinLowEdge(j), yaxis.GetBinUpEdge(j)))

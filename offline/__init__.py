@@ -23,7 +23,7 @@ def create_app():
         add_logging(app)
         app.logger.info('webmonitor startup')
 
-    app.add_to_bplist(["offline_bp", "Offline DQM"])
+#    app.add_to_bplist(["offline_bp", "Offline DQM"])
     app.add_to_bplist(["online_dq_bp", "Online DQM"])
    
 
