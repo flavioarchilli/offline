@@ -47,44 +47,47 @@ var OfflineApp = (function(window, undefined) {
     var opt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, options);
     var refopt = $.extend(true, {}, WebMonitor.settings.histogramDefaults, refOptions);
 
-    console.log("opt.title = ",opt.title);
-    var optionsName = 'OPTIONS_FOR_'+opt.title;
-    var histoOptions = document.getElementById(optionsName);
-    console.log("histoOptions = ",histoOptions);
+//    console.log("opt.title = ",opt.title);
+//    var optionsName = 'OPTIONS_FOR_'+opt.title;
+//    var histoOptions = document.getElementById(optionsName);
+//    console.log("histoOptions = ",histoOptions);
 
-    var xLabel ="", yLabel="";
-    var histoLabel = histoOptions.getAttribute('data-lab-histo');
-    var histoCx = histoOptions.getAttribute('data-center-x');
-    var histoCy = histoOptions.getAttribute('data-center-y');
-    var histoSx = histoOptions.getAttribute('data-size-x');
-    var histoSy = histoOptions.getAttribute('data-size-y');
-    if (histoOptions!=null) {
-	xLabel = histoOptions.getAttribute('data-lab-x');
-	yLabel = histoOptions.getAttribute('data-lab-y');
-	histoLabel = histoOptions.getAttribute('data-lab-histo');	
-    }
+//    var xLabel ="", yLabel="";
+//    var histoLabel = histoOptions.getAttribute('data-lab-histo');
+//    var histoCx = histoOptions.getAttribute('data-center-x');
+//    var histoCy = histoOptions.getAttribute('data-center-y');
+//    var histoSx = histoOptions.getAttribute('data-size-x');
+//    var histoSy = histoOptions.getAttribute('data-size-y');
+//    if (histoOptions!=null) {
+//	xLabel = histoOptions.getAttribute('data-lab-x');
+//	yLabel = histoOptions.getAttribute('data-lab-y');
+//	histoLabel = histoOptions.getAttribute('data-lab-histo');	
+//    }
+
+
+    var histoLabel = opt["title"],
+    histoCx = opt["center-x"],
+    histoCy = opt["center-y"],
+    histoSx = opt["size-x"],
+    histoSy = opt["size-y"],
+    xLabel = opt["xAxis"],
+    yLabel = opt["yAxis"];    
 
     var cx = opt["canvassize"][0] * parseFloat(histoCx);
-    var cy = opt["canvassize"][1] * parseFloat(histoCy) + 100;
+    var cy = opt["canvassize"][1] * parseFloat(histoCy) + 150;
     var sx = opt["canvassize"][0] * (parseFloat(histoSx) - parseFloat(histoCx));
     var sy = opt["canvassize"][1] * (parseFloat(histoSy) - parseFloat(histoCy));
-//    console.log("position respect the full canvas");
-//    console.log("Cx",histoCx);
-//    console.log("Cy",histoCy);
-//    console.log("Sx",histoSx);
-//    console.log("Sy",histoSy);
-//    console.log("Cx",cx);
-//    console.log("Cy",cy);
-//    console.log("Sx",sx);
-//    console.log("Sy",sy);
+
+    console.log("Sx",sx);
+    console.log("Sy",sy);
     
-//    container.get()[0].setAttribute("style",
-//	    "position : absolute;"+ 
-//		"top : "+cy+"px;"+
-//		"left : "+cx+"px;"+
-//		"width : "+sx+"px;"+
-//		"height : "+sy+"px;"
-//    );
+    container.get()[0].setAttribute("style",
+	    "position : absolute;"+ 
+		"top : "+cy+"px;"+
+		"left : "+cx+"px;"+
+		"width : "+sx+"px;"+
+		"height : "+sy+"px;"
+    );
 //    console.log(container.get()[0]);
 
     var chart = d3.select(container.get()[0]).append('svg')
@@ -96,6 +99,9 @@ var OfflineApp = (function(window, undefined) {
 
     var myWidth = container.width();
     var myHeight = container.height();
+
+    console.log("myWidth",myWidth);
+    console.log("myHeight",myHeight);
     chart.addOrnament(d3.plotable.LabelBox('label', histoLabel));
 
     if(histFail!=true) {
@@ -105,9 +111,26 @@ var OfflineApp = (function(window, undefined) {
 			['Mean', opt.mean],
 			['RMS', opt.RMS],
 			];
-	    
+	    var ratio = myWidth/myHeight;
+	    var statbox_size = [myWidth*0.35,myHeight*0.22];
+	    var statbox_pos = [myWidth*0.62,myHeight*0.015];
+	    if (ratio > 1.33) {
+		statbox_size[1] = myHeight*0.35;
+	    } //else {
+	    //		statbox_size = [myWidth*0.3,myWidth*0.14];
+	    //	    }
+	    if (myWidth>600 && myHeight>400) {
+		statbox_size[0] = myWidth*.3;
+		statbox_size[1] = myHeight*.2;
+	    } else if (myWidth<300 && myHeight<200) {
+		statbox_size[0] = myWidth*.35;
+		statbox_size[1] = myHeight*.5;
+	    } else if (myWidth>550 && myHeight>550) {
+		statbox_size[0] = myWidth*.35;
+		statbox_size[1] = myHeight*.15;
+	    }
+	    chart.addOrnament(d3.plotable.TextBox('info', info, {x:statbox_pos[0], y:statbox_pos[1], width:statbox_size[0], height:statbox_size[1]}));
 	    chart.addPlotable(d3.plotable.Histogram('histogram', data));
-	    chart.addOrnament(d3.plotable.TextBox('info', info, {x:0.62*myWidth, y:0.015*myWidth}));
 
 	
 	} else if (opt.type == "H2D" || opt.type == "H2F"){
@@ -151,8 +174,6 @@ var OfflineApp = (function(window, undefined) {
 
 
   };
-
-  
 
   // Redraw histograms in the list
   var redrawHistograms = function()
@@ -201,10 +222,12 @@ var OfflineApp = (function(window, undefined) {
     mean, 
     RMS, 
     key_name;//, skewness;
-    
+    var histoDB_options = result["options"];
+    console.log("options :: ", histoDB_options);
+
     //    if(histFail==false){
 
-    title = result["showname"];
+    //    title = result["showname"];
     var canvassize = [result["canvaswidth"],result["canvaswidth"]];
     if(result["data"]["success"]){
 	var data = result["data"]["data"];
@@ -282,7 +305,7 @@ var OfflineApp = (function(window, undefined) {
 	    }
 	}
     } else { //no data in the container - problem in loading the histogram 
-	title = result["showname"];
+	//	title = result["showname"];
 	axisTitles[0] = "";
 	axisTitles[1] = ""; 
 	numberEntries = 0;
@@ -346,16 +369,23 @@ var OfflineApp = (function(window, undefined) {
     }
 
 
-    var options = {
-	//      run : key_ref['run_number'],
-      title: title,
-      canvassize: canvassize,
-      xAxis: {
-	    title: axisTitles[0]
-      },
-      yAxis: {
-	    title: axisTitles[1]
-      },
+    var local_options = {
+//      run : key_ref['run_number'],
+//      title: result["showname"];,
+//      canvassize: canvassize,
+//      xAxis : histoDB_options["label-x"],
+//      yAxis : histoDB_options["label-y"],
+//      top-label : histoDB_options["label-histo"],
+//      cx : histoDB_options["center-x"],
+//      cy : histoDB_options["center-y"],
+//      sx : histoDB_options["center-x"],
+//      sy : histoDB_options["center-x"],
+//      xAxis: {
+//	    title: axisTitles[0]
+//      },
+//      yAxis: {
+//	    title: axisTitles[1]
+//      },
       showUncertainties: true,
       color: "black",
       numberEntries: numberEntries,
@@ -365,6 +395,8 @@ var OfflineApp = (function(window, undefined) {
       type: type
     };
 
+    var options = $.extend(true, {}, result["options"],local_options);
+    console.log("options :: ",options);
 
     var refoptions =  $.extend(true,{},options);		
     refoptions.color = "red"; // This will be dinamically set using the HistogramDB database
@@ -406,6 +438,10 @@ var OfflineApp = (function(window, undefined) {
 	  var histFail = false;
 	  var request = $.ajax(url, {
 		  type: 'POST',
+		  async : true,
+		  timeout: 4000,
+		  tryCount : 0,
+		  retryLimit: 2,
 		  contentType: 'application/json; charset=utf-8',
 		  dataType: 'json',
 		  data: JSON.stringify(list)
@@ -431,12 +467,35 @@ var OfflineApp = (function(window, undefined) {
 		  
 
 	      })
-	  .fail(function(message) {
+	  .fail(function(xhr, ajaxOptions, thrownError) {
 		  var failMsg = '<p>There was a problem retrieving histograms for this pafe '
 		  + '<code>' + 'PAGENAME' + '</code>'
 		  + '. Please contact the administrator.</p>'
-		  + message;
-		  displayFailure(container, failMsg);
+		  + thrownError;
+
+
+		  if(ajaxOptions == 'timeout' || ajaxOptions == 'error') {
+		      this.tryCount++;
+		      if(this.tryCount <= this.retryLimit) {
+			  $.ajax(this);
+			  return;
+		      }
+		      var check = confirm('We have tried ' + this.retryLimit + ' times to do this and the server has not responded. Do you want to try again?');
+		      if(check) {
+			  this.timeout = 200000;
+			  $.ajax(this);
+			  return;
+		      } else {
+			  alert("JSON Error:" + thrownError + "; Page not reachable");
+			  //			  displayFailure(container, failMsg);
+
+			  return;
+		      }
+		  }   
+
+
+
+		  //		  displayFailure(container, failMsg);
 	      });     
 	  
 
@@ -467,23 +526,56 @@ var OfflineApp = (function(window, undefined) {
     var list = { elements : []};
     // Find any elements requiring histograms from files and load them
     var svgcanvas = $('#svg-canvas');
+    svgcanvas.css('min-width','1200px');
+    svgcanvas.css('display','inline-block');
+//    svgcanvas.css('display','inline-block');
+//    svgcanvas.css('position','relative');
+    svgcanvas.css('width','100%');
+//    svgcanvas.css('padding-bottom','100%');
+//    svgcanvas.css('vertical-align','top');
+    svgcanvas.css('overflow','hidden');
+
+    //("display: inline-block; position: relative; width: 100%; padding-bottom: 100%; vertical-align: middle; overflow: hidden;" );
     var canvasheight = svgcanvas.height();
     var canvaswidth = svgcanvas.width();
 
+    if (canvaswidth<1200) canvaswidth = 1200;
     
     $main.find('.histogram').each(function(index, el) {
 	    
       var $el = $(el),
       file = $el.data('file'),
-      histogram = $el.data('histogram'),
+      histogram = $el.data('histogram'),      
       hid = $el.data('hid'),
       referenceFile = $el.data('reference-file'),//reference file
       reference = $el.data('reference'),//reference name in reference file
       refNormalisation = $el.data('refnormalisation'),
       showname = $el.data('showname');
+
+      // Histogram information
+      var labx = $el.data("lab-x"),
+	  laby = $el.data("lab-y"),
+	  labhisto = $el.data("lab-histo"),
+	  labid = $el.data("label-id"),
+	  centerx = $el.data("center-x"),
+	  centery = $el.data("center-y"),
+	  sizex = $el.data("size-x"),
+	  sizey = $el.data("size-y");
+      
       if (file && histogram) {
         WebMonitor.appendSpinner(el);
 
+	var options = {
+	    "xAxis" : labx,
+	    "yAxis" : laby,
+	    "label" : histogram,
+	    "center-x" : centerx,
+	    "center-y" : centery,
+	    "size-x" : sizex,
+	    "size-y" : sizey,
+	    "canvassize" : [canvaswidth, canvaswidth*0.5],
+	    "title" : showname
+	};
 	list.elements.push({
 		"index" : index,
 		"file" : file,
@@ -493,15 +585,15 @@ var OfflineApp = (function(window, undefined) {
 		"referenceFile" : referenceFile,
 		"reference" : reference,
 		"refNormalisation" : refNormalisation, 
-		    "el" : $el,			
-		    "canvaswidth" : canvaswidth,
-		    "canvasheight" : canvasheight		    
+		"el" : $el,
+		"options" : options
+//		"canvaswidth" : canvaswidth,
+//		"canvasheight" : canvaswidth*0.5		    
 		});
       }
   });
     
   loadHistograms(list);
-
 
     // Add datepicker to appropriate fields
     //    $main.find('.input-daterange').datepicker(WebMonitor.settings.datepickerDefaults);

@@ -1,5 +1,5 @@
-<div class="col-sm-6">
-	<div class="histoTitle" id="{{ HISTOGRAM_LABEL_ID }}"></div>
+<!-- <div class="col-sm-6"> -->
+<!--	<div class="histoTitle" id="{{ HISTOGRAM_LABEL_ID }}"></div>
 	
 	<div class="btn-group">
   		<button type="button" class="btn btn-default btn-group-xs" 
@@ -7,7 +7,8 @@
   			<span class="glyphicon glyphicon-floppy-save"></span> Save
   		</button>
   	</div>
-	
+-->
+<!--	
 	<div id='{{ HISTOGRAM_DISPLAY_OPTIONS }}' 
              data-lab-x="{{ HISTOGRAM_LABEL_X }}" 
 	     data-lab-y="{{ HISTOGRAM_LABEL_Y }}"
@@ -17,6 +18,7 @@
 	     data-size-x = "{{ HISTO_SIZE_X }}"
 	     data-size-y = "{{ HISTO_SIZE_Y }}">
         </div>
+-->
 	
 	<div class="histogram" 
              data-file="{{ DATA_FILE }}" 
@@ -26,7 +28,16 @@
 	     data-reference="{{ REFERENCE_NAME }}" 
 	     data-plottype="{{PLOTTYPE}}"
 	     data-reference-file="{{ REFERENCE_DATA_FILE }}"
-	     data-refnormalisation="{{ REFERENCE_NORMALISATION }}" id="{{ HTML_HISTO_ID }}">
+	     data-refnormalisation="{{ REFERENCE_NORMALISATION }}" 
+	     id="{{ HTML_HISTO_ID }}"
+	     data-label-id="{{ HISTOGRAM_LABEL_ID }}"
+             data-lab-x="{{ HISTOGRAM_LABEL_X }}" 
+	     data-lab-y="{{ HISTOGRAM_LABEL_Y }}"
+             data-lab-histo = "{{ HISTO_SHOW_TITLE }}"
+	     data-center-x = "{{ HISTO_CENTER_X }}"
+	     data-center-y = "{{ HISTO_CENTER_Y }}"
+	     data-size-x = "{{ HISTO_SIZE_X }}"
+	     data-size-y = "{{ HISTO_SIZE_Y }}">	     
 	</div>
 	
-</div>
+<!-- </div> -->
