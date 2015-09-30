@@ -1,213 +1,305 @@
 import sqlalchemy
+from sqlalchemy     import Table, Column
+from sqlalchemy     import Integer, Sequence, String
+from sqlalchemy     import ForeignKey, UniqueConstraint
+from sqlalchemy     import MetaData
+from sqlalchemy     import exc, desc
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import Session, sessionmaker
 
-from sqlalchemy     import *
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
-import os
+from os import environ 
+
+Base = declarative_base()
+
+context_data_file = Table('context_data_file', Base.metadata,
+                      Column('contextId',  Integer, ForeignKey('context.contextId'),    nullable = False),
+                      Column('dataFileId', Integer, ForeignKey('data_file.dataFileId'), nullable = False)
+                      )
+
+run_data_file = Table('run_data_file', Base.metadata,
+                      Column('runNumber',  Integer, ForeignKey('run.runNumber'),        nullable = False),
+                      Column('dataFileId', Integer, ForeignKey('data_file.dataFileId'), nullable = False)
+                      )
+context_ref_file = Table('context_ref_file', Base.metadata,
+                      Column('contextId',  Integer, ForeignKey('context.contextId'),       nullable = False),
+                      Column('refFileId', Integer, ForeignKey('reference_file.refFileId'), nullable = False)
+                      )
+
+run_ref_file = Table('run_ref_file', Base.metadata,
+                      Column('runNumber',  Integer, ForeignKey('run.runNumber'),           nullable = False),
+                      Column('refFileId', Integer, ForeignKey('reference_file.refFileId'), nullable = False)
+                      )
+
+class Context(Base):
+    __tablename__ = 'context'
+
+    contextId   = Column(Integer, Sequence('contextId_seq'), primary_key=True)
+    contextName = Column(String(40), unique=True, nullable=False)
+
+    dataFiles = relationship('DataFile',
+                             secondary=context_data_file,
+                             backref=backref('contexts', uselist=True)
+                             )
+
+    refFiles = relationship('ReferenceFile',
+                            secondary=context_ref_file,
+                            backref=backref('contexts', uselist=True),
+                            uselist=True
+                            )
+
+    def __repr__(self):
+        return "<Context(contextName='%s)'>" %(self.contextName)
+
+class Run(Base):
+    __tablename__ = 'run'
+
+    runNumber = Column(Integer, primary_key=True)
+    fillId    = Column(Integer, ForeignKey('fill.id'), nullable=True)
+
+    dataFile = relationship('DataFile',
+                            secondary=run_data_file,
+                            backref=backref('run', uselist=False)
+                            )
+
+    refFiles = relationship('ReferenceFile',
+                            secondary=run_ref_file,
+                            backref=backref('runs', uselist=True),
+                            uselist=True
+                            )
+
+    def __repr__(self):
+        return "<Run(runNumber='%s')>" %(str(self.runNumber))
+
+class Fill(Base):
+    __tablename__ = 'fill'
+
+    id   = Column(Integer, primary_key=True)
+    runs = relationship(Run, backref=backref('fill'), uselist=True)
+
+    def __repr__(self):
+        return "<Fill(number='%s')>" %(str(self.id))
+
+ 
+class DataFile(Base):
+    __tablename__ = 'data_file'
+
+    dataFileId   = Column(Integer, Sequence('datafile_id_seq'), primary_key=True)
+    dataFilePath = Column(String(255), unique=True, nullable=False)
+
+    def __repr__(self):
+        return "<DataFile(dataFilePath='%s')>" %(self.dataFilePath)
+    
+class ReferenceFile(Base):
+     __tablename__ = 'reference_file'
+ 
+     refFileId   = Column(Integer, Sequence('refFile_id_seq'), primary_key=True)
+     refFilePath = Column(String(255), unique=True, nullable=False)
+ 
+     def __repr__(self):
+         return "<ReferenceeFile(refFilePath='%s')>" %(self.refFilePath)
 
 class dataqualityDB:
     def __init__(self):
-        print "Dataquality DQ connection initialised"
-        self.address = 'oracle://' + os.environ["DQDBLOGIN"] + ':' \
-                                   + os.environ["DQDBPWD"] + '@'   \
-                                   + os.environ["DQDBTNS"]
+        self.address = 'oracle://' + environ["DQDBLOGIN"] + ':' \
+                                   + environ["DQDBPWD"] + '@'   \
+                                   + environ["DQDBTNS"]
 
         self.engine       = sqlalchemy.create_engine(self.address)
         self.engine.echo  = False
         self.conn         = self.engine.connect()
-        self.metadata     = MetaData()
+        self.base         = Base()
+
+        self.base.metadata.create_all(self.engine)
 
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-        self.createTables()
-
-        self.insertRunHandler = None
+        self.onlineDQContextName = 'OnlineDQ'
         return
         
     def addOnlineDQFile(self, run, path):
-        runFile = self._table('runFile')
-
-        contextId = self.getContextId('OnlineDQ')
-        if contextId == None:
-            return
-
-        handler      = runFile.insert()
-        handler.bind = self.engine
-        h            = handler.values(runNumber=run, contextId=contextId, path=path)
-
-        result = h.execute()
-        return
-
-    def createTables(self):
-        runTable     = Table('runs', self.metadata,
-                             Column('runNumber', Integer, primary_key=True)
-                             )
+        dataFile     = self.insertDataFile(path)
+        dataFile.run = run
         
-        contextTable = Table('context', self.metadata,
-                             Column('contextId',   Integer, Sequence('context_id_seq'), primary_key=True),
-                             Column('contextName', String(40), unique=True)
-                             )
-        runFileTable = Table('runFile', self.metadata,
-                             Column('runFileId', Integer, Sequence('runFile_id_seq'), primary_key=True),
-                             Column('runNumber', Integer, ForeignKey('runs.runNumber')),
-                             Column('contextId', Integer, ForeignKey('context.contextId')),
-                             Column('path', String(255)),
-                             UniqueConstraint('runNumber', 'contextId', name='uix_1')
-                             )
+        hasOnlineDQ = False
+        for c in dataFile.contexts:
+            if c.contextName == self.onlineDQContextName:
+                hasOnlineDQ = True
 
-        refFileTable = Table('refFile', self.metadata,
-                             Column('refFileId', Integer, Sequence('refFile_id_seq'), primary_key=True),
-                             Column('path', String(255), unique=True)
-                             )
+        if not hasOnlineDQ:
+            context = self.getContext(self.onlineDQContextName)
+            dataFile.contexts.append(context)
 
-        runRef = Table('runReference', self.metadata,
-                       Column('refFileId', Integer, ForeignKey('refFile.refFileId')),
-                       Column('runNumber', Integer, ForeignKey('runs.runNumber')),
-                       Column('contextId', Integer, ForeignKey('context.contextId')),
-                       UniqueConstraint('refFileId', 'runNumber', 'contextId', name='uix_3')
-                       )
+        self.session.add(dataFile)
+        return dataFile
 
-        runTable.create(self.engine,     checkfirst=True)
-        contextTable.create(self.engine, checkfirst=True)
-        runFileTable.create(self.engine, checkfirst=True)
-        refFileTable.create(self.engine, checkfirst=True)
-        runRef.create(self.engine,       checkfirst=True)
+    def addOnlineDQRefFile(self, run, path):
+        refFile = self.insertRefFile(path)
 
+        hasRun = False
+        for r in refFile.runs:
+            if r.runNumber == run.runNumber:
+                hasRun = True
+                break
+                
+        
+        hasOnlineDQ = False
+        for c in refFile.contexts:
+            if c.contextName == self.onlineDQContextName:
+                hasOnlineDQ = True
+                break
+
+        if not hasRun:
+            refFile.runs.append(run)
+
+        if not hasOnlineDQ:
+            context = self.getContext(self.onlineDQContextName)
+            refFile.contexts.append(context)
+
+        self.session.add(refFile)
+        return refFile
+
+    def commit(self):
+        self.session.commit()
         return
 
-    def dropTable(self, name):
-        table = self._table(name)
-        if table is not None:
-            table.drop(self.engine, checkfirst=True)
+    def create_all(self):
+        self.base.metadata.create_all(bind=self.engine)
+        print self.base.metadata.tables.keys()
         return
+
+    def drop_all(self):
+        self.commit()
+        self.base.metadata.drop_all(bind=self.engine)
+        return
+
+    def drop_table(self, table):
+        smt = "DROP TABLE \"%s\"" %(table)
+        s = self.conn.execute(smt)
+        for r in s:
+            print r
+        return
+
+    def rollback(self):
+        self.session.rollback()
+        return
+
+    def getContext(self, name):
+        return self.session.query(Context).filter_by(contextName=name).first()
 
     def getContextId(self, name):
-        context = self._table('context')
-        session = self.session
-
         contextId = None
-        name = session.query(context).filter_by(contextName=name)
 
-        for s in name:
-            contextId = s[0]
-
+        s = self.session.query(Context).filter_by(contextName=name)
+        for r in s:
+            contextId = r.contextId
         return contextId
-
-    def getReferenceId(self, path):
-        refFile = self._table('refFile')
-        session = self.session
-
-        refId = None
-        name = session.query(refFile).filter_by(path=path)
-
-        for s in name:
-            refId = s[0]
-
-        return refId
-        
+    
     def getOnlineDQFile(self, runNumber):
-        runFile = self._table('runFile')
-        session = self.session
-
-        path     = None
-        contextId = self.getContextId('OnlineDQ')
-        if contextId == None:
-            return path
-
-        filelist = session.query(runFile).filter_by(runNumber=runNumber,contextId=contextId)
-        for s in filelist:
-            path = s[3]
-
-        return path
-
-    def getOnlineDQRef(self, runNumber):
-        ref = self.getRunRef(runNumber, 'OnlineDQ')
+        ref = self.getRunFileData(runNumber, self.onlineDQContextName)
         return ref
 
-    def getRunRef(self, runNumber, context ):
-        runRef  = self._table('runReference')
-        session = self.session
+    def getOnlineDQRef(self, runNumber):
+        ref = self.getRunFileRef(runNumber, self.onlineDQContextName)
+        return ref
 
-        path     = None
-        contextId = self.getContextId(context)
-        if contextId == None:
-            return path
+    def getRun(self, runNumber):
+        run = self.session.query(Run).filter_by(runNumber=runNumber).first()
+        return run
 
-        refFileId = -1
-        filelist  = session.query(runRef).filter_by(runNumber=runNumber,contextId=contextId)
+    def getRunFileData(self, runNumber, contextName):
+        dataFilePath = None
 
-        for s in filelist:
-            refFileId = s[0]
+        dataFile = self.session.query(DataFile).\
+            filter(DataFile.run.has(runNumber=runNumber)).\
+            filter(DataFile.contexts.any(contextName=contextName)).first()
 
-        if refFileId < 0:
-            return path
+        if dataFile:
+            dataFilePath = dataFile.dataFilePath
 
-        refFile  = self._table('refFile')
-        filelist = session.query(refFile).filter_by(refFileId=refFileId)
+        return dataFilePath
 
-        for s in filelist:
-            path = s[1]
+    def getRunFileRef(self, runNumber, contextName):
+        refFilePath = None
 
-        return path
+        refFile = self.session.query(ReferenceFile).\
+            filter(ReferenceFile.runs.any(runNumber=runNumber)).\
+            filter(ReferenceFile.contexts.any(contextName=contextName)).first()
+
+        if refFile:
+            refFilePath = refFile.refFilePath
+
+        return refFilePath
+
 
     def insertContext(self, name):
-        context = self._table('context')
-        if context is None:
-            return False
+        context = self.session.query(Context).filter_by(contextName=name).first()
+ 
+        if context:
+            return context
+        else:
+            context = Context(contextName=name)
+            self.session.add(context)
+            return context
 
-        session = self.session
+    def insertDataFile(self, path):
+        dataFile = self.session.query(DataFile).filter_by(dataFilePath=path).first()
 
-        count = session.query(context).filter_by(contextName=name).count()
-        if count:
-            return True
+        if dataFile:
+            return dataFile
+        else:
+            dataFile = DataFile(dataFilePath=path)
+            self.session.add(dataFile)
+            return dataFile
 
-        handler      = context.insert()
-        handler.bind = self.engine
-        h            = handler.values(contextName=name)
+    def insertFill(self, fillId):
+        fill = self.session.query(Fill).filter_by(id=fillId).first()
 
-        result = h.execute()
-        return True
+        if fill:
+            return fill
+        else:
+            fill = Fill(id=fillId)
+            self.session.add(fill)
+            return fill
 
-    def insertReferenceFile(self, path):
-        ref     = self._table('refFile')
-        session = self.session
+    def insertRefFile(self, path):
+        refFile = self.session.query(ReferenceFile).filter_by(refFilePath=path).first()
 
-        handler      = ref.insert()
-        handler.bind = self.engine
-        h            = handler.values(path=path)
+        if refFile:
+            return refFile
+        else:
+            refFile = ReferenceFile(refFilePath=path)
+            self.session.add(refFile)
+            return refFile
 
-        result = h.execute()
-        return
+    def insertRun(self, runNumber, fillId):
+        run = self.getRun(runNumber)
 
-    def insertRun(self, runNumber):
-        runs    = self._table('runs')
-        session = self.session
+        if run:
+            return run
+        else:
+            fill = self.insertFill(fillId)
+            run  = Run(runNumber=runNumber, fillId=fillId)
+            self.session.add(run)
+            return run
 
-        count = session.query(runs).filter_by(runNumber=int(runNumber)).count()
-        if count:
-            return False
+    def nextOnlineDQRun(self, runNumber):
+        nextRun = None
+        for row in self.session.query(Run).\
+                    filter(Run.runNumber>runNumber).\
+                    order_by(Run.runNumber).limit(1):
+            nextRun = row.runNumber
+        return nextRun
 
-        handler      = runs.insert()
-        handler.bind = self.engine
-        h            = handler.values(runNumber=int(runNumber))
-
-        result = h.execute()
-        return True
-
-    def setOnlineDQRef(self, runNumber, refPath):
-        refId     = self.getReferenceId(refPath)
-        contextId = self.getContextId('OnlineDQ')
-
-        runRef = self._table('runReference')
-
-        handler      = runRef.insert()
-        handler.bind = self.engine
-        h            = handler.values(runNumber=int(runNumber),
-                                      contextId=contextId,
-                                      refFileId=refId)
-        result = h.execute()
-        return
+    def prevOnlineDQRun(self, runNumber):
+        prevRun = None
+        for row in self.session.query(Run).\
+                        filter(Run.runNumber<runNumber).\
+                        order_by(desc(Run.runNumber)).limit(1):
+            prevRun = row.runNumber
+        return prevRun
 
     def updateOnlineDQRef(self, runNumber, refPath):
         refId     = self.getReferenceId(refPath)
@@ -222,30 +314,3 @@ class dataqualityDB:
         result       = h.execute()
         return
 
-    def nextOnlineDQRun(self, runNumber):
-        nextRun = None
-        runs    = self._table('runs')
-
-        s = select([runs]).where(runs.c.runNumber>runNumber).order_by(runs.c.runNumber).limit(1)
-        for rows in self.conn.execute(s):
-            nextRun = rows[0]
-
-        return nextRun
-
-    def prevOnlineDQRun(self, runNumber):
-        nextRun = None
-        runs    = self._table('runs')
-
-        s = select([runs]).where(runs.c.runNumber<runNumber).order_by(desc(runs.c.runNumber)).limit(1)
-        for rows in self.conn.execute(s):
-            nextRun = rows[0]
-
-        return nextRun
-
-    def _table(self, name):
-        retVal = None
-        for t in self.metadata.sorted_tables:
-            if t.name == name:
-                retVal = t
-                break
-        return retVal
