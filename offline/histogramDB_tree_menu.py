@@ -326,6 +326,7 @@ def Histo(path=""):
         #end if	
     	
         #read out histogram
+        print ">>>>>>>>>>> histoname: %s"%histo.NAME
         histogramName = histo.NAME.split("/", 1)[1]
         histogramShowName = histo.NAME.split("/")[-1]
         histogramLabelId = "LABEL_FOR_" + histogramName
